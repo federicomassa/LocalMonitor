@@ -1,0 +1,11 @@
+/*////////////////////////////////////////
+This is a Simulator to test the LocalMonitor
+software. The environment configuration 
+is obtained by parsing Input/Simulator.conf
+////////////////////////////////////////*/
+
+int main(int argc, char** argv)
+{
+
+  return 0;
+}

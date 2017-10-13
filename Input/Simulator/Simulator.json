@@ -1,0 +1,31 @@
+{
+	"agents" : 
+		[
+			{"id" : "0",
+			"state_variables" : ["x", "y", "theta", "v"],
+			"init_states" : [0.01, 3.1, -0.15, 1.5],
+			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+			"init_sigma" : "FAST",
+			"kinematics" : "Unicycle_AccOmega",
+			"controller" : "SimpleVehicle",
+			"automaton" : "EuropeanHighway",
+			"communication" : "ON"
+			},
+			
+			{"id" : "1",
+			"state_variables" : ["x", "y", "theta", "v"],
+			"init_states" : [5.1, -2.6, 7.1, -9],
+			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+			"init_sigma" : "FAST",
+			"kinematics" : "Unicycle_AccOmega",
+			"controller" : "SimpleVehicle",
+			"automaton" : "EuropeanHighway",
+			"communication" : "ON"
+			}		
+		],
+		
+	"simulation_time_span" : 5,
+	"simulation_time_step" : 0.1,
+	"visibility_function" : "VehicleVisibility"
+	
+}
