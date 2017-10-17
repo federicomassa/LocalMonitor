@@ -16,11 +16,13 @@ class SimulAgent
     PhysicalLayer pLayer;
 public:
     SimulAgent();
+	SimulAgent(const SimulAgent&);
     const std::string &GetID() const;
-	void SetID(const std::string&);
+    void SetID ( const std::string & );
     const State &GetState() const;
-	void SetState(const State&);
-	void EvolveState();
+    void SetState ( const State & );
+    void SetKinematics ( const std::string & );
+    void EvolveState();
     friend Logger &operator<< ( Logger &, const SimulAgent & );
 };
 

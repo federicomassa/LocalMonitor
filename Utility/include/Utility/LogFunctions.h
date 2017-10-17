@@ -20,6 +20,8 @@ void Require ( const bool &, const std::string &className, const std::string &ms
  * @brief Print error
  */
 void Error ( const std::string className, const std::string msg );
+void Info ( const std::string className, const std::string msg );
+void Warning ( const std::string className, const std::string msg );
 
 
 /**

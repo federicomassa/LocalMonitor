@@ -1,4 +1,5 @@
 #include "LogFunctions.h"
+#include "Logger.h"
 
 #include <iostream>
 #include <sstream>
@@ -7,6 +8,8 @@
 
 using namespace std;
 
+extern Logger logger;
+
 string LogFunctions::ClassInfo(const string &className)
 {
     return ("In " + className + ": ");
@@ -14,9 +17,20 @@ string LogFunctions::ClassInfo(const string &className)
 
 void LogFunctions::Error(const string className, const string msg)
 {
-    cerr << endl << "ERROR - " << className << " : " << msg << endl;
+    logger << "ERROR - " << className << " : " << msg << logger.EndL();
     exit(1);
 }
+
+void LogFunctions::Warning(const string className, const string msg)
+{
+    logger << "WARNING - " << className << " : " << msg << logger.EndL();
+}
+
+void LogFunctions::Info(const string className, const string msg)
+{
+    logger << "INFO - " << className << " : " << msg << logger.EndL();
+}
+
 
 void LogFunctions::Require(const bool &condition, const string &className, const string &msg)
 {

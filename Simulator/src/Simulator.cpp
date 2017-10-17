@@ -11,7 +11,9 @@
 using namespace std;
 
 Logger logger(cout);
-int simulationTimeStep = 0;
+int currentTimeStep = 0;
+SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FILE));
+
 
 /**
  * @brief This is the simulator of the LocalMonitor
@@ -28,16 +30,15 @@ int main(int argc, char **argv)
         LogFunctions::Error("Simulator::main", "Simulator should be called with no arguments");
     }
 
-    // Open Configuration File and parse it
-    SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FILE));
+    // Parse config file
     conf.Parse();
 
     Environment env;
     env.Configure(conf);
 
-    for (int currentTimeStep = 0; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) {
-		env.Run();
-	}
+    for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) {
+        env.Run();
+    }
 
 
     return 0;

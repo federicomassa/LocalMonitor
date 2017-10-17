@@ -10,5 +10,7 @@ add_subdirectory(Observer)
 add_subdirectory(Utility)
 add_subdirectory(Basic)
 add_subdirectory(Automation)
+add_subdirectory(Input)
+add_subdirectory(Tests)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})

@@ -6,10 +6,10 @@
 
 class StateRegion
 {
-	std::vector<StateCell> region;
-	
+    std::vector<StateCell> region;
+
 public:
-	
+
 };
 
 #endif

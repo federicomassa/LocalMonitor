@@ -37,8 +37,9 @@ public:
     const SimulAgentVector &GetAgents() const;
 
     const int &GetSimulationSteps() const;
-	
-	
+	const double &GetSimulationTimeStep() const;
+
+
 };
 
 #endif

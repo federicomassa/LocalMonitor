@@ -11,22 +11,22 @@
 class Environment
 {
     SimulAgentVector agents;
-	StateRegion (*invisibleRegionFcn) (Agent, AgentVector);
+    StateRegion ( *invisibleRegionFcn ) ( Agent, AgentVector );
 public:
     Environment ();
-	
-	const SimulAgentVector &GetAgents() const;
-	/**
-	 * @brief Invoked at each simulation step, evolves the system
-	 * 
-	 */
-	void Run();
-	
-	void Configure (const SimulatorConfiguration&);
-	/**
-	 * @brief Calculate invisible region of state space
-	 */
-	StateRegion InvisibleRegion(Agent, AgentVector);
+
+    const SimulAgentVector &GetAgents() const;
+    /**
+     * @brief Invoked at each simulation step, evolves the system
+     *
+     */
+    void Run();
+
+    void Configure ( const SimulatorConfiguration & );
+    /**
+     * @brief Calculate invisible region of state space
+     */
+    StateRegion InvisibleRegion ( Agent, AgentVector );
 };
 
 #endif

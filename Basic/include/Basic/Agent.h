@@ -19,9 +19,9 @@ class Agent
 public:
     Agent();
     const std::string &GetID() const;
-	void SetID(const std::string&);
+    void SetID ( const std::string & );
     const State &GetState() const;
-	void SetState(const State& q);
+    void SetState ( const State &q );
     friend Logger &operator<< ( Logger &, const Agent & );
 };
 

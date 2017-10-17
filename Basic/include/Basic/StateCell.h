@@ -5,15 +5,15 @@
 
 class StateCell
 {
-	State minState;
-	State maxState;
+    State minState;
+    State maxState;
 
 public:
-	StateCell(const State&, const State&);
-	const State & GetMin() const;
-	const State & GetMax() const;
-	bool Contains(const State&) const;
-	bool Contains(const StateCell&) const;
+    StateCell ( const State &, const State & );
+    const State &GetMin() const;
+    const State &GetMax() const;
+    bool Contains ( const State & ) const;
+    bool Contains ( const StateCell & ) const;
 
 };
 

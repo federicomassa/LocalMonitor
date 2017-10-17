@@ -16,6 +16,7 @@ set(MODULE_SOURCES
 	SimulatorConfiguration.cpp
 	Environment.cpp
 	SimulAgent.cpp
+	
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
@@ -25,6 +26,8 @@ endforeach(SOURCE)
 set(SIMULATOR_BUILD_FILE SimulatorBuildParams.h)
 set(SIMULATOR_CONFIG_FILE ${MODULE_NAME}/Simulator.json)
 set(INPUT_DIR ${PROJECT_INPUT_DIR})
+set(INPUT_DYNAMICS_DIR ${INPUT_DIR}/Dynamics)
+set(KINEMATICS_FUNC_LIST ${INPUT_DYNAMICS_DIR}/Kinematics.h)
 
 add_executable(${MODULE_NAME}
   ${MODULE_SOURCE}
@@ -36,8 +39,9 @@ target_link_libraries(${MODULE_NAME} Observer)
 target_link_libraries(${MODULE_NAME} Utility)
 target_link_libraries(${MODULE_NAME} Basic)
 target_link_libraries(${MODULE_NAME} Automation)
-
 target_link_libraries(${MODULE_NAME} nlohmann_json)
+target_link_libraries(${MODULE_NAME} Input)
+
 
 target_include_directories(${MODULE_NAME} PRIVATE ${nlohmann_json_INCLUDE_DIRS})
 

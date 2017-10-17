@@ -64,17 +64,16 @@ void SimulatorConfiguration::Parse()
     }
 
     set<string> IDSet;
-    
+
     for (int agentIndex = 0; agentIndex < agentsJson.size(); agentIndex++) {
         json agentJson = agentsJson.at(agentIndex);
 
         SimulAgent a = ReadAgent(agentJson);
         agents.push_back(a);
-		pair<set<string>::iterator, bool> lastID = IDSet.insert(a.GetID());
-		if (lastID.second == false)
-		{
-			Error("SimulatorConfiguration::Parse", "Agents should have different IDs");
-		}
+        pair<set<string>::iterator, bool> lastID = IDSet.insert(a.GetID());
+        if (lastID.second == false) {
+            Error("SimulatorConfiguration::Parse", "Agents should have different IDs");
+        }
     }
 
 }
@@ -92,44 +91,48 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
             Error("SimulatorConfiguration::Parse", "There should be one init_states entry for each state_variables entry in agent " + a.GetID());
         }
 
-        StatePairVector stateVector;
+        StateMap stateVector;
 
         for (int stateVar = 0; stateVar < stateVars.size(); stateVar++) {
 
             stringstream ss;
 
-            ss << stateVars.at(stateVar);
-            string stateVarName;
-            ss >> stateVarName;
-            ss.clear();
-
+            string stateVarName = stateVars.at(stateVar).get<string>();
+            
             ss << initStates.at(stateVar);
             double initStateVar;
             ss >> initStateVar;
             ss.clear();
 
-            StatePair pair = make_pair(stateVarName, initStateVar);
+            stateVector[stateVarName] = initStateVar;
 
-            stateVector.push_back(pair);
         }
 
         a.SetState(State(stateVector));
-    } catch (out_of_range &e) {
-        cerr << e.what() << endl;
+
+        a.SetKinematics(agent.at("kinematics"));
+
+    } 
+    catch (out_of_range &e) {
+        logger << e.what() << logger.EndL();
         exit(1);
-    }
+	}
 
-    return a;
+	return a;
+    
 }
 
-const SimulAgentVector &SimulatorConfiguration::GetAgents() const
-{
-    return agents;
+const SimulAgentVector &SimulatorConfiguration::GetAgents() const {
+	return agents;
 }
 
-const int &SimulatorConfiguration::GetSimulationSteps() const
+const int &SimulatorConfiguration::GetSimulationSteps() const {
+	return simulSteps;
+}
+
+const double &SimulatorConfiguration::GetSimulationTimeStep() const
 {
-    return simulSteps;
+	return simulTimeStep;
 }
 
 

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <utility>
+#include <map>
 
 #define INDENTATION "   "
 
@@ -34,9 +35,12 @@ public:
     template <class T>
     Logger &operator<< ( const std::vector<T> & );
 
+	template <class Key, class T>
+    Logger &operator<< ( const std::map<Key, T> & );
+
+	
     template <class T, class U>
     Logger &operator<< ( const std::pair<T, U> & );
-
 };
 
 
@@ -51,6 +55,21 @@ Logger &Logger::operator<< ( const std::vector<T> &v )
 
     ( *this ) << v.at ( v.size()-1 );
     ( *this ) << " }";
+
+    return ( *this );
+}
+
+template <class Key, class T>
+Logger &Logger::operator<< ( const std::map<Key, T> & m )
+{
+    ( *this ) << "{ " << EndL();
+
+    for (typename std::map<Key, T>::const_iterator itr = m.begin(); itr != m.end(); itr++)
+	{
+		(*this) << (*itr) << EndL();
+	}
+	
+	( *this ) << " }" << EndL();
 
     return ( *this );
 }

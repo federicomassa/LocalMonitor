@@ -16,9 +16,9 @@ const string &Agent::GetID() const
     return ID;
 }
 
-void Agent::SetID(const string& str)
+void Agent::SetID(const string &str)
 {
-	ID = str;
+    ID = str;
 }
 
 const State &Agent::GetState() const
@@ -26,9 +26,9 @@ const State &Agent::GetState() const
     return state;
 }
 
-void Agent::SetState(const State& q)
+void Agent::SetState(const State &q)
 {
-	state = q;
+    state = q;
 }
 
 Logger &operator<<(Logger &os, const Agent &a)
