@@ -5,10 +5,11 @@
 			"state_variables" : ["x", "y", "theta", "v"],
 			"init_states" : [0.01, 3.1, -0.15, 1.5],
 			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-			"init_sigma" : "FAST",
+			"init_maneuver" : "SLOW",
 			"kinematics" : "TestKinematics",
 			"controller" : "SimpleVehicle",
 			"automaton" : "EuropeanHighway",
+			"visibility" : "StandardVisibility",
 			"communication" : "ON"
 			},
 			
@@ -16,7 +17,7 @@
 			"state_variables" : ["x", "y", "theta", "v"],
 			"init_states" : [5.1, -2.6, 7.1, -9],
 			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-			"init_sigma" : "FAST",
+			"init_maneuver" : "FAST",
 			"kinematics" : "Unicycle_AccOmega",
 			"controller" : "SimpleVehicle",
 			"automaton" : "EuropeanHighway",

@@ -23,13 +23,15 @@ BOOST_AUTO_TEST_CASE( StateEvolution )
   PhysicalLayer p(simulTime);
   p.SetKinematics(&TestKinematics);
   
-  State initState;
-  initState["x"] = 0.3;
-  initState["y"] = 6.1;
-  initState["theta"] = 2.2;
-  initState["v"] = 4;
+  StateMap m;
+  m["x"] = 0.3;
+  m["y"] = 6.1;
+  m["theta"] = 2.2;
+  m["v"] = 4;
   
-  State finalState = p.GetNextState(initState);
+  State initState(m);
+  
+  State finalState = p.GetNextState(initState, Maneuver("man"));
 //Check default constructor
 //Use BOOST_CHECK for small equal checks - true or false
   BOOST_CHECK_EQUAL(finalState.at("x"), initState.at("x") + simulTime);

@@ -41,11 +41,6 @@ const StateMap &State::GetStateMap() const
     return state;
 }
 
-void State::SetStateVar(const std::string &varName, const double &val)
-{
-    state.at(varName) = val;
-}
-
 bool State::operator==(const State &q) const
 {
     CheckConsistency("State::operator== or !=", *this, q);
@@ -63,39 +58,6 @@ bool State::operator!=(const State &q) const
     return !(*this == q);
 }
 
-bool State::operator<(const State &q) const
-{
-    CheckConsistency("State::operator< or >=", *this, q);
-
-    for (StateMap::const_iterator var = state.begin(); var != state.end(); var++)
-        if (var->second >= q.state.at(var->first)) {
-            return false;
-        }
-
-    return true;
-}
-
-bool State::operator<=(const State &q) const
-{
-    CheckConsistency("State::operator<= or >", *this, q);
-
-    for (StateMap::const_iterator var = state.begin(); var != state.end(); var++)
-        if (var->second > q.state.at(var->first)) {
-            return false;
-        }
-
-    return true;
-}
-
-bool State::operator>(const State &q) const
-{
-    return !(*this <= q);
-}
-
-bool State::operator>=(const State &q) const
-{
-    return !(*this < q);
-}
 
 State &State::operator=(const State &q)
 {
@@ -110,7 +72,7 @@ State State::operator*(const double& k) const
 	
 	for (StateMap::const_iterator var = result.state.begin(); var != result.state.end(); var++)
 	{
-		result.SetStateVar(var->first, var->second*k); 
+		result.at(var->first) = var->second*k; 
 	}
 	
 	return result;
@@ -124,7 +86,7 @@ State State::operator+(const State& q) const
 	
 	for (StateMap::const_iterator var = result.state.begin(); var != result.state.end(); var++)
 	{
-		result.SetStateVar(var->first, var->second + q.at(var->first)); 
+		result.at(var->first) = var->second + q.at(var->first); 
 	}
 	
 	return result;
@@ -136,7 +98,7 @@ const State& State::operator+=(const State& q)
 	
 	for (StateMap::const_iterator var = state.begin(); var != state.end(); var++)
 	{
-		SetStateVar(var->first, var->second + q.at(var->first)); 
+		at(var->first) = var->second + q.at(var->first); 
 	}
 	
 	return *this;
@@ -153,9 +115,34 @@ double &State::at(const std::string &varName)
     return state.at(varName);
 }
 
-double &State::operator[](const std::string &varName)
+double &State::operator[](const StateName &varName)
 {
     return state[varName];
+}
+
+StateMap::iterator State::begin()
+{
+	return state.begin();
+}
+
+StateMap::iterator State::end()
+{
+	return state.end();
+}
+
+StateMap::const_iterator State::begin() const
+{
+	return state.cbegin();
+}
+
+StateMap::const_iterator State::end() const
+{
+	return state.cend();
+}
+
+StateMap::const_iterator State::find(const StateName & name) const
+{
+	return state.find(name);
 }
 
 State State::GenerateStateOfType(const State & q)

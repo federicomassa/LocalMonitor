@@ -110,11 +110,24 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 
         a.SetState(State(stateVector));
 
+		json maneuverList = agent.at("maneuvers");
+		ManeuverList manList;
+		for (int man = 0; man < maneuverList.size(); man++)
+		{
+			if (!manList.insert(maneuverList.at(man).get<string>()).second)
+				Error("SimulatorConfiguration::ReadAgent", "Found duplicate maneuver in agent " + a.GetID());
+		}
+		a.SetPossibleManeuvers(manList);
+		
+		string initManeuver = agent.at("init_maneuver").get<string>();
+		if(!a.SetManeuver(initManeuver))
+			Error("SimulatorConfiguration::ReadAgent", "In agent " + a.GetID() + ": init_maneuver was not found among the possible maneuvers");
+		
         a.SetKinematics(agent.at("kinematics"));
 
     } 
     catch (out_of_range &e) {
-        logger << e.what() << logger.EndL();
+        logger << "In SimulatorConfiguration::ReadAgent, mandatory entry not found --- " << e.what() << logger.EndL();
         exit(1);
 	}
 

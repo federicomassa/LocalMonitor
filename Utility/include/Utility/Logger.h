@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <utility>
+#include <set>
 #include <map>
 
 #define INDENTATION "   "
@@ -41,6 +42,9 @@ public:
 	
     template <class T, class U>
     Logger &operator<< ( const std::pair<T, U> & );
+	
+	template <class T>
+    Logger &operator<< ( const std::set<T> & );
 };
 
 
@@ -78,6 +82,21 @@ template <class T, class U>
 Logger &Logger::operator<< ( const std::pair<T, U> &p )
 {
     ( *this ) << "( " << p.first << " , " << p.second << " )";
+
+    return ( *this );
+}
+
+template <class T>
+Logger &Logger::operator<< ( const std::set<T> &s )
+{
+  ( *this ) << "{ " << EndL();
+
+    for (typename std::set<T>::const_iterator itr = s.begin(); itr != --s.end(); ++itr ) {
+        ( *this ) << *itr << ", " << EndL();
+    }
+
+    ( *this ) << *(--s.end());
+    ( *this ) << " }";
 
     return ( *this );
 }

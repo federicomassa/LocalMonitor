@@ -42,8 +42,19 @@ void SimulAgent::SetState(const State& q)
     agent.SetState(q);
 }
 
+void SimulAgent::SetPossibleManeuvers(const ManeuverList& manList)
+{
+	agent.SetPossibleManeuvers(manList);
+}
+
+bool SimulAgent::SetManeuver(const ManeuverName& manName)
+{
+	return agent.SetManeuver(manName);
+}
+
 void SimulAgent::SetKinematics(const string& kinematicsFcnName)
 {
+	// TODO Make function identification automatic
     if (kinematicsFcnName == "TestKinematics")
     {
         pLayer.SetKinematics(&TestKinematics);
@@ -53,10 +64,7 @@ void SimulAgent::SetKinematics(const string& kinematicsFcnName)
 
 Logger &operator<<(Logger &os, const SimulAgent &a)
 {
-    os << "Agent " << a.GetID() << os.EndL(Logger::INC);
-    os << " {" << os.EndL(Logger::INC);
-	os << a.GetState() << os.EndL(Logger::DEC);
-	os << "}" << os.EndL(Logger::DEC);
+    os << a.agent;
     return os;
 }
 
@@ -64,6 +72,6 @@ Logger &operator<<(Logger &os, const SimulAgent &a)
 
 void SimulAgent::EvolveState()
 {
-    agent.SetState(pLayer.GetNextState(agent.GetState()));
+    agent.SetState(pLayer.GetNextState(agent.GetState(), agent.GetManeuver()));
 }
 

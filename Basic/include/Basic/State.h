@@ -7,16 +7,19 @@
 
 class Logger;
 
-typedef std::map<std::string, double> StateMap;
+typedef std::string StateName;
+typedef std::map<StateName, double> StateMap;
 
 class State
 {
     friend class SimulatorConfiguration;
-
+	friend class StateCell;
+	
     StateMap state;
+	const StateMap &GetStateMap() const;
+    double &operator[] ( const StateName & );
 
 public:
-	const StateMap &GetStateMap() const;
     explicit State ( const StateMap & );
 	State (const State&);
     State();
@@ -24,20 +27,17 @@ public:
     friend Logger &operator<< ( Logger &, const State & );
     bool operator== ( const State & ) const;
     bool operator!= ( const State & ) const;
-    bool operator< ( const State & ) const;
-    bool operator<= ( const State & ) const;
-    bool operator> ( const State & ) const;
-    bool operator>= ( const State & ) const;
     State &operator= ( const State & );
 	State operator*(const double&) const;
 	State operator+(const State&) const;
 	const State& operator+=(const State&);
-
-    void SetStateVar ( const std::string &, const double & );
-    double &operator[] ( const std::string & );
-    const double &at ( const std::string & ) const;
+	StateMap::iterator begin();
+	StateMap::iterator end();
+	StateMap::const_iterator begin() const;
+	StateMap::const_iterator end() const;
+	StateMap::const_iterator find(const StateName &) const;
+	const double &at ( const std::string & ) const;
     double &at ( const std::string & );
-
 	static State GenerateStateOfType( const State & );
     friend void CheckConsistency ( const std::string &, const State &, const State & );
 };

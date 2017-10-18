@@ -21,6 +21,8 @@ public:
     void SetID ( const std::string & );
     const State &GetState() const;
     void SetState ( const State & );
+	void SetPossibleManeuvers(const ManeuverList&);
+	bool SetManeuver(const ManeuverName&);
     void SetKinematics ( const std::string & );
     void EvolveState();
     friend Logger &operator<< ( Logger &, const SimulAgent & );

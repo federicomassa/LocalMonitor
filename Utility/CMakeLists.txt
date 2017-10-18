@@ -14,6 +14,7 @@ set(MODULE_SOURCE_DIR
 set(MODULE_SOURCES
 	LogFunctions.cpp
 	Logger.cpp
+	Interval.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
