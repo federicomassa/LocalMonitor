@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-set(CMAKE_CXX_STANDARD 11)
-
 set(MODULE_NAME
-    Basic)
+    Automation)
 
 set(MODULE_HEADERS_DIR
     include/${MODULE_NAME}
@@ -14,11 +12,7 @@ set(MODULE_SOURCE_DIR
 )
 
 set(MODULE_SOURCES
-	Agent.cpp
-	State.cpp
-	Maneuver.cpp
-	StateCell.cpp
-	StateRegion.cpp
+	PhysicalLayer.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
@@ -31,7 +25,7 @@ add_library(${MODULE_NAME} STATIC
   ${MODULE_SOURCE}
   )
   
-target_link_libraries(${MODULE_NAME} Utility)
+target_link_libraries(${MODULE_NAME} Basic)
 
 target_include_directories(${MODULE_NAME} PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${MODULE_NAME}>

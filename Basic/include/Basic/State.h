@@ -9,6 +9,8 @@ class Logger;
 
 typedef std::string StateName;
 typedef std::map<StateName, double> StateMap;
+typedef StateMap::iterator StateIterator;
+typedef StateMap::const_iterator StateConstIterator;
 
 class State
 {
