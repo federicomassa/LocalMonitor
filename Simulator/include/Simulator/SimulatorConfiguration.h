@@ -7,6 +7,8 @@
 #include "json.hpp"
 
 
+class SimulatorViewer;
+
 /**
  * @brief Class that contains the info parsed from Simulator Config file (Input/Simulator.json)
  *
@@ -18,6 +20,7 @@ class SimulatorConfiguration
     double simulTimeSpan;
     double simulTimeStep;
     double simulRealTimeSpan;
+	SimulatorViewer* simulatorViewer;
     int simulSteps;
 
     SimulAgent ReadAgent ( const nlohmann::json & );

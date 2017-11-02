@@ -21,7 +21,7 @@ foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
 	set(MODULE_SOURCE ${MODULE_SOURCE} ${MODULE_SOURCE_DIR}/${SOURCE})
 endforeach(SOURCE)
 
-project(MODULE_NAME)
+project(${MODULE_NAME})
 
 add_library(${MODULE_NAME} STATIC
   ${MODULE_SOURCE}
@@ -38,3 +38,4 @@ target_include_directories(${MODULE_NAME} PUBLIC
 )
 
 add_subdirectory(json-2.1.1)
+add_subdirectory(QTFFmpegWrapper)

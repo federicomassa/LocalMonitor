@@ -2,6 +2,9 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
 
+#include "SimulatorViewer.h"
+#include "SimulatorBuildParams.h"
+
 #include <iostream>
 #include <math.h>
 #include <set>

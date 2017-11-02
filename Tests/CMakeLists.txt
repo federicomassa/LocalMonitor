@@ -1,2 +1,4 @@
 add_subdirectory(Automation)
 add_subdirectory(Basic)
+add_subdirectory(HighwayViewer)
+add_subdirectory(Utility)

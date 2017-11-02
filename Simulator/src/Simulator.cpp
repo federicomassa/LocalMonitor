@@ -3,6 +3,7 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
 
+
 #include "Environment.h"
 
 #include <string>
@@ -35,9 +36,10 @@ int main(int argc, char **argv)
 
     Environment env;
     env.Configure(conf);
-
+	
     for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) {
         env.Run();
+		
     }
 
 

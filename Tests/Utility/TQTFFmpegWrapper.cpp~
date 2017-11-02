@@ -1,0 +1,46 @@
+#include <iostream>
+#include "Utility/QTFFmpegWrapper/QVideoEncoder.h"
+#include "mywidget.h"
+#include <QApplication>
+#include <QLabel>
+
+
+//Link to Boost
+#define BOOST_TEST_DYN_LINK
+
+//Define our Module name (prints at testing)
+#define BOOST_TEST_MODULE "Test QTFFmpegWrapper"
+
+//VERY IMPORTANT - include this last
+#include <boost/test/unit_test.hpp>
+
+using namespace std;
+
+// ------------- Tests Follow --------------
+BOOST_AUTO_TEST_CASE(SimpleEncoding)
+{
+    QApplication app(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+
+    QVideoEncoder enc;
+    QImage image(":/icon.png");
+
+    enc.createFile("output.avi", image.width(), image.height(), 1000000, 20, 25);
+    
+    MyWidget myWidget;
+    myWidget.setWindowIcon(QIcon(":/icon.png"));
+    myWidget.show();
+
+
+    QLabel label;
+    label.setPixmap(QPixmap::fromImage(image));
+    label.show();
+
+    //10 seconds video
+    for (int i = 0; i < 250; i++)
+      {
+	enc.encodeImage(image);
+      }
+      
+    app.exec();
+
+}
