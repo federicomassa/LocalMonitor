@@ -28,6 +28,15 @@
 	"simulation_time_span" : 5,
 	"simulation_time_step" : 0.1,
 	"visibility_function" : "VehicleVisibility",
-	"simulation_viewer" : "HighwayViewer"
+	"simulator_viewer" : "HighwayViewer",
+	"video_output" : "video-output.avi",
+	
+	"parameters" : 
+	{
+		"lanes" : 2,
+		"minLane": 0.0
+	}
+	
+	
 	
 }

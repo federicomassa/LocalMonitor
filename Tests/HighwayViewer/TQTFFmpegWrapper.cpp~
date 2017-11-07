@@ -1,6 +1,0 @@
-#include "Utility/QTFFmpegWrapper/QVideoEncoder.h"
-
-int main(int argc, char** argv)
-{
-  
-}

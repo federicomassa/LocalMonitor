@@ -2,7 +2,6 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
 
-#include "SimulatorViewer.h"
 #include "SimulatorBuildParams.h"
 
 #include <iostream>
@@ -78,6 +77,27 @@ void SimulatorConfiguration::Parse()
             Error("SimulatorConfiguration::Parse", "Agents should have different IDs");
         }
     }
+    
+    try{
+		j.at("simulator_viewer");
+		useSimulatorViewer = true;
+	}
+	catch(std::out_of_range& e)
+	{
+		useSimulatorViewer = false;
+	}
+	
+	
+	// Not mandatory entry
+	try{
+		json parametersJ = j.at("parameters");
+		
+		for (json::iterator it = parametersJ.begin(); it != parametersJ.end(); it++)
+			parameters[string(it.key())] = double(it.value());
+	}
+	catch(out_of_range& e)
+	{}
+	
 
 }
 
@@ -151,4 +171,12 @@ const double &SimulatorConfiguration::GetSimulationTimeStep() const
 	return simulTimeStep;
 }
 
+const bool& SimulatorConfiguration::UseSimulatorViewer() const
+{
+	return useSimulatorViewer;
+}
 
+const EnvironmentParameters& SimulatorConfiguration::GetParameters() const
+{
+	return parameters;
+}

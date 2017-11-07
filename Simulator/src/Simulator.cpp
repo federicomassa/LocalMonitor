@@ -3,8 +3,12 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
 
+#ifdef USE_GRAPHICS
+#include "SimulatorViewer/SimulatorViewer.h"
+#endif
 
 #include "Environment.h"
+
 
 #include <string>
 #include <iostream>
@@ -30,19 +34,27 @@ int main(int argc, char **argv)
     if (argc > 1) {
         LogFunctions::Error("Simulator::main", "Simulator should be called with no arguments");
     }
-
+    
     // Parse config file
     conf.Parse();
 
     Environment env;
     env.Configure(conf);
 	
+	
+	#ifdef USE_GRAPHICS
+	SimulatorViewer simViewer(conf);
+	simViewer.Initialize(argc, argv);
+	#endif
+	
     for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) {
         env.Run();
 		
+		#ifdef USE_GRAPHICS
+		simViewer.DrawEnvironment();
+		#endif
     }
 
-
-    return 0;
+	return 0;
 }
 

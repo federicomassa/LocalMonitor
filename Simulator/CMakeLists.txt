@@ -2,12 +2,12 @@ set (CMAKE_CXX_STANDARD 11)
 
 set(MODULE_NAME
     Simulator)
-
-project(${MODULE_NAME})
   
 set(MODULE_HEADERS_DIR
     include/${MODULE_NAME}
 )
+
+set(MODULE_ABSOLUTE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(MODULE_SOURCE_DIR
     src
@@ -18,34 +18,49 @@ set(MODULE_SOURCES
 	SimulatorConfiguration.cpp
 	Environment.cpp
 	SimulAgent.cpp
-	SimulatorViewer.cpp
+	EnvironmentParameters.cpp
 	)
+	
+if (USE_GRAPHICS)
+add_definitions(-DUSE_GRAPHICS)
+endif(USE_GRAPHICS)
+
+find_package(Qt5Widgets REQUIRED)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
 	set(MODULE_SOURCE ${MODULE_SOURCE} ${MODULE_SOURCE_DIR}/${SOURCE})
+	set(MODULE_ABSOLUTE_SOURCE ${MODULE_ABSOLUTE_SOURCE} ${MODULE_ABSOLUTE_PATH}/${MODULE_SOURCE_DIR}/${SOURCE})
 endforeach(SOURCE)
 
 set(SIMULATOR_BUILD_FILE SimulatorBuildParams.h)
 set(SIMULATOR_CONFIG_FILE ${MODULE_NAME}/Simulator.json)
 set(INPUT_DIR ${PROJECT_INPUT_DIR})
+set(OUTPUT_DIR ${PROJECT_OUTPUT_DIR})
+
 set(INPUT_DYNAMICS_DIR ${INPUT_DIR}/Dynamics)
 set(KINEMATICS_FUNC_LIST ${INPUT_DYNAMICS_DIR}/Kinematics.h)
 set(SIMULATOR_VIEWER_LIST ${INPUT_VIEWER_DIR}/SimulatorViewers.h)
+include (SET_SIMULATOR_VARIABLES.in OPTIONAL RESULT_VARIABLE CONFIGURATOR_FOUND)
 
 add_executable(${MODULE_NAME}
   ${MODULE_SOURCE}
   )
   
-configure_file(${MODULE_SOURCE_DIR}/${SIMULATOR_BUILD_FILE}.in ${PROJECT_SOURCE_DIR}/${MODULE_NAME}/${MODULE_HEADERS_DIR}/${SIMULATOR_BUILD_FILE})
+set_target_properties("${MODULE_NAME}" PROPERTIES SOURCES "${MODULE_ABSOLUTE_SOURCE}")
   
-target_link_libraries(${MODULE_NAME} Observer)
+configure_file(${MODULE_SOURCE_DIR}/${SIMULATOR_BUILD_FILE}.in ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_HEADERS_DIR}/${SIMULATOR_BUILD_FILE})
+
 target_link_libraries(${MODULE_NAME} Utility)
 target_link_libraries(${MODULE_NAME} Basic)
 target_link_libraries(${MODULE_NAME} Automation)
 target_link_libraries(${MODULE_NAME} nlohmann_json)
 target_link_libraries(${MODULE_NAME} Input)
+target_link_libraries(${MODULE_NAME} Qt5::Widgets)
 
 
+if (NOT(${CONFIGURATOR_FOUND} STREQUAL NOTFOUND))
+target_link_libraries(${MODULE_NAME} ${CHOSEN_SIMULATOR_VIEWER})
+endif (NOT(${CONFIGURATOR_FOUND} STREQUAL NOTFOUND))
 
 target_include_directories(${MODULE_NAME} PRIVATE ${nlohmann_json_INCLUDE_DIRS})
 
@@ -72,5 +87,16 @@ endforeach(SOURCE)
 	
 add_executable(${CONFIGURE_MODULE_NAME} ${CONFIGURE_MODULE_SOURCE})
 
-target_link_libraries(${CONFIGURE_MODULE_NAME} Utility)
+target_include_directories(${CONFIGURE_MODULE_NAME} PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${MODULE_NAME}>
+    $<INSTALL_INTERFACE:include/${MODULE_NAME}>
+)
 
+target_link_libraries(${CONFIGURE_MODULE_NAME} Utility)
+target_link_libraries(${CONFIGURE_MODULE_NAME} nlohmann_json)
+
+target_include_directories(${MODULE_NAME} PRIVATE ${nlohmann_json_INCLUDE_DIRS})
+
+add_subdirectory(SimulatorViewer)
+
+target_link_libraries(${MODULE_NAME} SimulatorViewer)

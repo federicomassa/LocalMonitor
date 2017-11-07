@@ -36,13 +36,9 @@ endforeach(SOURCE)
 
 project(${QTFF_NAME})
 
-message("Ha! ${QTFF_SOURCES}, ${QTFF_NAME}")
-
 add_library(${QTFF_NAME} STATIC
   ${QTFF_SOURCE}
   )
-
-
 
 if (FFMPEG_FOUND)
   message("Found FFMPEG/LibAV libraries")

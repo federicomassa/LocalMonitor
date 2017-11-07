@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "SimulAgent.h"
+#include "EnvironmentParameters.h"
 #include "json.hpp"
 
 
@@ -22,6 +23,8 @@ class SimulatorConfiguration
     double simulRealTimeSpan;
 	SimulatorViewer* simulatorViewer;
     int simulSteps;
+	bool useSimulatorViewer;
+	EnvironmentParameters parameters;
 
     SimulAgent ReadAgent ( const nlohmann::json & );
 public:
@@ -41,7 +44,8 @@ public:
 
     const int &GetSimulationSteps() const;
 	const double &GetSimulationTimeStep() const;
-
+	const EnvironmentParameters& GetParameters() const;
+	const bool& UseSimulatorViewer() const;
 
 };
 

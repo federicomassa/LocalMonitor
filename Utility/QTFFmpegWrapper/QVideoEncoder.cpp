@@ -469,7 +469,7 @@ int QVideoEncoder::receiveAndWrite_p()
 	pkt.stream_index = pVideoStream->index;
 	pkt.duration = av_rescale_q(1, pCodecCtx->time_base, pVideoStream->time_base);
     
-    printf("codec time_base: %f. video time_base: %f. pkt pts: %ld\n", av_q2d(pCodecCtx->time_base), av_q2d(pVideoStream->time_base), pkt.pts);
+    printf("codec time_base: %f. video time_base: %f. pkt pts: %lld\n", av_q2d(pCodecCtx->time_base), av_q2d(pVideoStream->time_base), pkt.pts);
     
     if(av_interleaved_write_frame(pFormatCtx, &pkt)<0){
         printf("Failed to write frame.\n");
