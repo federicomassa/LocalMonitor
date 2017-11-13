@@ -7,12 +7,13 @@
  * 
  * */
 
-#ifndef ENVIRONMENT_PARAMETERS_H
-#define ENVIRONMENT_PARAMETERS_H
+#ifndef SIMULATION_PARAMETERS_H
+#define SIMULATION_PARAMETERS_H
 
 #include <map>
 #include <string>
 
-typedef std::map<std::string, double> EnvironmentParameters;
+typedef std::map<std::string, double> SimulationParameters;
+typedef std::map<std::string, std::string> AgentParameters;
 
 #endif

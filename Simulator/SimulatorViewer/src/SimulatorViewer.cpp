@@ -7,22 +7,48 @@
 #include "SimulatorViewer.h"
 #include CHOSEN_VIEWER_INCLUDE
 
+#include "Utility/LogFunctions.h"
+
 #include <iostream>
 using namespace std;
+using namespace LogFunctions;
 
-SimulatorViewer::SimulatorViewer(const SimulatorConfiguration& c) : conf(c)
+SimulatorViewer::SimulatorViewer(const SimulatorConfiguration& c, SimulatorViewer* _parent) : conf(c)
 {
-	object = nullptr;
+	parent = _parent;
+	
+	if (parent == nullptr)
+	{
+		object = nullptr;
+		properties = nullptr;
+	}
+	else
+	{
+		object = parent->object;
+		properties = parent->properties;
+	}
 }
 
 SimulatorViewer::~SimulatorViewer()
 {	
-	if (object)
-		delete object;
+	// Parent object has ownership
+	if (parent == nullptr)
+	{
+		if (object)
+			delete object;
+	
+		if (properties)
+			delete properties;
+	}
 }
 	
 void SimulatorViewer::Initialize(int& argc, char** argv)
 {	
+	if (parent)
+		Error("SimulatorViewer::Initialize", "Cannot call from child object");
+	
+	properties = new Properties;
+	
 	if(object)
 	{
 		delete object;
@@ -30,16 +56,11 @@ void SimulatorViewer::Initialize(int& argc, char** argv)
 	}
 	
 #ifdef CHOSEN_VIEWER
-	object = new CHOSEN_VIEWER(conf, argc, argv);
+	object = new CHOSEN_VIEWER(conf, argc, argv, this);
 #else
 	object = nullptr;
 	#error "simulator_viewer was not set in config file"
 #endif
-}
-
-void SimulatorViewer::SetOutputFileName(const std::string& name)
-{
-	outputFileName = name;
 }
 
 const SimulatorConfiguration& SimulatorViewer::GetSimulatorConfiguration() const
@@ -47,9 +68,51 @@ const SimulatorConfiguration& SimulatorViewer::GetSimulatorConfiguration() const
 	return conf;
 }
 
-void SimulatorViewer::DrawEnvironment()
+void SimulatorViewer::DrawStaticEnvironment()
 {
 	if (object)
-		object->DrawEnvironment();
+		object->DrawStaticEnvironment();
 }
 
+void SimulatorViewer::DrawDynamicEnvironment(const SimulAgentVector& v)
+{
+	if (object)
+		object->DrawDynamicEnvironment(v);
+}
+
+void SimulatorViewer::Encode()
+{
+	if (object)
+		object->Encode();
+}
+
+void SimulatorViewer::SetProperty(const std::string& propertyName, const std::string& propertyValue)
+{
+	if (properties)
+	{	
+		(*properties)[propertyName] = propertyValue;
+	}
+	else
+		Error("SimulatorViewer::SetProperty", "Call SimulatorViewer::Initialize first");
+}
+
+std::string SimulatorViewer::GetProperty(const std::string& propertyName) const
+{
+	std::string returnValue;
+	
+	if (properties)
+	{
+		try
+		{
+			returnValue = properties->at(propertyName);
+		}
+		catch(std::out_of_range& e)
+		{
+			Error("SimulatorViewer::GetProperty", "Property " + propertyName + " was not set");
+		}
+	}
+	else
+		Error("SimulatorViewer::GetProperty", "Call SimulatorViewer::Initialize first");
+	
+	return returnValue;	
+}

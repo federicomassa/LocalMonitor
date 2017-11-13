@@ -29,6 +29,11 @@ SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FI
  * @param argv p_argv: Arguments provided
  * @return int: error code
  */
+
+// TODO add option for graphics use. USE_GRAPHICS is intended for
+// users who do not want to build the project with Qt.
+// The option would be intended for those who potentially want the viewer
+// but do not want it in every run
 int main(int argc, char **argv)
 {
     if (argc > 1) {
@@ -45,16 +50,20 @@ int main(int argc, char **argv)
 	#ifdef USE_GRAPHICS
 	SimulatorViewer simViewer(conf);
 	simViewer.Initialize(argc, argv);
+	simViewer.SetProperty("SubjectID", "1");
+	simViewer.DrawStaticEnvironment();
 	#endif
 	
-    for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) {
-        env.Run();
-		
+    for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) 
+	{
 		#ifdef USE_GRAPHICS
-		simViewer.DrawEnvironment();
+		simViewer.DrawDynamicEnvironment(env.GetAgents());
+		simViewer.Encode();
 		#endif
+	
+        env.Run();
     }
-
+    
 	return 0;
 }
 

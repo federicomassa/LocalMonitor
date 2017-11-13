@@ -18,6 +18,13 @@ PhysicalLayer::PhysicalLayer(const PhysicalLayer& pL) : simulTimeStep(pL.simulTi
 	kinematics = pL.kinematics;
 }
 
+PhysicalLayer& PhysicalLayer::operator=(const PhysicalLayer& pL)
+{
+	simulTimeStep = pL.simulTimeStep;
+	kinematics = pL.kinematics;
+}
+
+
 const double & PhysicalLayer::GetSimulationTimeStep() const
 {
 	return simulTimeStep;

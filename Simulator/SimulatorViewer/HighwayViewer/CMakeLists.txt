@@ -28,15 +28,16 @@ project(${HV_NAME})
 add_library(${HV_NAME} STATIC
   ${HV_SOURCE} 
   ${PROJECT_INPUT_DIR}/Simulator/${HV_NAME}/resources.qrc
+  ${PROJECT_INPUT_DIR}/Simulator/HighwayViewer/ConvertState.cpp
   )
   
 find_package(Qt5Widgets REQUIRED)
 target_link_libraries(${HV_NAME} Qt5::Widgets)
-
 target_link_libraries(${HV_NAME} SimulatorViewer)
 target_link_libraries(${HV_NAME} QTFFmpegWrapper)
 
 target_include_directories(${HV_NAME} PRIVATE ${MODULE_ABSOLUTE_PATH}/${MODULE_HEADERS_DIR})
+target_include_directories(${HV_NAME} PRIVATE ${PROJECT_INPUT_DIR}/Simulator/${HV_NAME})
 target_include_directories(${HV_NAME} PRIVATE ${nlohmann_json_INCLUDE_DIRS})
 
 

@@ -5,6 +5,7 @@
 #include "Automation/PhysicalLayer.h"
 
 #include <string>
+#include <map>
 
 class Logger;
 
@@ -28,7 +29,7 @@ public:
     friend Logger &operator<< ( Logger &, const SimulAgent & );
 };
 
-typedef std::vector<SimulAgent> SimulAgentVector;
+typedef std::map<std::string, SimulAgent> SimulAgentVector;
 
 Logger &operator<< ( Logger &, const SimulAgent & );
 

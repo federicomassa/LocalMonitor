@@ -2,9 +2,11 @@
 #define SIMULATORCONFIGURATION_H
 
 #include <fstream>
+#include <string>
+#include <set>
 
 #include "SimulAgent.h"
-#include "EnvironmentParameters.h"
+#include "SimulationParameters.h"
 #include "json.hpp"
 
 
@@ -16,7 +18,28 @@ class SimulatorViewer;
  */
 class SimulatorConfiguration
 {
-    std::ifstream file;
+	enum EntryType {MANDATORY, OPTIONAL};
+	
+	class Entry
+	{
+		friend class SimulatorConfiguration;
+		const EntryType type;
+		const std::string name;
+	public:
+		Entry(const std::string& n, const EntryType& t = OPTIONAL) : type(t), name(n)
+		{}
+		bool operator<(const Entry& e) const
+		{
+			return (name < e.name);
+		}
+		bool operator==(const Entry& e) const
+		{
+			return (name == e.name);
+		}
+	};
+		
+	nlohmann::json j;
+	std::set<Entry> entries;
     SimulAgentVector agents;
     double simulTimeSpan;
     double simulTimeStep;
@@ -24,8 +47,26 @@ class SimulatorConfiguration
 	SimulatorViewer* simulatorViewer;
     int simulSteps;
 	bool useSimulatorViewer;
-	EnvironmentParameters parameters;
+	SimulationParameters parameters;
+	std::map<std::string, AgentParameters> agentsParameters;
 
+	/**
+	 * @brief Register a primitive-type entry
+	 * 
+	 * @param entryName p_entryName: Name of the entry in json file
+	 * @param type p_type: if it is mandatory or not;
+	 */
+	void RegisterEntry(const std::string& entryName, const EntryType& type = OPTIONAL);
+	
+	
+	/**
+	 * @brief Returns a json containing the specific entry
+	 * 
+	 * @param entryName p_entryName:entry name
+	 * @return nlohmann::json
+	 */
+	nlohmann::json GetEntry(const std::string& entryName) const;
+	
     SimulAgent ReadAgent ( const nlohmann::json & );
 public:
     /**
@@ -44,7 +85,8 @@ public:
 
     const int &GetSimulationSteps() const;
 	const double &GetSimulationTimeStep() const;
-	const EnvironmentParameters& GetParameters() const;
+	const SimulationParameters& GetParameters() const;
+	const AgentParameters& GetAgentParameters(const std::string& ID) const;
 	const bool& UseSimulatorViewer() const;
 
 };

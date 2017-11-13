@@ -1,7 +1,7 @@
 #ifndef AGENT_H
 #define AGENT_H
 
-#include <vector>
+#include <map>
 #include <utility>
 #include <string>
 #include <fstream>
@@ -33,7 +33,7 @@ public:
     friend Logger &operator<< ( Logger &, const Agent & );
 };
 
-typedef std::vector<Agent> AgentVector;
+typedef std::map<std::string, Agent> AgentVector;
 
 Logger &operator<< ( Logger &, const Agent & );
 

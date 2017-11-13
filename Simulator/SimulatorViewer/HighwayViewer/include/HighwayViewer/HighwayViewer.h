@@ -2,29 +2,101 @@
 #define HIGHWAYVIEWER_H
 
 #include "SimulatorViewer/SimulatorViewer.h"
-#include "EnvironmentParameters.h"
+#include "SimulAgent.h"
 #include "Utility/QTFFmpegWrapper/QVideoEncoder.h"
 #include <QApplication>
+#include <vector>
 
 class QGraphicsScene;
 class QGraphicsView;
 class SimulatorConfiguration;
-class QGraphicsLineItem;
- 
+class QGraphicsRectItem;
+class QPixmap;
+class QGraphicsPixmapItem;
+class QGraphicsEllipseItem;
 
 class HighwayViewer : public SimulatorViewer
 {
+	QApplication* app;
+	
+	//16:9 ratio
+	//Screen Width in pixel
+	const int width;
+	//Screen height in pixel
+	const int height;
+	
+	// Active the first iteration, to set oldU0
+	bool first;
+	
+	// Transform parameters of frame of reference:
+	// u = a*x + u0
+	// v = b*y + v0
+	// NB this is in general for x,y with different scale, in practice |a| = |b|
+	// for square pixels
+	// (u,v) pixel --> (x,y) space
+	double a;
+	double b;
+	double u0;
+	double v0;
+	
+	double x0;
+	
+	// Used to move non-agent objects in scene
+	int oldU0;
+	
+	// ================== GRAPHICS ITEMS ==================
+	
+	std::vector<std::vector<QGraphicsRectItem*> > markers;
+	std::map<std::string, QGraphicsPixmapItem*> agents;
+	
+	QGraphicsRectItem* grassTxt;
+	QPixmap* grass;
 	QGraphicsView* view;
-	int x;
-	int width;
-	int height;
-	QGraphicsLineItem* line;
-	QVideoEncoder enc;
-	QApplication app;
+	// ====================================================
+	
+	//Zoom is defined as the visible road length in meters
+	double visibleRoadLength;
+	
+	// Pixel height occupied by road
+	int totalRoadHeight;
+	
+	// Real lane width (~ 3m)
+	const double laneWidth;
+	
+	// Lane markers (~ 50cm x 10cm, distant ~50cm)
+	const double markLength;
+	const double markWidth;
+	const double markDistance;
+	
+	// Scale from meters to pixel, based on set visibleRoadLength
+	double spaceToPixScale;
+	
+	QVideoEncoder* enc;
+	
+	// Get x,y pixel of coordinate x,y
+	int GetPixelX(const double& x) const;
+	int GetPixelY(const double& y) const;
+	
+	// Pixels occupied by a space interval
+	int SpaceToPixel(const double& deltaX) const;
+	
+	// Sets x coordinate of central subject
+	int SetSubjectX(const double& subjX);
+	
+	// Draw vehicles
+	void DrawVehicles(const SimulAgentVector&);
+	
 public:
-	HighwayViewer(const SimulatorConfiguration&, int&, char**);
+	HighwayViewer(const SimulatorConfiguration&, int&, char**, SimulatorViewer* _parent);
 	~HighwayViewer();
-	void DrawEnvironment() override;
+	
+	/**
+	 * @brief Draw static objects in environment
+	 * 
+	 */
+	void DrawStaticEnvironment() override;
+	void DrawDynamicEnvironment(const SimulAgentVector&) override;
+	void Encode() override;
 };
 
 #endif

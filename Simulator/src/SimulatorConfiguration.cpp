@@ -16,54 +16,32 @@ extern Logger logger;
 
 SimulatorConfiguration::SimulatorConfiguration(const string &fileName)
 {
-    file.open(fileName.c_str());
+    ifstream file(fileName.c_str());
+    file >> j;
+	
+	RegisterEntry("agents", MANDATORY);
+	RegisterEntry("simulation_time_span", MANDATORY);
+	RegisterEntry("simulation_time_step", MANDATORY);
+	RegisterEntry("simulator_viewer");
+	RegisterEntry("parameters");
 }
 
 
 void SimulatorConfiguration::Parse()
 {
-    json j;
-    file >> j;
+   
 
     // Parse agents
-    json agentsJson;
+    json agentsJson = GetEntry("agents");
 
-    json simulTimeSpanJson;
+    json simulTimeSpanJson = GetEntry("simulation_time_span");
+	simulTimeSpan = simulTimeSpanJson.get<double>();
 
-    try {
-        simulTimeSpanJson = j.at("simulation_time_span");
-        simulTimeSpan = simulTimeSpanJson.get<double>();
-
-        if (simulTimeSpan <= 0) {
-            Error("SimulatorConfiguration::Parse", "\"simulation_time_span\" entry should be a positive real number");
-        }
-    } catch (out_of_range &e) {
-        Error("SimulatorConfiguration::Parse", "\"simulation_time_span\" entry in config file is mandatory");
-    }
-
-    json simulTimeStepJson;
-
-    try {
-        simulTimeStepJson = j.at("simulation_time_step");
-        simulTimeStep = simulTimeStepJson.get<double>();
-
-
-        if (simulTimeStep <= 0) {
-            Error("SimulatorConfiguration::Parse", "\"simulation_time_step\" entry should be a positive real number");
-        }
-
-    } catch (out_of_range &e) {
-        Error("SimulatorConfiguration::Parse", "\"simulation_time_step\" entry in config file is mandatory");
-    }
-
+    json simulTimeStepJson = GetEntry("simulation_time_step");
+	simulTimeStep = simulTimeStepJson.get<double>();
+	
     simulRealTimeSpan = simulTimeStep * ceil(simulTimeSpan / simulTimeStep);
     simulSteps = round(simulRealTimeSpan / simulTimeStep);
-
-    try {
-        agentsJson = j.at("agents");
-    } catch (out_of_range &e) {
-        Error("SimulatorConfiguration::Parse", "\"agents\" entry in config file is mandatory");
-    }
 
     set<string> IDSet;
 
@@ -71,7 +49,7 @@ void SimulatorConfiguration::Parse()
         json agentJson = agentsJson.at(agentIndex);
 
         SimulAgent a = ReadAgent(agentJson);
-        agents.push_back(a);
+        agents[a.GetID()] = a;
         pair<set<string>::iterator, bool> lastID = IDSet.insert(a.GetID());
         if (lastID.second == false) {
             Error("SimulatorConfiguration::Parse", "Agents should have different IDs");
@@ -88,15 +66,9 @@ void SimulatorConfiguration::Parse()
 	}
 	
 	
-	// Not mandatory entry
-	try{
-		json parametersJ = j.at("parameters");
-		
-		for (json::iterator it = parametersJ.begin(); it != parametersJ.end(); it++)
-			parameters[string(it.key())] = double(it.value());
-	}
-	catch(out_of_range& e)
-	{}
+	json parametersJ = GetEntry("parameters");
+	for (json::iterator it = parametersJ.begin(); it != parametersJ.end(); it++)
+		parameters[string(it.key())] = double(it.value());
 	
 
 }
@@ -104,13 +76,33 @@ void SimulatorConfiguration::Parse()
 SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 {
     SimulAgent a;
+	AgentParameters aParam;
 
     try {
+		for (json::const_iterator it = agent.begin(); it != agent.end();
+			 it++)
+			 {
+				 // List of standard entries
+				if (it.key() != "id" && 
+					it.key() != "state_variables" &&
+					it.key() != "init_states" &&
+					it.key() != "maneuvers" &&
+					it.key() != "init_maneuver" &&
+					it.key() != "kinematics" &&
+					it.key() != "controller" &&
+					it.key() != "automaton" &&
+					it.key() != "visibility" &&
+					it.key() != "communication")
+					
+					aParam[it.key()] = it.value();
+			 }
+		
         a.SetID(agent.at("id"));
         json stateVars = agent.at("state_variables");
         json initStates = agent.at("init_states");
 
-        if (stateVars.size() != initStates.size()) {
+        if (stateVars.size() != initStates.size()) 
+		{
             Error("SimulatorConfiguration::Parse", "There should be one init_states entry for each state_variables entry in agent " + a.GetID());
         }
 
@@ -154,8 +146,47 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
         exit(1);
 	}
 
+	agentsParameters[a.GetID()] = aParam;
+	
 	return a;
     
+}
+
+void SimulatorConfiguration::RegisterEntry(const string& entryName, const EntryType& type)
+{
+	entries.insert(Entry(entryName, type));
+}
+
+nlohmann::json SimulatorConfiguration::GetEntry(const std::string& entryName) const
+{
+	json entryJ;
+	std::set<Entry>::const_iterator foundEntry = entries.end();
+	
+	for (std::set<Entry>::const_iterator entry = entries.begin(); 
+		entry != entries.end(); entry++)
+		 {
+			if (entry->name == entryName)
+			{
+				foundEntry = entry;
+				break;
+			}
+				
+		 }
+		 
+	if (foundEntry == entries.end())
+		Error("SimulatorConfiguration::FindEntry", "Forgot to register entry?");
+		
+	try
+	{
+		entryJ = j.at(entryName);
+	}
+	catch(std::out_of_range& e)
+	{
+		if (foundEntry->type == MANDATORY)
+			Error("SimulatorConfiguration::FindEntry", "Entry " + entryName + " in configuration file is mandatory. Please insert it.");
+	}
+	
+	return entryJ;
 }
 
 const SimulAgentVector &SimulatorConfiguration::GetAgents() const {
@@ -176,7 +207,19 @@ const bool& SimulatorConfiguration::UseSimulatorViewer() const
 	return useSimulatorViewer;
 }
 
-const EnvironmentParameters& SimulatorConfiguration::GetParameters() const
+const SimulationParameters& SimulatorConfiguration::GetParameters() const
 {
 	return parameters;
+}
+
+const AgentParameters & SimulatorConfiguration::GetAgentParameters(const std::string& ID) const
+{
+	try
+	{
+		return agentsParameters.at(ID);
+	}
+	catch (out_of_range&)
+	{
+		Error("SimulatorConfiguration::GetAgentParameters", string("Agent ") + ID + " not found");
+	}
 }

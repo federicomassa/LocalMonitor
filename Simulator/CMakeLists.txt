@@ -18,7 +18,7 @@ set(MODULE_SOURCES
 	SimulatorConfiguration.cpp
 	Environment.cpp
 	SimulAgent.cpp
-	EnvironmentParameters.cpp
+	SimulationParameters.cpp
 	)
 	
 if (USE_GRAPHICS)

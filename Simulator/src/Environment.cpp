@@ -24,7 +24,7 @@ void Environment::Configure(const SimulatorConfiguration &conf)
     for (SimulAgentVector::const_iterator itr = conf.GetAgents().begin();
 		 itr != conf.GetAgents().end(); itr++)
 		 {
-			agents.push_back(*itr);
+			agents[itr->first] = itr->second;
 		 }
 	
 }
@@ -40,7 +40,7 @@ void Environment::Run()
 	
     for (SimulAgentVector::iterator agent = agents.begin(); agent != agents.end(); agent++) {
 		logger << (*agent) << logger.EndL();
-        agent->EvolveState();
+        agent->second.EvolveState();
     }
 }
 
