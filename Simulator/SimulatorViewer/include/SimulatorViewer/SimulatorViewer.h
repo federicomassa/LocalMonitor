@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include "SimulAgent.h"
+#include <QMainWindow>
 
 class SimulatorConfiguration;
 
@@ -21,16 +22,15 @@ class SimulatorConfiguration;
  * Also, each virtual method added should explicitly call its object's version.
  * 
  */
-class SimulatorViewer
+class SimulatorViewer : public QMainWindow
 {
-	SimulatorViewer* object;
-	SimulatorViewer* parent;
-	
+	Q_OBJECT
+
 	const SimulatorConfiguration& conf;
 	typedef std::map<std::string, std::string> Properties;
 	
 	//Properties
-	Properties* properties;
+	Properties properties;
 	
 protected:
 	
@@ -38,11 +38,10 @@ protected:
 	
 	const SimulatorConfiguration& GetSimulatorConfiguration() const;
 public:
-	SimulatorViewer(const SimulatorConfiguration&, SimulatorViewer* parent = nullptr);
+	SimulatorViewer(const SimulatorConfiguration&);
 	virtual ~SimulatorViewer();
-	void Initialize(int&, char**);
-	virtual void DrawStaticEnvironment(); 
-	virtual void DrawDynamicEnvironment(const SimulAgentVector&); 
+	virtual void DrawStaticEnvironment() = 0; 
+	virtual void DrawDynamicEnvironment(const SimulAgentVector&) = 0; 
 	
 	/**
 	 * @brief Set a viewer property, that must have been registered in the constructor of the child viewer
@@ -50,7 +49,7 @@ public:
 	 */
 	void SetProperty(const std::string& propertyName, const std::string& propertyValue);
 	std::string GetProperty(const std::string& propertyName) const;
-	virtual void Encode();
+	virtual void Encode() = 0;
 };
 
 #endif

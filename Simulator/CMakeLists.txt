@@ -1,11 +1,16 @@
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 
 set(MODULE_NAME
     Simulator)
-  
+
+set(SIMULATOR_MODULE_NAME ${MODULE_NAME})
+    
 set(MODULE_HEADERS_DIR
     include/${MODULE_NAME}
 )
+
+#set (CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(MODULE_ABSOLUTE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -55,8 +60,8 @@ target_link_libraries(${MODULE_NAME} Basic)
 target_link_libraries(${MODULE_NAME} Automation)
 target_link_libraries(${MODULE_NAME} nlohmann_json)
 target_link_libraries(${MODULE_NAME} Input)
-target_link_libraries(${MODULE_NAME} Qt5::Widgets)
 
+target_link_libraries(${MODULE_NAME} Qt5::Widgets Qt5::Core)
 
 if (NOT(${CONFIGURATOR_FOUND} STREQUAL NOTFOUND))
 target_link_libraries(${MODULE_NAME} ${CHOSEN_SIMULATOR_VIEWER})

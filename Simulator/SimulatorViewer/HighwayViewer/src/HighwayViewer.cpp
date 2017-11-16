@@ -11,28 +11,35 @@
 
 #include <QImage>
 #include <QGraphicsScene>
-#include <QGraphicsView>
 #include <QGraphicsLineItem>
 #include <QGraphicsEllipseItem>
 #include <QPixmap>
+#include <QPainter>
+#include <QPaintEvent>
+#include <QTransform>
 #include <QColor>
 #include <math.h>
+
+#include "ui_HighwayViewer.h"
 
 using namespace std;
 using namespace LogFunctions;
 
+//FIXME Draw during app event loop
 
-
-HighwayViewer::HighwayViewer(const SimulatorConfiguration &c, int &argc, char **argv, SimulatorViewer *_parent) : SimulatorViewer(c, _parent),
-    app(new QApplication(argc, argv)), view(nullptr), width(1920), height(9.0 / 16.0 * double(width)),
-    laneWidth(3), markLength(0.5), markWidth(0.1),
-    markDistance(0.5)
-{
+HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(c),
+    ui(new Ui::HighwayViewer), scene(nullptr), width(1920), height(9.0 / 16.0 * double(width)), 
+    treesDistance(20), treeRadius(2), laneWidth(3), markLength(0.5), markWidth(0.1),
+    markDistance(1.5)
+{	
+	ui->setupUi(this);
     Q_INIT_RESOURCE(resources);
-
-    grassTxt = nullptr;
-
+	
+	ui->graphicsView->setScene(new QGraphicsScene);
+	scene = ui->graphicsView->scene();
+	connect(this, SIGNAL(finished(const SimulAgentVector&)), this, SLOT(paint(const SimulAgentVector&)));
     first = true;
+	u0 = 0;
     oldU0 = 0;
 
     // 50m of road visible ~ 10 vehicles
@@ -41,8 +48,6 @@ HighwayViewer::HighwayViewer(const SimulatorConfiguration &c, int &argc, char **
 
     int singleLaneHeight = laneWidth * spaceToPixScale;
     totalRoadHeight = 0;
-
-    enc = new QVideoEncoder;
 
     int lanes;
 
@@ -69,10 +74,97 @@ HighwayViewer::HighwayViewer(const SimulatorConfiguration &c, int &argc, char **
         v0 = round(double(height));
     }
 
-    view = new QGraphicsView;
-    view->setScene(new QGraphicsScene(view));
-    view->scene()->setSceneRect(0, 0, width, height);
+	//view.setScene(new QGraphicsScene(&view));
+    scene->setSceneRect(0, 0, width, height);
 
+		 
+	// TODO FPS decoupled from simulation discrete time
+	unsigned fps = round(1.0/GetSimulatorConfiguration().GetSimulationTimeStep());
+	
+	enc = new QVideoEncoder;
+    enc->createFile(VIDEO_OUTPUT, width, height, 1000000, 20, fps);
+	
+}
+
+HighwayViewer::~HighwayViewer()
+{	
+	delete enc;	
+	delete ui;
+}
+
+void HighwayViewer::DrawStaticEnvironment()
+{
+	// Add grass background
+	QColor grassColor(qRgb(100, 230, 100));
+	//QColor grassColor(0, 0, 0);
+	
+    grassTxt = scene->addRect(0, 0, width, height, QPen(), QBrush(grassColor));
+
+    //Add road 
+    if (height > totalRoadHeight)
+        scene->addRect(0, (height - totalRoadHeight) / 2.0, width, totalRoadHeight, QPen(), QBrush(QColor("gray")));
+    else
+        scene->addRect(0, 0, width, height, QPen(), QBrush(QColor("gray")));
+
+	// Draw road edges
+	double edgeDistance = 0.15;
+	double edgeWidth = 0.2;
+	QColor edgeColor(qRgb(200, 200, 0));
+	
+	// Top edge
+	scene->addRect(0, (height - totalRoadHeight) / 2.0 + SpaceToPixel(edgeDistance), width, SpaceToPixel(edgeWidth), QPen(), QBrush(edgeColor));
+    // Bottom edge
+	scene->addRect(0, (height + totalRoadHeight) / 2.0 - SpaceToPixel(edgeDistance + edgeWidth), width, SpaceToPixel(edgeWidth), QPen(), QBrush(edgeColor));
+
+    // Draw markers in initial position
+		int nLanes = int(GetSimulatorConfiguration().GetParameters().at("lanes"));
+        // Draw markers in initial position
+		
+        for (int i = 0; i < nLanes - 1; i++) {
+			
+			std::vector<QGraphicsRectItem*> tmpMarkers;
+			int uInit = 0;
+			bool exitCondition = false;
+            do {
+				
+                QGraphicsRectItem *marker = scene->addRect(uInit, GetPixelY(laneWidth*(i+1) + markWidth / 2), SpaceToPixel(markLength), SpaceToPixel(markWidth), QPen(), QBrush(QColor("white")));
+
+                uInit += SpaceToPixel(markLength + markDistance);
+
+                tmpMarkers.push_back(marker);
+
+                if (uInit > width)
+                    exitCondition = true;
+            } while (!exitCondition);
+			
+			markers.push_back(tmpMarkers);
+        
+    }
+    
+    
+    // Draw initial trees
+    if (totalRoadHeight < height)
+	{
+		double xdec = 0.0;
+		while (PixelToSpace(width/10) + xdec < visibleRoadLength)
+		{
+			treesTop.push_back(scene->addPixmap(QPixmap(":/Tree1.png").scaledToWidth(SpaceToPixel(2*treeRadius))));
+			treesTop.back()->setOffset(width/10 + SpaceToPixel(xdec), height/4 - totalRoadHeight/4 - SpaceToPixel(treeRadius));
+			xdec += treesDistance;
+		};
+		
+		
+		xdec = 0.0;
+		while (PixelToSpace(width/3) + xdec < visibleRoadLength)
+		{
+			treesBottom.push_back(scene->addPixmap(QPixmap(":/Tree1.png").scaledToWidth(SpaceToPixel(2*treeRadius))));
+			treesBottom.back()->setOffset(width/3 + SpaceToPixel(xdec), height - height/4 + totalRoadHeight/4 - SpaceToPixel(treeRadius));
+			xdec += treesDistance;
+		};
+	}
+	
+	
+	// Draw initial agents
 	for (auto agent = GetSimulatorConfiguration().GetAgents().begin();
 		 agent != GetSimulatorConfiguration().GetAgents().end(); agent++)
 		 {
@@ -88,84 +180,180 @@ HighwayViewer::HighwayViewer(const SimulatorConfiguration &c, int &argc, char **
 			 {
 				 Error("HighwayViewer::HighwayViewer", string("\'image\' entry not set for agent ") + agent->second.GetID());
 			 }
-			 
+			
+			agentsPixmap[agent->first] = QPixmap(QString(imageName.c_str())).scaledToWidth(SpaceToPixel(vehicleLength));
+			
 			agents[agent->first] = 
-				view->scene()->addPixmap(QPixmap(QString(imageName.c_str())).scaledToWidth(SpaceToPixel(vehicleLength)));
+				scene->addPixmap((agentsPixmap.at(agent->first)));
 							
 			// Z value sets layering order, default is 0
 			// Vehicles are always on foreground
 			agents.at(agent->first)->setZValue(1);
 				
-			view->scene()->addPixmap(QPixmap(QString(imageName.c_str())));	
-				
 		 }
-		 
-	// TODO FPS decoupled from simulation discrete time
-	unsigned fps = round(1.0/GetSimulatorConfiguration().GetSimulationTimeStep());
-    enc->createFile(VIDEO_OUTPUT, width, height, 1000000, 20, fps);
-
-	
-}
-
-HighwayViewer::~HighwayViewer()
-{
-    delete enc;
-    delete view;
-    delete grass;
-    delete app;
-}
-
-void HighwayViewer::DrawStaticEnvironment()
-{
-	// Add grass background
-	QColor grassColor(qRgb(100, 230, 100));
-    grassTxt = view->scene()->addRect(0, 0, width, height, QPen(), QBrush(grassColor));
-
-    //Add road 
-    if (height > totalRoadHeight)
-        view->scene()->addRect(0, (height - totalRoadHeight) / 2.0, width, totalRoadHeight, QPen(), QBrush(QColor("gray")));
-    else
-        view->scene()->addRect(0, 0, width, height, QPen(), QBrush(QColor("gray")));
-
-	// Draw road edges
-	double edgeDistance = 0.15;
-	double edgeWidth = 0.2;
-	QColor edgeColor(qRgb(200, 200, 0));
-	
-	// Top edge
-	view->scene()->addRect(0, (height - totalRoadHeight) / 2.0 + SpaceToPixel(edgeDistance), width, SpaceToPixel(edgeWidth), QPen(), QBrush(edgeColor));
-    // Bottom edge
-	view->scene()->addRect(0, (height + totalRoadHeight) / 2.0 - SpaceToPixel(edgeDistance + edgeWidth), width, SpaceToPixel(edgeWidth), QPen(), QBrush(edgeColor));
-
-    // Draw markers in initial position
-		int nLanes = int(GetSimulatorConfiguration().GetParameters().at("lanes"));
-        // Draw markers in initial position
-		
-        for (int i = 0; i < nLanes - 1; i++) {
-			
-			std::vector<QGraphicsRectItem *> tmpMarkers;
-			int uInit = 0;
-			bool exitCondition = false;
-            do {
-				
-                QGraphicsRectItem *marker = view->scene()->addRect(uInit, GetPixelY(laneWidth*(i+1) + markWidth / 2), SpaceToPixel(markLength), SpaceToPixel(markWidth), QPen(), QBrush(QColor("white")));
-
-                uInit += SpaceToPixel(markLength + markDistance);
-
-                tmpMarkers.push_back(marker);
-
-                if (uInit > width)
-                    exitCondition = true;
-            } while (!exitCondition);
-			
-			markers.push_back(tmpMarkers);
-        
-    }
+    
 }
 
 void HighwayViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
 {
+	emit finished(agents);
+}
 
+void HighwayViewer::DrawVehicles(const SimulAgentVector& a)
+{
+	for (auto agent = a.begin(); agent != a.end(); agent++)
+	{
+		agents.at(agent->first)->setPixmap(agentsPixmap.at(agent->first));
+		
+		double x, y, theta;
+		ConvertFromState(agent->second.GetState(), agent->first, x, y, theta);
+		QGraphicsPixmapItem* agentPixmap = agents.at(agent->first);
+		
+		QTransform t;
+		t.rotateRadians(-theta);
+		agentPixmap->setPixmap(agentPixmap->pixmap().transformed(t, Qt::SmoothTransformation));
+		
+		agentPixmap->setOffset(GetPixelX(x) - agentPixmap->pixmap().width()/2, GetPixelY(y) - agentPixmap->pixmap().height()/2);
+		
+		cout << "Draw vehicle " << agent->first << " at pix: " << GetPixelX(x) - agentPixmap->pixmap().width()/2 << 
+		" x " << GetPixelY(y) - agentPixmap->pixmap().height()/2 << endl;
+		
+	}
+}
+
+void HighwayViewer::DrawDecorations()
+{
+	if (treesTop.empty() || treesBottom.empty())
+		return;
+	
+	// Trees on top half
+	auto first = treesTop.begin();
+	
+	int newFirst = (*first)->boundingRect().left() - SpaceToPixel(treesDistance);
+	if (newFirst > -SpaceToPixel(2*treeRadius))
+	{
+		treesTop.insert(first, scene->addPixmap(QPixmap((*first)->pixmap())));
+		treesTop.front()->setOffset(newFirst, height/4 - totalRoadHeight/4 - SpaceToPixel(treeRadius));
+	}
+	
+	auto last = --(treesTop.end());
+
+	int newLast = (*last)->boundingRect().left() + SpaceToPixel(treesDistance);
+	if (newLast < width)
+	{
+		treesTop.push_back(scene->addPixmap(QPixmap((*last)->pixmap())));
+		treesTop.back()->setOffset(newLast, height/4 - totalRoadHeight/4 - SpaceToPixel(treeRadius));
+	}
+	
+	for (auto decoration = treesTop.begin(); decoration != treesTop.end();
+		 decoration++)
+		 {
+			int currentX = (*decoration)->boundingRect().left();
+			(*decoration)->setOffset(currentX - oldU0 + u0, height/4 - totalRoadHeight/4 - SpaceToPixel(treeRadius));
+		 }
+		 
+	if (treesTop.front()->boundingRect().right() < 0)
+	{
+		delete treesTop.front();
+		treesTop.erase(treesTop.begin());
+	}
+	
+	if (treesTop.back()->boundingRect().left() > width)
+	{	
+		delete treesTop.back();
+		treesTop.pop_back();
+	}
+	
+	// Trees on bottom half
+	first = treesBottom.begin();
+	
+	newFirst = (*first)->boundingRect().left() - SpaceToPixel(treesDistance);
+	if (newFirst > -SpaceToPixel(2*treeRadius))
+	{
+		treesBottom.insert(first, scene->addPixmap(QPixmap((*first)->pixmap())));
+		treesBottom.front()->setOffset(newFirst, height - height/4 + totalRoadHeight/4 - SpaceToPixel(treeRadius));
+	}
+	
+	last = --(treesBottom.end());
+
+	newLast = (*last)->boundingRect().left() + SpaceToPixel(treesDistance);
+	if (newLast < width)
+	{
+		treesBottom.push_back(scene->addPixmap(QPixmap((*last)->pixmap())));
+		treesBottom.back()->setOffset(newLast, height - height/4 + totalRoadHeight/4 - SpaceToPixel(treeRadius));
+	}
+	
+	for (auto decoration = treesBottom.begin(); decoration != treesBottom.end();
+		 decoration++)
+		 {
+			int currentX = (*decoration)->boundingRect().left();
+			(*decoration)->setOffset(currentX - oldU0 + u0, height - height/4 + totalRoadHeight/4 - SpaceToPixel(treeRadius));
+		 }
+		 
+	if (treesBottom.front()->boundingRect().right() < 0)
+	{
+		delete treesBottom.front();
+		treesBottom.erase(treesBottom.begin());
+	}
+		
+	if (treesBottom.back()->boundingRect().left() > width)
+	{
+		delete treesBottom.back();
+		treesBottom.pop_back();
+	}
+}
+
+void HighwayViewer::Encode()
+{
+    QImage img(width, height, QImage::Format_RGB32);
+    img.fill(Qt::transparent);
+
+    QPainter painter(&img);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    scene->render(&painter);
+
+    enc->encodeImage(img);
+}
+
+int HighwayViewer::GetPixelX(const double &x) const
+{
+    return round(a * x + u0);
+}
+
+int HighwayViewer::GetPixelY(const double &y) const
+{
+    return round(b * y + v0);
+}
+
+int HighwayViewer::SpaceToPixel(const double &deltaX) const
+{
+    //Pixel are square, so there is only one such function to convert deltaSpace -> deltaPixel
+
+    return round(spaceToPixScale * deltaX);
+}
+
+double HighwayViewer::PixelToSpace(const int &deltaPix) const
+{
+    //Pixel are square, so there is only one such function to convert deltaSpace -> deltaPixel
+
+    return double(deltaPix)/spaceToPixScale;
+}
+
+
+int HighwayViewer::SetSubjectX(const double &subjX)
+{
+    oldU0 = u0;
+    u0 = round(double(width) * (0.5 - subjX / visibleRoadLength));
+}
+
+//void HighwayViewer::paintEvent(QPaintEvent* event)
+//{
+//}
+
+
+void HighwayViewer::paint(const SimulAgentVector& agents)
+{
     const string subjID = GetProperty("SubjectID");
 	
 	
@@ -200,7 +388,7 @@ void HighwayViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
                 delete(*marker);
                 markerV->erase(marker);
 				
-				markerV->push_back(view->scene()->addRect(
+				markerV->push_back(scene->addRect(
 					markerV->back()->rect().right() + SpaceToPixel(markDistance), GetPixelY(laneWidth*(markerV - markers.begin() + 1) + markWidth / 2), SpaceToPixel(markLength), SpaceToPixel(markWidth), QPen(), QBrush(QColor("white"))));
                 marker--;
                 continue;
@@ -211,7 +399,7 @@ void HighwayViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
                 delete(*marker);
                 markerV->erase(marker);
 				markerV->insert(markerV->begin(),
-								view->scene()->addRect(
+								scene->addRect(
 									markerV->front()->rect().left() - SpaceToPixel(markDistance + markLength), GetPixelY(laneWidth*(markerV - markers.begin() + 1) + markWidth / 2), SpaceToPixel(markLength), SpaceToPixel(markWidth), QPen(), QBrush(QColor("white"))));
                 marker--;
                 continue;
@@ -220,61 +408,9 @@ void HighwayViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
     
     
     DrawVehicles(agents);
+	DrawDecorations();
 
 
     first = false;
+	
 }
-
-void HighwayViewer::DrawVehicles(const SimulAgentVector& a)
-{
-	for (auto agent = a.begin(); agent != a.end(); agent++)
-	{
-		double x, y, theta;
-		ConvertFromState(agent->second.GetState(), agent->first, x, y, theta);
-		QGraphicsPixmapItem* agentPixmap = agents.at(agent->first);
-		agentPixmap->setOffset(GetPixelX(x) - agentPixmap->pixmap().width()/2, GetPixelY(y) - agentPixmap->pixmap().height()/2);
-		
-		
-		cout << "Draw vehicle " << agent->first << " at pix: " << GetPixelX(x) - agentPixmap->pixmap().width()/2 << 
-		" x " << GetPixelY(y) - agentPixmap->pixmap().height()/2 << endl;
-		
-	}
-}
-
-void HighwayViewer::Encode()
-{
-    QImage img(width, height, QImage::Format_RGB32);
-    img.fill(Qt::transparent);
-
-    QPainter painter(&img);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    view->scene()->render(&painter);
-
-    enc->encodeImage(img);
-}
-
-int HighwayViewer::GetPixelX(const double &x) const
-{
-    return round(a * x + u0);
-}
-
-int HighwayViewer::GetPixelY(const double &y) const
-{
-    return round(b * y + v0);
-}
-
-int HighwayViewer::SpaceToPixel(const double &deltaX) const
-{
-    //Pixel are square, so there is only one such function to convert deltaSpace -> deltaPixel
-
-    return round(spaceToPixScale * deltaX);
-}
-
-int HighwayViewer::SetSubjectX(const double &subjX)
-{
-    oldU0 = u0;
-    u0 = round(double(width) * (0.5 - subjX / visibleRoadLength));
-}
-
-

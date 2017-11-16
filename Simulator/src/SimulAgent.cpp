@@ -54,7 +54,7 @@ bool SimulAgent::SetManeuver(const ManeuverName& manName)
 
 void SimulAgent::SetKinematics(const string& kinematicsFcnName)
 {
-	// TODO Make function identification automatic
+	// TODO Make function identification automatic --- see configure.cpp to see how to do that
     if (kinematicsFcnName == "TestKinematics")
     {
         pLayer.SetKinematics(&TestKinematics);

@@ -35,12 +35,9 @@ const SimulAgentVector &Environment::GetAgents() const
 }
 
 void Environment::Run()
-{
-	logger << "Time: " << currentTimeStep << logger.EndL();
-	
+{	
     for (SimulAgentVector::iterator agent = agents.begin(); agent != agents.end(); agent++) {
-		logger << (*agent) << logger.EndL();
-        agent->second.EvolveState();
+		agent->second.EvolveState();
     }
 }
 

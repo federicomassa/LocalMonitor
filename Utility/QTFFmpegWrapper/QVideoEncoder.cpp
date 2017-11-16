@@ -282,7 +282,9 @@ bool QVideoEncoder::close()
 
    // Free the stream
    av_free(pFormatCtx);
-
+   
+   // Added to solve memory leak
+   //sws_freeContext(img_convert_ctx);
    initVars();
 
    return true;

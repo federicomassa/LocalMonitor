@@ -1,14 +1,19 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
 set(HV_NAME
     HighwayViewer)
 
+
+project(${HV_NAME})
+
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 set(HV_HEADERS_DIR
-    include/${_NAME}
+    include/${HV_NAME}
 )
 
 set(HV_SOURCE_DIR
@@ -19,9 +24,22 @@ set(HV_SOURCES
 	HighwayViewer.cpp
 	)
 	
+set(HV_INCLUDES
+	HighwayViewer.h
+	ui_HighwayViewer.h)
+	
+
+foreach(HV_HEADER IN ITEMS ${HV_INCLUDES})
+	set(HV_INCLUDE ${HV_INCLUDE} ${HV_HEADERS_DIR}/${HV_HEADER})
+endforeach(HV_HEADER)
+	
+	
 foreach(SOURCE IN ITEMS ${HV_SOURCES})
 	set(HV_SOURCE ${HV_SOURCE} ${HV_SOURCE_DIR}/${SOURCE})
 endforeach(SOURCE)
+
+#qt5_wrap_cpp(HV_MOC_OUT ${HV_HEADER})
+
 
 project(${HV_NAME})
 
@@ -29,9 +47,10 @@ add_library(${HV_NAME} STATIC
   ${HV_SOURCE} 
   ${PROJECT_INPUT_DIR}/Simulator/${HV_NAME}/resources.qrc
   ${PROJECT_INPUT_DIR}/Simulator/HighwayViewer/ConvertState.cpp
+  ${HV_INCLUDE}
   )
   
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Core REQUIRED)
 target_link_libraries(${HV_NAME} Qt5::Widgets)
 target_link_libraries(${HV_NAME} SimulatorViewer)
 target_link_libraries(${HV_NAME} QTFFmpegWrapper)

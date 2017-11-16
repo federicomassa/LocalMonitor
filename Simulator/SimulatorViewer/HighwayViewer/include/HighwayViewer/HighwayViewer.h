@@ -5,20 +5,27 @@
 #include "SimulAgent.h"
 #include "Utility/QTFFmpegWrapper/QVideoEncoder.h"
 #include <QApplication>
+#include <QPointer>
 #include <vector>
+#include <QGraphicsScene>
 
-class QGraphicsScene;
-class QGraphicsView;
 class SimulatorConfiguration;
 class QGraphicsRectItem;
 class QPixmap;
 class QGraphicsPixmapItem;
-class QGraphicsEllipseItem;
+class QPaintEvent;
+
+namespace Ui
+{
+	class HighwayViewer;
+}
 
 class HighwayViewer : public SimulatorViewer
-{
-	QApplication* app;
+{	
+	Q_OBJECT
 	
+	Ui::HighwayViewer* ui;
+	QGraphicsScene* scene;
 	//16:9 ratio
 	//Screen Width in pixel
 	const int width;
@@ -38,20 +45,26 @@ class HighwayViewer : public SimulatorViewer
 	double b;
 	double u0;
 	double v0;
-	
-	double x0;
-	
+		
 	// Used to move non-agent objects in scene
 	int oldU0;
 	
 	// ================== GRAPHICS ITEMS ==================
 	
 	std::vector<std::vector<QGraphicsRectItem*> > markers;
-	std::map<std::string, QGraphicsPixmapItem*> agents;
+	
+	// FIXME Need both because pixmap is not rotated, so I can use absolute rotations
+	std::map<std::string, QGraphicsPixmapItem* > agents;
+	std::map<std::string, QPixmap > agentsPixmap;
+	
+	std::vector<QGraphicsPixmapItem*> treesTop;
+	std::vector<QGraphicsPixmapItem*> treesBottom;
+	
+	// Distance among trees and spatial radius of the tree pixmap
+	const double treesDistance;
+	const double treeRadius;
 	
 	QGraphicsRectItem* grassTxt;
-	QPixmap* grass;
-	QGraphicsView* view;
 	// ====================================================
 	
 	//Zoom is defined as the visible road length in meters
@@ -79,6 +92,8 @@ class HighwayViewer : public SimulatorViewer
 	
 	// Pixels occupied by a space interval
 	int SpaceToPixel(const double& deltaX) const;
+	double PixelToSpace(const int& deltaPix) const;
+
 	
 	// Sets x coordinate of central subject
 	int SetSubjectX(const double& subjX);
@@ -86,8 +101,10 @@ class HighwayViewer : public SimulatorViewer
 	// Draw vehicles
 	void DrawVehicles(const SimulAgentVector&);
 	
+	// Draw environment decorations
+	void DrawDecorations();
 public:
-	HighwayViewer(const SimulatorConfiguration&, int&, char**, SimulatorViewer* _parent);
+	HighwayViewer(const SimulatorConfiguration&);
 	~HighwayViewer();
 	
 	/**
@@ -97,6 +114,14 @@ public:
 	void DrawStaticEnvironment() override;
 	void DrawDynamicEnvironment(const SimulAgentVector&) override;
 	void Encode() override;
+	//void paintEvent(QPaintEvent*) override;
+	
+signals:
+	void finished(const SimulAgentVector&);
+	
+private slots:
+	void paint(const SimulAgentVector&);
+
 };
 
 #endif

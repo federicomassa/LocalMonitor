@@ -2,6 +2,7 @@
     <qresource>
       <file>GrassTexture.jpg</file>
       <file>RoadTexture.jpg</file>
+	  <file>Tree1.png</file>
       <file>Vehicles/Acura_NSX_red.png</file>
       <file>Vehicles/Acura_NSX_yellow.png</file>
       <file>Vehicles/Suzuki_DR200S.png</file>

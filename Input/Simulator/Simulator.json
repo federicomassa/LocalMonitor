@@ -3,7 +3,7 @@
 		[
 			{"id" : "0",
 			"state_variables" : ["x", "y", "theta", "v"],
-			"init_states" : [0.01, 1.5, -0.15, 1.5],
+			"init_states" : [0.01, 1.5, 0, 15],
 			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
 			"init_maneuver" : "FAST",
 			"kinematics" : "TestKinematics",
@@ -17,20 +17,20 @@
 			
 			{"id" : "1",
 			"state_variables" : ["x", "y", "theta", "v"],
-			"init_states" : [5.1, 1.5, 7.1, -9],
+			"init_states" : [5.1, 1.5, 0, 20],
 			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
 			"init_maneuver" : "FAST",
 			"kinematics" : "TestKinematics",
 			"controller" : "SimpleVehicle",
-			"automaton" : "EuropeanHighway",
+			"automa ton" : "EuropeanHighway",
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_yellow.png",
 			"length" : "4.47"
 			}		
 		],
 		
-	"simulation_time_span" : 2,
-	"simulation_time_step" : 0.04,
+	"simulation_time_span" : 10,
+	"simulation_time_step" : 0.01,
 	"visibility_function" : "VehicleVisibility",
 	"simulator_viewer" : "HighwayViewer",
 	"video_output" : "video-output.avi",

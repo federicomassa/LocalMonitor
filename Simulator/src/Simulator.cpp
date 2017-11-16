@@ -7,8 +7,13 @@
 #include "SimulatorViewer/SimulatorViewer.h"
 #endif
 
+#include CHOSEN_VIEWER_INCLUDE
+
 #include "Environment.h"
 
+#ifdef USE_GRAPHICS
+#include <QApplication>
+#endif
 
 #include <string>
 #include <iostream>
@@ -36,10 +41,10 @@ SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FI
 // but do not want it in every run
 int main(int argc, char **argv)
 {
-    if (argc > 1) {
+   if (argc > 1) {
         LogFunctions::Error("Simulator::main", "Simulator should be called with no arguments");
     }
-    
+		
     // Parse config file
     conf.Parse();
 
@@ -48,22 +53,29 @@ int main(int argc, char **argv)
 	
 	
 	#ifdef USE_GRAPHICS
-	SimulatorViewer simViewer(conf);
-	simViewer.Initialize(argc, argv);
-	simViewer.SetProperty("SubjectID", "1");
-	simViewer.DrawStaticEnvironment();
+	QApplication app(argc, argv);
+	SimulatorViewer* simViewer = new CHOSEN_VIEWER(conf);
+	
+	// FIXME This should be a config property, cannot be in main
+	simViewer->SetProperty("SubjectID", "1");
+	
+	simViewer->DrawStaticEnvironment();
 	#endif
 	
     for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) 
 	{
 		#ifdef USE_GRAPHICS
-		simViewer.DrawDynamicEnvironment(env.GetAgents());
-		simViewer.Encode();
+		simViewer->DrawDynamicEnvironment(env.GetAgents());
+		simViewer->Encode();
 		#endif
 	
         env.Run();
     }
     
+#ifdef USE_GRAPHICS
+    delete simViewer;
+#endif
+	
 	return 0;
 }
 

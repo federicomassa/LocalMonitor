@@ -3,6 +3,8 @@ project(LocalMonitor)
 
 set(PROJECT_INPUT_DIR ${PROJECT_SOURCE_DIR}/Input)
 set(PROJECT_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/Output)
+set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR}/build)
+
 set(nlohmann_json_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/Utility/json-2.1.1/src)
 
 option(USE_GRAPHICS "Use graphics (Qt must be installed)" ON)
