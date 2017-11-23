@@ -26,6 +26,17 @@ const State &Agent::GetState() const
     return state;
 }
 
+double& Agent::operator()(const string& var)
+{
+	return state(var);
+}
+
+const double& Agent::operator()(const string& var) const
+{
+	return state(var);
+}
+
+
 const Maneuver& Agent::GetManeuver() const
 {
 	return maneuver;
@@ -51,6 +62,26 @@ bool Agent::SetManeuver(const ManeuverName& manName)
 	
 	return false;
 		
+}
+
+void Agent::SetParameters(const AgentParameters& pars)
+{
+	parameters = pars;
+}
+
+const string& Agent::GetParameter(const string& parName) const
+{
+	try
+	{
+		return parameters.at(parName);
+	}
+	catch (out_of_range&)
+	{
+		LogFunctions::Error("Agent::GetParameter", string(parName) + " in agent " + ID + " was not set");
+	}
+	
+	// FIXME Shouldn't get here, placed just to avoid warning
+	return parameters.at(parName);
 }
 
 Logger &operator<<(Logger &os, const Agent &a)

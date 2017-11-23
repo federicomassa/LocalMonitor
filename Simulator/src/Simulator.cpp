@@ -5,15 +5,11 @@
 
 #ifdef USE_GRAPHICS
 #include "SimulatorViewer/SimulatorViewer.h"
-#endif
-
 #include CHOSEN_VIEWER_INCLUDE
-
-#include "Environment.h"
-
-#ifdef USE_GRAPHICS
 #include <QApplication>
 #endif
+
+#include "Environment.h"
 
 #include <string>
 #include <iostream>
@@ -56,9 +52,6 @@ int main(int argc, char **argv)
 	QApplication app(argc, argv);
 	SimulatorViewer* simViewer = new CHOSEN_VIEWER(conf);
 	
-	// FIXME This should be a config property, cannot be in main
-	simViewer->SetProperty("SubjectID", "1");
-	
 	simViewer->DrawStaticEnvironment();
 	#endif
 	
@@ -69,6 +62,8 @@ int main(int argc, char **argv)
 		simViewer->Encode();
 		#endif
 	
+		env.ConvertAgentsToWorld();
+		
         env.Run();
     }
     

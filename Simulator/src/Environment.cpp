@@ -13,7 +13,6 @@ extern int currentTimeStep;
 
 Environment::Environment()
 {
-    invisibleRegionFcn = 0;
 }
 
 void Environment::Configure(const SimulatorConfiguration &conf)
@@ -26,6 +25,9 @@ void Environment::Configure(const SimulatorConfiguration &conf)
 		 {
 			agents[itr->first] = itr->second;
 		 }
+		 
+	agentFeatures = conf.GetWorldAgentFeatures();
+	envFeatures = conf.GetWorldEnvironmentFeatures();
 	
 }
 
@@ -41,12 +43,12 @@ void Environment::Run()
     }
 }
 
-StateRegion Environment::InvisibleRegion(Agent myAgent, AgentVector otherAgents)
+void Environment::ConvertAgentsToWorld(const SimulatorConfiguration& conf)
 {
-    if (invisibleRegionFcn == 0) {
-        Error("Environment::InvisibleRegion", "No visibility function found");
-    }
-
-    return (*invisibleRegionFcn)(myAgent, otherAgents);
+	for (auto agent = agents.begin(); agent != agents.end(); agent++)
+	{
+		SimulAgent& a = agent->second;
+		
+		
+	}
 }
- 

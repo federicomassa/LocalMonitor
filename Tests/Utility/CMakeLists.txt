@@ -18,6 +18,7 @@ set(MODULE_SOURCE_DIR
 
 set(MODULE_EXECUTABLES
   TQTFFmpegWrapper
+  TTimedContainer
 	)
 
 set (CMAKE_AUTOMOC ON)
@@ -32,5 +33,7 @@ foreach(EXEC IN ITEMS ${MODULE_EXECUTABLES})
 	target_link_libraries(${EXEC} QTFFmpegWrapper)
 	target_link_libraries(${EXEC} Qt5::Widgets)
 endforeach(EXEC)
+
+target_link_libraries(TTimedContainer Utility)
 
       

@@ -12,7 +12,6 @@ set(MODULE_SOURCE_DIR
 )
 
 set(MODULE_SOURCES
-	Dynamics/TestKinematics.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

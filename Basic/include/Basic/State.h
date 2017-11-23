@@ -12,14 +12,17 @@ typedef std::map<StateName, double> StateMap;
 typedef StateMap::iterator StateIterator;
 typedef StateMap::const_iterator StateConstIterator;
 
+class DynamicModel;
+
 class State
 {
     friend class SimulatorConfiguration;
 	friend class StateCell;
+	friend class Environment;
 	
     StateMap state;
 	const StateMap &GetStateMap() const;
-    double &operator[] ( const StateName & );
+	double &operator[] ( const StateName & );
 
 public:
     explicit State ( const StateMap & );
@@ -38,9 +41,14 @@ public:
 	StateMap::const_iterator begin() const;
 	StateMap::const_iterator end() const;
 	StateMap::const_iterator find(const StateName &) const;
-	const double &at ( const std::string & ) const;
+	const double& at ( const std::string & ) const;
     double &at ( const std::string & );
+	const double& operator() ( const std::string & ) const;
+    double & operator() ( const std::string & );
+
 	static State GenerateStateOfType( const State & );
+	static State GenerateStateOfType( const DynamicModel & );
+
     friend void CheckConsistency ( const std::string &, const State &, const State & );
 };
 

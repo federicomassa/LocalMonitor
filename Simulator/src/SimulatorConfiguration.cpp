@@ -14,23 +14,58 @@ using namespace LogFunctions;
 
 extern Logger logger;
 
+//FIXME Maybe it's better to only define mandatory entries, via RegisterMandatoryEntry,
+// and make GetEntry iterate on the whole json, so that user defined properties are
+// more easily found by other modules (such as Viewer). 
+// Example: HighwayViewer needs a subject_id. The user writes in the config file
+// "subject_id" : "1" 
+
 SimulatorConfiguration::SimulatorConfiguration(const string &fileName)
 {
     ifstream file(fileName.c_str());
     file >> j;
 	
-	RegisterEntry("agents", MANDATORY);
-	RegisterEntry("simulation_time_span", MANDATORY);
-	RegisterEntry("simulation_time_step", MANDATORY);
-	RegisterEntry("simulator_viewer");
-	RegisterEntry("parameters");
+	RegisterMandatoryEntry("agents");
+	RegisterMandatoryEntry("simulation_time_span");
+	RegisterMandatoryEntry("simulation_time_step");
+	RegisterMandatoryEntry("dynamic_models");
+
+	RegisterStandardEntry("simulator_viewer");
+	RegisterStandardEntry("world_environment_features");
+	RegisterStandardEntry("world_agent_features");
 }
 
 
 void SimulatorConfiguration::Parse()
 {
-   
-
+   // First check that all mandatory entries are present
+	for (auto itr = mandatoryEntries.begin(); itr != mandatoryEntries.end(); itr++)
+	{
+		try
+		{
+			json mandatoryJ = GetEntry(*itr);
+		}
+		catch (out_of_range&)
+		{
+			Error("SimulatorConfiguration::Parse", string("Mandatory entry ") + (*itr) + " not found");
+		}
+	}
+	
+	
+	// Check for custom entries
+	for (auto itr = j.begin(); itr != j.end(); itr++)
+	{
+		if (standardEntries.find(itr.key()) == standardEntries.end())
+			parameters[itr.key()] = itr.value();
+	}
+	
+	json dynModelsJson = GetEntry("dynamic_models");
+	for (int modelIndex = 0; modelIndex < dynModelsJson.size(); modelIndex++)
+	{
+		AddDynamicModel(dynModelsJson.at(modelIndex));
+	}
+	
+	
     // Parse agents
     json agentsJson = GetEntry("agents");
 
@@ -56,8 +91,9 @@ void SimulatorConfiguration::Parse()
         }
     }
     
-    try{
-		j.at("simulator_viewer");
+    try
+    {
+		GetEntry("simulator_viewer");
 		useSimulatorViewer = true;
 	}
 	catch(std::out_of_range& e)
@@ -66,128 +102,142 @@ void SimulatorConfiguration::Parse()
 	}
 	
 	
-	json parametersJ = GetEntry("parameters");
-	for (json::iterator it = parametersJ.begin(); it != parametersJ.end(); it++)
-		parameters[string(it.key())] = double(it.value());
+	//Optional, world features
+	try
+	{
+		json envFeaturesJson = GetEntry("world_environment_features");
+		for (json::iterator it = envFeaturesJson.begin(); it != envFeaturesJson.end(); it++)
+			envFeatures[string(it.key())] = it.value().get<double>();
+	}
+	catch (out_of_range&)
+	{}
 	
+	try
+	{
+		//TODO check that user has inserted an array of string
+		json agentFeaturesJson = GetEntry("world_agent_features");
+		for (int index = 0; index < agentFeaturesJson.size(); index++)
+		{
+			agentFeatures.insert(agentFeaturesJson.at(index).get<string>());
+		}
+	}
+	catch (out_of_range&)
+	{}
 
 }
 
+// TODO Manage mandatory agents entries
 SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 {
     SimulAgent a;
-	AgentParameters aParam;
+	AgentParameters aCustomEntries;
 
     try {
 		for (json::const_iterator it = agent.begin(); it != agent.end();
 			 it++)
 			 {
-				 // List of standard entries
+				 // List of standard entries. Anything different than these is regarded as an agent parameter (used for example to set image path for viewer)
 				if (it.key() != "id" && 
-					it.key() != "state_variables" &&
 					it.key() != "init_states" &&
-					it.key() != "maneuvers" &&
 					it.key() != "init_maneuver" &&
-					it.key() != "kinematics" &&
-					it.key() != "controller" &&
-					it.key() != "automaton" &&
 					it.key() != "visibility" &&
-					it.key() != "communication")
-					
-					aParam[it.key()] = it.value();
+					it.key() != "communication" &&
+					it.key() != "sensing" &&
+					it.key() != "parameters")
+					aCustomEntries[it.key()] = it.value();
 			 }
 		
         a.SetID(agent.at("id"));
-        json stateVars = agent.at("state_variables");
+		
+		string dynamicModelName = agent.at("dynamic_model").get<string>();
+		DynamicModel tmpModel;
+		tmpModel.SetName(dynamicModelName);
+		
+		auto dynItr = dynamicModels.find(tmpModel);
+		if (dynItr == dynamicModels.end())
+			Error("SimulatorConfiguration::ReadAgent", string("Dynamic model ") + dynamicModelName + " of agent " + a.GetID());
+		
+		// If model was found, set it for current agent
+		a.SetDynamicModel(*dynItr);
+		
         json initStates = agent.at("init_states");
-
-        if (stateVars.size() != initStates.size()) 
+		const int varSize = a.GetDynamicModel().GetStateVariables().size();
+		
+        if (varSize != initStates.size()) 
 		{
-            Error("SimulatorConfiguration::Parse", "There should be one init_states entry for each state_variables entry in agent " + a.GetID());
+            Error("SimulatorConfiguration::ReadAgent", "There should be one init_states entry for each state_variables entry in agent " + a.GetID());
         }
 
         StateMap stateVector;
 
-        for (int stateVar = 0; stateVar < stateVars.size(); stateVar++) {
-
-            stringstream ss;
-
-            string stateVarName = stateVars.at(stateVar).get<string>();
-            
-            ss << initStates.at(stateVar);
-            double initStateVar;
-            ss >> initStateVar;
-            ss.clear();
-
-            stateVector[stateVarName] = initStateVar;
-
-        }
+        for (auto stateItr = a.GetDynamicModel().GetStateVariables().begin(); 
+			 stateItr != a.GetDynamicModel().GetStateVariables().end(); stateItr++)
+				stateVector[*stateItr] = initStates.at(*stateItr).get<double>();
 
         a.SetState(State(stateVector));
 
-		json maneuverList = agent.at("maneuvers");
-		ManeuverList manList;
-		for (int man = 0; man < maneuverList.size(); man++)
+		
+		// Parameters entry is optional in agent
+		try
 		{
-			if (!manList.insert(maneuverList.at(man).get<string>()).second)
-				Error("SimulatorConfiguration::ReadAgent", "Found duplicate maneuver in agent " + a.GetID());
+			json agentParameters = agent.at("parameters");
+			AgentParameters aParam;
+			for (auto parItr = agentParameters.begin(); 
+				 parItr != agentParameters.end(); parItr++)
+					aParam[parItr.key()] = parItr.value();
+					
+			a.SetParameters(aParam);
+				 
 		}
-		a.SetPossibleManeuvers(manList);
+		catch(out_of_range&)
+		{}
 		
-		string initManeuver = agent.at("init_maneuver").get<string>();
-		if(!a.SetManeuver(initManeuver))
-			Error("SimulatorConfiguration::ReadAgent", "In agent " + a.GetID() + ": init_maneuver was not found among the possible maneuvers");
-		
-        a.SetKinematics(agent.at("kinematics"));
-
-    } 
+    }
+    
     catch (out_of_range &e) {
         logger << "In SimulatorConfiguration::ReadAgent, mandatory entry not found --- " << e.what() << logger.EndL();
         exit(1);
 	}
 
-	agentsParameters[a.GetID()] = aParam;
+	agentsCustomEntries[a.GetID()] = aCustomEntries;
+	
+	//Sensing s = ReadSensing(agent);
+	//a.SetSensing(s);
 	
 	return a;
     
 }
 
-void SimulatorConfiguration::RegisterEntry(const string& entryName, const EntryType& type)
+/*
+Sensing SimulatorConfiguration::ReadSensing(const nlohmann::json& agent)
 {
-	entries.insert(Entry(entryName, type));
+	
+}
+*/
+
+void SimulatorConfiguration::RegisterMandatoryEntry(const string& entryName)
+{
+	mandatoryEntries.insert(entryName);
+	standardEntries.insert(entryName);
 }
 
+void SimulatorConfiguration::RegisterStandardEntry(const string& entryName)
+{
+	standardEntries.insert(entryName);
+}
+
+// Throws out_of_range exception
 nlohmann::json SimulatorConfiguration::GetEntry(const std::string& entryName) const
 {
-	json entryJ;
-	std::set<Entry>::const_iterator foundEntry = entries.end();
-	
-	for (std::set<Entry>::const_iterator entry = entries.begin(); 
-		entry != entries.end(); entry++)
-		 {
-			if (entry->name == entryName)
-			{
-				foundEntry = entry;
-				break;
-			}
-				
-		 }
-		 
-	if (foundEntry == entries.end())
-		Error("SimulatorConfiguration::FindEntry", "Forgot to register entry?");
-		
-	try
-	{
-		entryJ = j.at(entryName);
-	}
-	catch(std::out_of_range& e)
-	{
-		if (foundEntry->type == MANDATORY)
-			Error("SimulatorConfiguration::FindEntry", "Entry " + entryName + " in configuration file is mandatory. Please insert it.");
-	}
-	
-	return entryJ;
+	return j.at(entryName);
 }
+
+// Throws out_of_range exception
+nlohmann::json SimulatorConfiguration::GetEntry(const std::string& entryName, const nlohmann::json& jFile)
+{
+	return jFile.at(entryName);
+}
+
 
 const SimulAgentVector &SimulatorConfiguration::GetAgents() const {
 	return agents;
@@ -212,14 +262,89 @@ const SimulationParameters& SimulatorConfiguration::GetParameters() const
 	return parameters;
 }
 
-const AgentParameters & SimulatorConfiguration::GetAgentParameters(const std::string& ID) const
+const AgentParameters & SimulatorConfiguration::GetAgentCustomEntry(const std::string& ID) const
 {
 	try
 	{
-		return agentsParameters.at(ID);
+		return agentsCustomEntries.at(ID);
 	}
 	catch (out_of_range&)
 	{
 		Error("SimulatorConfiguration::GetAgentParameters", string("Agent ") + ID + " not found");
 	}
 }
+
+void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)
+{
+	DynamicModel m;
+	
+	bool isNameSet = false, isStateVarSet = false, isDynamicsFunctionSet = false, 
+	isControlVarSet = false, isStateConversionFunctionSet = false;
+	
+	for (auto itr = modelJ.begin(); itr != modelJ.end(); itr++)
+	{
+		if (itr.key() == "name")
+		{
+			m.SetName(itr.value().get<string>());
+			isNameSet = true;
+		}
+		else if (itr.key() == "state_variables")
+		{
+			json stateVarsJson = itr.value();
+			if (stateVarsJson.size() < 1)
+				Error("SimulatorConfiguration::AddDynamicModel", "state_variables entry in dynamic_models must contain an array [] of state variable names");
+			
+			vector<string> stateVars;
+			for (int stateIndex = 0; 
+				 stateIndex < stateVarsJson.size(); stateIndex++)
+					stateVars.push_back(stateVarsJson.at(stateIndex).get<string>());
+			
+			m.SetStateVariables(stateVars);
+			isStateVarSet = true;
+		}
+		else if (itr.key() == "dynamics")
+		{
+			m.SetDynamicsFunction(itr.value().get<string>());
+			isDynamicsFunctionSet = true;
+		}
+		else if (itr.key() == "control_variables")
+		{
+			json controlVarsJson = itr.value();
+			if (controlVarsJson.size() < 1)
+				Error("SimulatorConfiguration::AddDynamicModel", "control_variables entry in dynamic_models must contain an array [] of control variable names");
+			
+			vector<string> controlVars;
+			for (int controlIndex = 0; 
+				 controlIndex < controlVarsJson.size(); controlIndex++)
+					controlVars.push_back(controlVarsJson.at(controlIndex).get<string>());
+			
+			m.SetControlVariables(controlVars);
+			isControlVarSet = true;
+		}
+		else if (itr.key() == "world_conversion_function")
+		{
+			m.SetStateConversionFunction(itr.value().get<string>());
+			isStateConversionFunctionSet = true;
+		}
+		else
+			Error("SimulatorConfiguration::AddDynamicModel", "Unknown entry. Dynamic models must each contain a name, a set of state variables, a dynamics function name, and a set of control variables");
+	}
+	
+	if (!isNameSet || !isStateVarSet || !isDynamicsFunctionSet || !isControlVarSet || !isStateConversionFunctionSet)
+		Error("SimulatorConfiguration::AddDynamicModel", "Missing entry. Dynamic models must each contain a name, a set of state variables, a dynamics function name, a set of control variables, and a conversion function from states to world coordinates");
+	
+	dynamicModels.insert(m);
+	
+}
+
+const WorldAgentFeatures & SimulatorConfiguration::GetWorldAgentFeatures() const
+{
+	return agentFeatures;
+}
+
+const WorldEnvironmentFeatures & SimulatorConfiguration::GetWorldEnvironmentFeatures() const
+{
+	return envFeatures;
+}
+
+

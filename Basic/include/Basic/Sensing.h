@@ -1,15 +1,15 @@
 #ifndef SENSING_H
 #define SENSING_H
 
+#include "Sensors.h"
+
+// TODO define what sensors can the agent have and how they filter the real state
 class Sensing
 {
-	std::string ID;
-	std::map<std::string, double> measurements;
-	
 public:
-	const std::string& GetID() const;
-	const std::map<std::string, double> GetMeasurements() const;
-	const 
+	SensedSelf self;
+	std::map<std::string, SensedAgent> agents;
+	SensedEnvironment environment;	
 };
 
 #endif

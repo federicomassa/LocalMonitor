@@ -1,0 +1,2 @@
+set (CHOSEN_SIMULATOR_VIEWER HighwayViewer)
+set (VIDEO_OUTPUT video-output.avi)

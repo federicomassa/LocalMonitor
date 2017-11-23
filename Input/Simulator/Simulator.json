@@ -2,41 +2,77 @@
 	"agents" : 
 		[
 			{"id" : "0",
-			"state_variables" : ["x", "y", "theta", "v"],
 			"init_states" : [0.01, 1.5, 0, 15],
-			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+			"dynamic_model" : "Unicycle1",
+			"control_model" : "SimpleEuropean",
 			"init_maneuver" : "FAST",
-			"kinematics" : "TestKinematics",
-			"controller" : "SimpleVehicle",
-			"automaton" : "EuropeanHighway",
-			"visibility" : "StandardVisibility",
+			"sensors" : ["Vision", "Velocity"],
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_red.png",
-			"length" : "4.47"
+			"parameters" : {
+				"length" : "4.47",
+				"desiredV" : "20"
+				}
 			},
 			
 			{"id" : "1",
-			"state_variables" : ["x", "y", "theta", "v"],
 			"init_states" : [5.1, 1.5, 0, 20],
-			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+			"dynamic_model" : "Unicycle1",
+			"control_model" : "SimpleEuropean",
+			"sensors" : ["Vision", "Velocity"],
 			"init_maneuver" : "FAST",
-			"kinematics" : "TestKinematics",
-			"controller" : "SimpleVehicle",
-			"automa ton" : "EuropeanHighway",
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_yellow.png",
 			"length" : "4.47"
 			}		
 		],
 		
-	"simulation_time_span" : 10,
+	"simulation_time_span" : 1,
 	"simulation_time_step" : 0.01,
 	"visibility_function" : "VehicleVisibility",
 	"simulator_viewer" : "HighwayViewer",
 	"video_output" : "video-output.avi",
+	"subject_vehicle_id" : "1",
+	"lanes" : "3",
+	"lane_width" : "3",
+	"mark_length" : "0.5",
+	"mark_width" : "0.1",
+	"mark_distance", "1.5",
 	
-	"parameters" : 
+	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desired_speed"], 
+	"world_environment_features" : ["lanes", "lane_width"],
+	"sensors" : 
 	{
-		"lanes" : 3
-	}
+		"Vision" : {
+			"measured_variables" : ["xb", "xf", "yb", "yf", "length", "lanes", "lane_width"],
+			"visibility_range" : "GeometricalVisibility"
+		},
+		
+		"Velocity" : {
+			"measured_variables" : ["v"],
+			"visibility_range" : "GeometricalVisibility"
+		}
+	},
+	
+	"dynamic_models" :
+	[
+		{
+			"name" : "Unicycle1",
+			"state_variables" : ["x", "y", "theta", "v"],
+			"dynamics" : "TestKinematics",
+			"control_variables" : ["a", "omega"],
+			"world_conversion_function" : "TestKinematicsConversion"
+		}
+	],
+	
+	"control_models" :
+	[
+		{
+			"name" : "SimpleEuropean",
+			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+			"controller" : "controller1",
+			"control_variables" : ["a", "omega"],
+			"automaton" : "automaton1"
+		}
+	]
 }

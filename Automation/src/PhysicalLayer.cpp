@@ -10,18 +10,17 @@ using namespace LogFunctions;
 
 PhysicalLayer::PhysicalLayer(const double& simulDeltaT) : simulTimeStep(simulDeltaT)
 {
-    kinematics = 0;
 }
 
 PhysicalLayer::PhysicalLayer(const PhysicalLayer& pL) : simulTimeStep(pL.simulTimeStep)
 {
-	kinematics = pL.kinematics;
+	dynamicModel = pL.dynamicModel;
 }
 
 PhysicalLayer& PhysicalLayer::operator=(const PhysicalLayer& pL)
 {
 	simulTimeStep = pL.simulTimeStep;
-	kinematics = pL.kinematics;
+	dynamics = pL.dynamics;
 }
 
 
@@ -34,11 +33,11 @@ State PhysicalLayer::GetNextState(const State & currentState, const Maneuver& ma
 {
 	State dCurrentState = State::GenerateStateOfType(currentState);
 	
-	if (kinematics)
+	if (dynamicModel.isSet())
 	{
 		try
 		{
-			kinematics(dCurrentState, currentState, man);
+			dynamics(dCurrentState, currentState, man);
 		}
 		catch (std::out_of_range& e)
 		{
@@ -53,7 +52,7 @@ State PhysicalLayer::GetNextState(const State & currentState, const Maneuver& ma
 	return nextState;
 }
 
-void PhysicalLayer::SetKinematics(KinematicsFcn kin)
+void PhysicalLayer::SetDynamicModel(const DynamicModel& m)
 {
-    kinematics = kin;
+    dynamicModel = m;
 }

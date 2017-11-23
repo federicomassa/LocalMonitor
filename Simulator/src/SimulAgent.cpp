@@ -3,9 +3,9 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
 
-// It's important to include SimulatorBuildParams.h first
-#include "SimulatorBuildParams.h"
-#include KINEMATICS_FUNC_LIST
+// Automatically created header during configure
+// It contains all the dynamic models declared in the config file
+#include "Input/Dynamics/DynamicModels.h"
 
 #include <iostream>
 
@@ -37,6 +37,11 @@ const State &SimulAgent::GetState() const
     return agent.GetState();
 }
 
+const DynamicModel& SimulAgent::GetDynamicModel() const
+{
+	return dynamicModel;
+}
+
 void SimulAgent::SetState(const State& q)
 {
     agent.SetState(q);
@@ -52,15 +57,17 @@ bool SimulAgent::SetManeuver(const ManeuverName& manName)
 	return agent.SetManeuver(manName);
 }
 
-void SimulAgent::SetKinematics(const string& kinematicsFcnName)
+void SimulAgent::SetDynamicFunction(const string& fcnName)
 {
-	// TODO Make function identification automatic --- see configure.cpp to see how to do that
-    if (kinematicsFcnName == "TestKinematics")
-    {
-        pLayer.SetKinematics(&TestKinematics);
-    }
-
+    pLayer.SetDynamics(fcnName);
 }
+
+//TODO Check compatibility between model and function
+void SimulAgent::SetDynamicModel(const DynamicModel& m)
+{
+	pLayer.SetDynamicModel(m);
+}
+
 
 Logger &operator<<(Logger &os, const SimulAgent &a)
 {
@@ -69,9 +76,13 @@ Logger &operator<<(Logger &os, const SimulAgent &a)
 }
 
 
-
 void SimulAgent::EvolveState()
 {
     agent.SetState(pLayer.GetNextState(agent.GetState(), agent.GetManeuver()));
+}
+
+void SimulAgent::SetParameters(const AgentParameters& pars)
+{
+	agent.SetParameters(pars);
 }
 

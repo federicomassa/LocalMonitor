@@ -8,6 +8,8 @@
 
 #include "State.h"
 #include "Maneuver.h"
+#include "AgentParameters.h"
+
 
 class Logger;
 
@@ -17,6 +19,7 @@ class Agent
     std::string ID;
     State state;
 	Maneuver maneuver;
+	AgentParameters parameters;
 	ManeuverList possibleManeuvers;
 public:
     Agent();
@@ -30,6 +33,12 @@ public:
 	 * @brief Returns false if maneuver was not among the possible maneuvers (manList)
 	 */
 	bool SetManeuver(const ManeuverName&);
+	void SetParameters(const AgentParameters&);
+	const std::string& GetParameter(const std::string&) const;
+	// State variable accessors
+	double& operator()(const std::string&);
+	const double& operator()(const std::string&) const;
+	
     friend Logger &operator<< ( Logger &, const Agent & );
 };
 

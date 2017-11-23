@@ -6,7 +6,9 @@
 #include <set>
 
 #include "SimulAgent.h"
+#include "WorldFeatures.h"
 #include "SimulationParameters.h"
+#include "Automation/DynamicModel.h"
 #include "json.hpp"
 
 
@@ -18,28 +20,13 @@ class SimulatorViewer;
  */
 class SimulatorConfiguration
 {
-	enum EntryType {MANDATORY, OPTIONAL};
-	
-	class Entry
-	{
-		friend class SimulatorConfiguration;
-		const EntryType type;
-		const std::string name;
-	public:
-		Entry(const std::string& n, const EntryType& t = OPTIONAL) : type(t), name(n)
-		{}
-		bool operator<(const Entry& e) const
-		{
-			return (name < e.name);
-		}
-		bool operator==(const Entry& e) const
-		{
-			return (name == e.name);
-		}
-	};
-		
+
 	nlohmann::json j;
-	std::set<Entry> entries;
+	std::set<std::string> mandatoryEntries;
+	
+	// This includes mandatory entries. Everything not standard is custom and goes to parameters
+	std::set<std::string> standardEntries;
+	
     SimulAgentVector agents;
     double simulTimeSpan;
     double simulTimeStep;
@@ -48,7 +35,14 @@ class SimulatorConfiguration
     int simulSteps;
 	bool useSimulatorViewer;
 	SimulationParameters parameters;
-	std::map<std::string, AgentParameters> agentsParameters;
+	
+	std::map<std::string, AgentParameters> agentsCustomEntries;
+	
+	std::set<DynamicModel> dynamicModels;
+	std::set<ControlModel> controlModels;
+
+	WorldEnvironmentFeatures envFeatures;
+	WorldAgentFeatures agentFeatures;
 
 	/**
 	 * @brief Register a primitive-type entry
@@ -56,8 +50,9 @@ class SimulatorConfiguration
 	 * @param entryName p_entryName: Name of the entry in json file
 	 * @param type p_type: if it is mandatory or not;
 	 */
-	void RegisterEntry(const std::string& entryName, const EntryType& type = OPTIONAL);
-	
+	void RegisterMandatoryEntry(const std::string& entryName);
+	void RegisterStandardEntry(const std::string& entryName);
+
 	
 	/**
 	 * @brief Returns a json containing the specific entry
@@ -65,9 +60,12 @@ class SimulatorConfiguration
 	 * @param entryName p_entryName:entry name
 	 * @return nlohmann::json
 	 */
-	nlohmann::json GetEntry(const std::string& entryName) const;
+	 nlohmann::json GetEntry(const std::string& entryName) const;
 	
     SimulAgent ReadAgent ( const nlohmann::json & );
+	void AddDynamicModel ( const nlohmann::json & );
+
+	//Sensing ReadSensing(const nlohmann::json& agent);
 public:
     /**
      * @brief Constructor with configuration file path
@@ -86,9 +84,14 @@ public:
     const int &GetSimulationSteps() const;
 	const double &GetSimulationTimeStep() const;
 	const SimulationParameters& GetParameters() const;
-	const AgentParameters& GetAgentParameters(const std::string& ID) const;
+	const AgentParameters& GetAgentCustomEntry(const std::string& ID) const;
+	const WorldAgentFeatures& GetWorldAgentFeatures() const;
+	const WorldEnvironmentFeatures& GetWorldEnvironmentFeatures() const;
 	const bool& UseSimulatorViewer() const;
 
+	static nlohmann::json GetEntry(const std::string& entryName, const nlohmann::json&);
+
+	
 };
 
 #endif

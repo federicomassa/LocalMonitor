@@ -13,6 +13,8 @@ set(MODULE_SOURCE_DIR
 
 set(MODULE_SOURCES
 	PhysicalLayer.cpp
+	DynamicModel.cpp
+	AutomationModel.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

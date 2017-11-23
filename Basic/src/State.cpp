@@ -1,4 +1,5 @@
 #include "State.h"
+#include "Automation/DynamicModel.h"
 #include "Utility/Logger.h"
 #include "Utility/LogFunctions.h"
 
@@ -107,10 +108,20 @@ const State& State::operator+=(const State& q)
 
 const double &State::at(const std::string &varName) const
 {
-    return state.at(varName);
+	return state.at(varName);
 }
 
 double &State::at(const std::string &varName)
+{
+	return state.at(varName);
+}
+
+const double &State::operator()(const std::string &varName) const
+{
+    return state.at(varName);
+}
+
+double &State::operator()(const std::string &varName)
 {
     return state.at(varName);
 }
@@ -151,6 +162,16 @@ State State::GenerateStateOfType(const State & q)
 	
 	for (StateMap::const_iterator var = q.state.begin(); var != q.state.end(); var++)
 		newState[var->first] = 0.0;
+	
+	return newState;
+}
+
+State State::GenerateStateOfType(const DynamicModel & m)
+{
+	State newState;
+	
+	for (auto var = m.stateVars.begin(); var != m.stateVars.end(); var++)
+		newState[*var] = 0.0;
 	
 	return newState;
 }

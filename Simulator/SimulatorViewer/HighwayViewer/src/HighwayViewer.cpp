@@ -29,8 +29,11 @@ using namespace LogFunctions;
 
 HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(c),
     ui(new Ui::HighwayViewer), scene(nullptr), width(1920), height(9.0 / 16.0 * double(width)), 
-    treesDistance(20), treeRadius(2), laneWidth(3), markLength(0.5), markWidth(0.1),
-    markDistance(1.5)
+    treesDistance(20), treeRadius(2), laneWidth(atof(c.GetParameters().at("lane_width").c_str())),
+    markLength(atof(c.GetParameters().at("mark_length").c_str())), 
+    markWidth(atof(c.GetParameters().at("mark_width").c_str())),
+    markDistance(atof(c.GetParameters().at("mark_distance").c_str())),
+    subjID(atof(c.GetParameters().at("subject_vehicle_id").c_str()))
 {	
 	ui->setupUi(this);
     Q_INIT_RESOURCE(resources);
@@ -353,10 +356,7 @@ int HighwayViewer::SetSubjectX(const double &subjX)
 
 
 void HighwayViewer::paint(const SimulAgentVector& agents)
-{
-    const string subjID = GetProperty("SubjectID");
-	
-	
+{		
     // NB This method updates the frame of reference transform matrix
 	try
 	{

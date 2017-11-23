@@ -4,6 +4,8 @@
 #include "SimulatorConfiguration.h"
 #include "SimulAgent.h"
 
+#include "WorldFeatures.h"
+
 #include "Utility/SystemTypes.h"
 #include "Basic/Agent.h"
 #include "Basic/StateRegion.h"
@@ -11,7 +13,9 @@
 class Environment
 {
     SimulAgentVector agents;
-    StateRegion ( *invisibleRegionFcn ) ( Agent, AgentVector );
+	WorldAgentVector worldAgents;
+	WorldAgentFeatures agentFeatures;
+	WorldEnvironmentFeatures envFeatures;
 public:
     Environment ();
 
@@ -21,12 +25,10 @@ public:
      *
      */
     void Run();
-
-    void Configure ( const SimulatorConfiguration & );
-    /**
-     * @brief Calculate invisible region of state space
-     */
-    StateRegion InvisibleRegion ( Agent, AgentVector );
+	void Configure ( const SimulatorConfiguration & );
+	
+	void ConvertAgentsToWorld();
+	
 };
 
 #endif

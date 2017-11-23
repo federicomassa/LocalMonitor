@@ -32,6 +32,9 @@ class HighwayViewer : public SimulatorViewer
 	//Screen height in pixel
 	const int height;
 	
+	//ID of subject vehicle
+	const string subjID;
+	
 	// Active the first iteration, to set oldU0
 	bool first;
 	

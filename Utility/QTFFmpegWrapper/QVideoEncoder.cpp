@@ -106,7 +106,11 @@ bool QVideoEncoder::createFile(QString fileName,unsigned width,unsigned height,u
    }
    
    // Initialize codec context
+
+   // FIXME memory leak in avcodec_alloc_context3
    pCodecCtx=avcodec_alloc_context3(pCodec);
+
+   
    pCodecCtx->codec_id = codec_id;
    pCodecCtx->codec_type = ffmpeg::AVMEDIA_TYPE_VIDEO;
    pCodecCtx->bit_rate = Bitrate;
@@ -270,21 +274,31 @@ bool QVideoEncoder::close()
 
 
    /* free the streams */
-
+   //tmp
+   
    for(unsigned i = 0; i < pFormatCtx->nb_streams; i++)
    {
 	   //av_freep(&pFormatCtx->streams[i]->codec);
       av_freep(&pFormatCtx->streams[i]);
-   }
 
+     //tmp
+     //avcodec_close(pFormatCtx->streams[i]->codec);
+   }
+   
+
+   //tmp
+   /*
    // Close file
    avio_close(pFormatCtx->pb);
 
    // Free the stream
    av_free(pFormatCtx);
-   
+   */
    // Added to solve memory leak
-   //sws_freeContext(img_convert_ctx);
+   sws_freeContext(img_convert_ctx);
+
+   ffmpeg::avformat_close_input(&pFormatCtx);
+   
    initVars();
 
    return true;
