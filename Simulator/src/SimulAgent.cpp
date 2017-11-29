@@ -10,6 +10,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace LogFunctions;
 
 extern Logger logger;
 extern SimulatorConfiguration conf;
@@ -57,10 +58,6 @@ bool SimulAgent::SetManeuver(const ManeuverName& manName)
 	return agent.SetManeuver(manName);
 }
 
-void SimulAgent::SetDynamicFunction(const string& fcnName)
-{
-    pLayer.SetDynamics(fcnName);
-}
 
 //TODO Check compatibility between model and function
 void SimulAgent::SetDynamicModel(const DynamicModel& m)
@@ -68,6 +65,23 @@ void SimulAgent::SetDynamicModel(const DynamicModel& m)
 	pLayer.SetDynamicModel(m);
 }
 
+
+State SimulAgent::GenerateWorldState(const State& worldState)
+{
+	this->worldState = pLayer.GetDynamicModel().GetWorldState(agent, worldState);
+	return (this->worldState);
+}
+
+const State& SimulAgent::GetWorldState() const
+{
+	return worldState;
+}
+
+
+const Agent& SimulAgent::GetAgent() const
+{
+	return agent;
+}
 
 Logger &operator<<(Logger &os, const SimulAgent &a)
 {
@@ -84,5 +98,30 @@ void SimulAgent::EvolveState()
 void SimulAgent::SetParameters(const AgentParameters& pars)
 {
 	agent.SetParameters(pars);
+}
+
+std::map<std::string, ExternalSensorOutput> SimulAgent::RetrieveExternalSensorData(const std::string& sensorName, const Agent& selfInWorld, const AgentVector& othersInWorld, const EnvironmentParameters& envParams)
+{
+	const ExternalSensor* sensor = nullptr;
+	for (auto itr = extSensors.begin(); itr != extSensors.end(); itr++)
+	{
+		if ((*itr)->GetName() == sensorName)
+			sensor = *itr;
+	}
+	
+	if (sensor == nullptr)
+		Error("SimulAgent::RetrieveExternalSensorData", string("Sensor \'") + sensorName + "\'"  + "not found in SimulAgent sensor list");
+	
+	StateRegion visibleRegion;
+	std::set<std::string> visibleIDs;
+	
+	sensor->SimulateVisibility(visibleRegion, visibleIDs, selfInWorld, othersInWorld);
+	
+	
+}
+
+InternalSensorOutput SimulAgent::RetrieveInternalSensorOutput(const std::string& sensorName)
+{
+	
 }
 

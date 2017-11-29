@@ -30,9 +30,12 @@ SimulatorConfiguration::SimulatorConfiguration(const string &fileName)
 	RegisterMandatoryEntry("simulation_time_step");
 	RegisterMandatoryEntry("dynamic_models");
 
+	RegisterStandardEntry("control_models");	
 	RegisterStandardEntry("simulator_viewer");
 	RegisterStandardEntry("world_environment_features");
 	RegisterStandardEntry("world_agent_features");
+	RegisterStandardEntry("sensors");
+	RegisterStandardEntry("parameters");
 }
 
 
@@ -56,7 +59,7 @@ void SimulatorConfiguration::Parse()
 	for (auto itr = j.begin(); itr != j.end(); itr++)
 	{
 		if (standardEntries.find(itr.key()) == standardEntries.end())
-			parameters[itr.key()] = itr.value();
+			simParameters.AddEntry(itr.key(), itr.value());
 	}
 	
 	json dynModelsJson = GetEntry("dynamic_models");
@@ -65,9 +68,16 @@ void SimulatorConfiguration::Parse()
 		AddDynamicModel(dynModelsJson.at(modelIndex));
 	}
 	
-	
-    // Parse agents
-    json agentsJson = GetEntry("agents");
+	//Optional parameters
+	try
+	{
+		json envParametersJson = GetEntry("parameters");
+		for (auto itr = envParametersJson.begin(); itr != envParametersJson.end();
+			 itr++)
+				envParameters.AddEntry(itr.key(), itr.value().get<double>());
+	}
+	catch (out_of_range&)
+	{}
 
     json simulTimeSpanJson = GetEntry("simulation_time_span");
 	simulTimeSpan = simulTimeSpanJson.get<double>();
@@ -106,8 +116,8 @@ void SimulatorConfiguration::Parse()
 	try
 	{
 		json envFeaturesJson = GetEntry("world_environment_features");
-		for (json::iterator it = envFeaturesJson.begin(); it != envFeaturesJson.end(); it++)
-			envFeatures[string(it.key())] = it.value().get<double>();
+		for (int index = 0; index < envFeaturesJson.size(); index++)
+			envFeatures.insert(envFeaturesJson.at(index).get<string>());
 	}
 	catch (out_of_range&)
 	{}
@@ -124,6 +134,18 @@ void SimulatorConfiguration::Parse()
 	catch (out_of_range&)
 	{}
 
+	
+	try
+	{
+		json sensorsJson = GetEntry("sensors");
+		for (int index = 0; index < sensorsJson.size(); index++)
+			ReadSensor(sensorsJson.at(index));
+		
+	}
+	catch(out_of_range&)
+	{}
+		
+	
 }
 
 // TODO Manage mandatory agents entries
@@ -142,7 +164,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 					it.key() != "init_maneuver" &&
 					it.key() != "visibility" &&
 					it.key() != "communication" &&
-					it.key() != "sensing" &&
+					it.key() != "sensors" &&
 					it.key() != "parameters")
 					aCustomEntries[it.key()] = it.value();
 			 }
@@ -184,7 +206,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 			AgentParameters aParam;
 			for (auto parItr = agentParameters.begin(); 
 				 parItr != agentParameters.end(); parItr++)
-					aParam[parItr.key()] = parItr.value();
+					aParam[parItr.key()] = parItr.value().get<double>();
 					
 			a.SetParameters(aParam);
 				 
@@ -201,19 +223,78 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 
 	agentsCustomEntries[a.GetID()] = aCustomEntries;
 	
-	//Sensing s = ReadSensing(agent);
-	//a.SetSensing(s);
+	// Add sensors to agent (optional)
+	try
+	{
+		json sensorsJson = GetEntry("sensors", agent);
+		for (int i = 0; i < sensorsJson.size(); i++)
+		{
+			string sensorName = sensorsJson.at(i).get<string>();
+			bool found = false;
+			// Look for registered sensor
+			
+			if (!found)
+				for (std::set<ExternalSensorPointer>::iterator itr = extSensors.begin(); itr != extSensors.end(); itr++)
+				{
+					if (sensorName == itr->GetName())
+					{
+						a.extSensors.insert(itr->GetSensor());
+						found = true;
+						break;
+					}
+				}
+			
+			if (!found)
+				for (std::set<InternalSensorPointer>::iterator itr = intSensors.begin(); itr != intSensors.end(); itr++)
+				{
+					if (sensorName == itr->GetName())
+					{
+						a.intSensors.insert(itr->GetSensor());
+						found = true;
+						break;
+					}
+				}	
+			
+			if (!found)
+				Error("SimulatorConfiguration::ReadAgent", string("Sensor ") + sensorName + " in agent " + a.GetID() + " not found.");
+		}
+	}
+	catch (out_of_range&)
+	{}
 	
 	return a;
     
 }
 
-/*
-Sensing SimulatorConfiguration::ReadSensing(const nlohmann::json& agent)
+// TODO check if two equal named sensors are declared
+void SimulatorConfiguration::ReadSensor(const nlohmann::json& sensorJson)
 {
+	// Look for unknown entries
+	for (auto itr = sensorJson.begin(); itr != sensorJson.end(); itr++)
+	{
+		if (itr.key() != "name" &&
+			itr.key() != "type")
+			Error("SimulatorConfiguration::ReadSensor", string("Unknown sensor entry ") + itr.key());
+	}
 	
+	try
+	{
+		string name = GetEntry("name", sensorJson).get<string>();
+		string type = GetEntry("type", sensorJson).get<string>();
+		
+		if (type == "internal" || type == "Internal" || type == "INTERNAL")
+			intSensors.insert(InternalSensorPointer(name));
+		else if (type == "external" || type == "External" || type == "EXTERNAL")
+			extSensors.insert(ExternalSensorPointer(name));
+		else
+			Error("SimulatorConfiguration::ReadSensor", string("Unknown sensor type: ") + type + " --- please define sensors as either \'internal\' or \'external\'");
+		
+	}
+	catch(out_of_range&)
+	{
+			Error("SimulatorConfiguration::ReadSensor", "name, type and measured_world_variables are mandatory sensor entries");
+	}
 }
-*/
 
 void SimulatorConfiguration::RegisterMandatoryEntry(const string& entryName)
 {
@@ -257,9 +338,19 @@ const bool& SimulatorConfiguration::UseSimulatorViewer() const
 	return useSimulatorViewer;
 }
 
-const SimulationParameters& SimulatorConfiguration::GetParameters() const
+const SimulationParameters& SimulatorConfiguration::GetSimulationParameters() const
 {
-	return parameters;
+	return simParameters;
+}
+
+const EnvironmentParameters& SimulatorConfiguration::GetEnvironmentParameters() const
+{
+	return envParameters;
+}
+
+const double& SimulatorConfiguration::GetEnvironmentParameter(const std::string& parName) const
+{
+	return envParameters(parName);
 }
 
 const AgentParameters & SimulatorConfiguration::GetAgentCustomEntry(const std::string& ID) const

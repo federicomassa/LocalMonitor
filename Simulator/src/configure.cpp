@@ -9,6 +9,7 @@
 #include "json.hpp"
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include <string>
 
 using namespace nlohmann;
@@ -18,6 +19,7 @@ Logger logger(std::cout);
 
 void generateDynamicFunctionsFile(const nlohmann::json& j, ostream& outputModels);
 void generateStateConversionFile(const nlohmann::json& j, ostream& os);
+void generateSensorList(const nlohmann::json& j, ostream& os);
 
 int main(int argc, char** argv)
 {
@@ -74,6 +76,12 @@ int main(int argc, char** argv)
 	generateDynamicFunctionsFile(j, outputModels);
 	generateStateConversionFile(j, outputConversion);
 	
+	ofstream outputSensors((string(rootPath) + "/Input/Automation/Sensors.h")); 
+	generateSensorList(j, outputSensors);
+
+	// TODO Generate skeleton header and source for Sensor children
+	
+	cout << "Configured." << endl;
 	return 0;	
 }
 
@@ -209,3 +217,135 @@ void generateStateConversionFile(const nlohmann::json& j, ostream& os)
 		os << closeIncludeGuard;
 		
 }
+
+// TODO Automatically generate skeleton for sensor child class (header and source)
+void generateSensorList(const nlohmann::json& j, ostream& os)
+{
+		os.clear();
+	
+		enum Type {Internal, External};
+		
+		json thisJson = j.at("sensors");
+		
+		string includeGuard = "#ifndef SENSORS_H\n#define SENSORS_H\n";
+		string closeIncludeGuard = "#endif";
+		
+		string includeString = "#include <string>";
+		string includeIostream = "#include <iostream>";		
+		string includeIntSensors = "#include \"Automation/InternalSensor.h\"";
+		string includeExtSensors = "#include \"Automation/ExternalSensor.h\"";
+		
+		vector<pair<string, Type> > sensorClasses;
+		for (int index = 0; index < thisJson.size(); index++)
+		{
+			json currJson = thisJson.at(index);
+			string name = currJson.at("name").get<string>();
+			string typeStr = currJson.at("type").get<string>();
+			Type type;
+			
+			if (typeStr == "internal" ||
+				typeStr == "Internal" ||
+				typeStr == "INTERNAL")
+				type = Internal;
+			else if (typeStr == "external" ||
+				typeStr == "External" ||
+				typeStr == "EXTERNAL")
+				type = External;
+			else
+				Error("Configure::generateSensorList", string("Unknown type \'" ) + typeStr + "\'");
+			
+			sensorClasses.push_back(make_pair(name, type));
+		}
+		
+		os << includeGuard << endl;
+		os << includeString << endl;
+		os << includeIostream << endl;
+		
+		os << endl << includeIntSensors << endl;
+		os << includeExtSensors << endl;
+		
+		// This file will include the header of each conversionamics function declared in conversionamic_models entry
+		for (int i = 0; i < sensorClasses.size(); i++)
+			os << "#include \"" << sensorClasses[i].first << ".h\"" << endl;
+		
+		os << endl;
+		
+		// ============= Internal sensor function ============
+		// Open function
+		os <<
+		"InternalSensor* InstantiateInternalSensor(const std::string& sensorClassName) \n{\n\t";
+		
+		bool first = true;
+		for (int i = 0; i < sensorClasses.size(); i++)
+		{
+			if (sensorClasses[i].second != Internal)
+				continue;
+			
+			if (first)
+			{
+				os << "if (sensorClassName == " << "\"" << sensorClasses[i].first << "\")\n\t\t";
+				os << "return new " << sensorClasses[i].first << ";\n\t";
+				first = false;
+			}
+			else
+			{
+				os << "else if (sensorClassName == " << "\"" << sensorClasses[i].first << "\")\n\t\t";
+				os << "return new " << sensorClasses[i].first << ";\n\t";
+			}
+		}
+		
+		// There was at least one sensor
+		if (!first)
+		{
+			os << "else \n\t\t";
+			os << "{\n\t\t\tstd::cerr << \"Error in configure: \" << sensorClassName << \".h not found\";\n\t\t\texit(1);\n\t\t} " << endl;
+		}
+		else
+		{
+			os << "std::cerr << \"Error in configure: \" << sensorClassName << \".h not found\";\n\texit(1);\n";
+		}
+		
+		// Close function
+		os << "}" << endl << endl;
+				
+		// ========== External sensor function ===========
+		// Open function
+		os <<
+		"ExternalSensor* InstantiateExternalSensor(const std::string& sensorClassName) \n{\n\t";
+		
+		first = true;
+		for (int i = 0; i < sensorClasses.size(); i++)
+		{
+			if (sensorClasses[i].second != External)
+				continue;
+			
+			if (first)
+			{
+				os << "if (sensorClassName == " << "\"" << sensorClasses[i].first << "\")\n\t\t";
+				os << "return new " << sensorClasses[i].first << ";\n\t";
+				first = false;
+			}
+			else
+			{
+				os << "else if (sensorClassName == " << "\"" << sensorClasses[i].first << "\")\n\t\t";
+				os << "return new " << sensorClasses[i].first << ";\n\t";
+			}
+		}
+		
+		if (!first)
+		{
+			os << "else \n\t\t";
+			os << "{\n\t\t\tstd::cerr << \"Error in configure: \" << sensorClassName << \".h not found\";\n\t\t\texit(1);\n\t\t} " << endl;
+		}
+		else
+		{
+			os << "std::cerr << \"Error in configure: \" << sensorClassName << \".h not found\";\n\texit(1);\n";
+		}
+		
+		// Close function
+		os << "}" << endl << endl;
+		
+		os << closeIncludeGuard;
+		
+}
+

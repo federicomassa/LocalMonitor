@@ -22,6 +22,7 @@ public:
 	State GetNextState(const State&, const Maneuver&) const;
 	const double& GetSimulationTimeStep() const;
     void SetDynamicModel ( const DynamicModel& );
+	const DynamicModel& GetDynamicModel() const;
 };
 
 #endif

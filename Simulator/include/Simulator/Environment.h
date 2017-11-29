@@ -13,9 +13,12 @@
 class Environment
 {
     SimulAgentVector agents;
-	WorldAgentVector worldAgents;
 	WorldAgentFeatures agentFeatures;
 	WorldEnvironmentFeatures envFeatures;
+	
+	State GenerateWorldAgentState() const;
+	State GenerateWorldEnvironmentState() const;
+	
 public:
     Environment ();
 

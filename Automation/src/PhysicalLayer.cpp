@@ -4,9 +4,11 @@
 
 #include <map>
 #include <cstdlib>
+#include <string>
 
 extern Logger logger;
 using namespace LogFunctions;
+using namespace std;
 
 PhysicalLayer::PhysicalLayer(const double& simulDeltaT) : simulTimeStep(simulDeltaT)
 {
@@ -20,7 +22,7 @@ PhysicalLayer::PhysicalLayer(const PhysicalLayer& pL) : simulTimeStep(pL.simulTi
 PhysicalLayer& PhysicalLayer::operator=(const PhysicalLayer& pL)
 {
 	simulTimeStep = pL.simulTimeStep;
-	dynamics = pL.dynamics;
+	dynamicModel = pL.dynamicModel;
 }
 
 
@@ -37,11 +39,11 @@ State PhysicalLayer::GetNextState(const State & currentState, const Maneuver& ma
 	{
 		try
 		{
-			dynamics(dCurrentState, currentState, man);
+			dynamicModel.Run(dCurrentState, currentState, man);
 		}
 		catch (std::out_of_range& e)
 		{
-			Error("PhysicaLLayer::GetNextState", "Out of range exception thrown in kinematics function");
+			Error("PhysicaLLayer::GetNextState", string("Out of range exception thrown in kinematics function ") + dynamicModel.GetDynamicFunctionName());
 			exit(1);
 		}
 	}
@@ -55,4 +57,9 @@ State PhysicalLayer::GetNextState(const State & currentState, const Maneuver& ma
 void PhysicalLayer::SetDynamicModel(const DynamicModel& m)
 {
     dynamicModel = m;
+}
+
+const DynamicModel& PhysicalLayer::GetDynamicModel() const
+{
+	return dynamicModel;
 }

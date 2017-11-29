@@ -7,6 +7,9 @@
 #include "Input/Dynamics/DynamicModels.h"
 #include "Input/Dynamics/StateConversions.h"
 
+#include "Agent.h"
+#include "Control.h"
+
 class DynamicModel
 {
 	std::string name;
@@ -34,7 +37,8 @@ public:
 	void SetStateVariables(const std::vector<std::string>&);
 	void SetDynamicsFunction(const std::string&);
 	void SetStateConversionFunction(const std::string&);
-
+	void Run(State&, const Agent&, const AgentVector&, const Control&);
+	State GetWorldState(const Agent&, const State& modelWorldState) const;
 	void SetControlVariables(const std::vector<std::string>&);
 	const std::string& GetName() const;
 	const std::vector<std::string>& GetStateVariables() const;

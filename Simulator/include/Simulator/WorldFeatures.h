@@ -13,10 +13,12 @@
 #include <set>
 #include <string>
 
-typedef std::map<std::string, double> WorldEnvironmentFeatures;
+typedef std::set<std::string> WorldEnvironmentFeatures;
 typedef std::set<std::string> WorldAgentFeatures;
 
+/*
 typedef Agent WorldAgent;
 typedef std::map<std::string, WorldAgent> WorldAgentVector;
+*/
 
 #endif

@@ -46,13 +46,16 @@ public:
 	const double& operator() ( const std::string & ) const;
     double & operator() ( const std::string & );
 
+	void AddStateVariable(const std::string&);
+	
 	static State GenerateStateOfType( const State & );
 	static State GenerateStateOfType( const DynamicModel & );
 
     friend void CheckConsistency ( const std::string &, const State &, const State & );
 };
 
-typedef std::vector<State> StateVector;
+
+
 
 Logger &operator<< ( Logger &, const State & );
 

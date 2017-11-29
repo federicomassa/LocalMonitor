@@ -57,12 +57,12 @@ int main(int argc, char **argv)
 	
     for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) 
 	{
+		env.ConvertAgentsToWorld();
+		
 		#ifdef USE_GRAPHICS
 		simViewer->DrawDynamicEnvironment(env.GetAgents());
 		simViewer->Encode();
 		#endif
-	
-		env.ConvertAgentsToWorld();
 		
         env.Run();
     }

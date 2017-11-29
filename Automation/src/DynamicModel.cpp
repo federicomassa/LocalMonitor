@@ -1,6 +1,8 @@
 #include "DynamicModel.h"
+#include "Utility/LogFunctions.h"
 
 using namespace std;
+using namespace LogFunctions;
 
 DynamicModel::DynamicModel()
 {
@@ -9,6 +11,13 @@ DynamicModel::DynamicModel()
 	
 	isNameSet = isStateVarsSet = isControlVarsSet = isDynamicsFcnSet = isConversionFcnSet = false;
 }
+
+void DynamicModel::Run(State& qdot, const Agent& self, const AgentVector& neighbors, const Control& u)
+{
+	dynamicsFcn(qdot, self, neighbors, u);
+}
+
+
 
 // Used to order elements in a std::set
 bool DynamicModel::operator<(const DynamicModel& m) const
@@ -54,6 +63,19 @@ void DynamicModel::SetStateConversionFunction(const std::string& s)
 	isConversionFcnSet = true;
 	conversionFcnName = s;
 	conversionFcn = GetConversionFunction(s);
+}
+
+
+State DynamicModel::GetWorldState(const Agent& a, const State& modelWorldState) const
+{
+	State convertedState = State::GenerateStateOfType(modelWorldState);
+	
+	if (IsSet())
+		conversionFcn(convertedState, a);
+	else
+		Error("DynamicModel::GetWorldState", "Cannot call GetWorldState without setting the dynamic model first");
+	
+	return convertedState;
 }
 
 void DynamicModel::SetControlVariables(const vector<string>& s)

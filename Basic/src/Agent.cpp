@@ -36,6 +36,13 @@ const double& Agent::operator()(const string& var) const
 	return state(var);
 }
 
+Agent& Agent::operator=(const Agent& a)
+{
+	ID = a.ID;
+	state = a.state;
+	maneuver = a.maneuver;
+	possibleManeuvers = a.possibleManeuvers;
+}
 
 const Maneuver& Agent::GetManeuver() const
 {
@@ -69,7 +76,7 @@ void Agent::SetParameters(const AgentParameters& pars)
 	parameters = pars;
 }
 
-const string& Agent::GetParameter(const string& parName) const
+const double& Agent::GetParameter(const string& parName) const
 {
 	try
 	{
@@ -79,9 +86,6 @@ const string& Agent::GetParameter(const string& parName) const
 	{
 		LogFunctions::Error("Agent::GetParameter", string(parName) + " in agent " + ID + " was not set");
 	}
-	
-	// FIXME Shouldn't get here, placed just to avoid warning
-	return parameters.at(parName);
 }
 
 Logger &operator<<(Logger &os, const Agent &a)

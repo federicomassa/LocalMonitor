@@ -4,9 +4,9 @@
 #include "Basic/Agent.h"
 #include <math.h>
 
-void TestKinematicConversion(State& worldState, const Agent& agent)
+void TestKinematicsConversion(State& worldState, const Agent& agent)
 {
-	double L = atof(agent.GetParameter("length").c_str());
+	double L = agent.GetParameter("length");
 	double costheta = cos(agent("theta"));
 	double sintheta = sin(agent("theta"));
 	

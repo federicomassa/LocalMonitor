@@ -4,6 +4,6 @@
 #include <map>
 #include <string>
 
-typedef std::map<std::string, std::string> AgentParameters;
+typedef std::map<std::string, double> AgentParameters;
 
 #endif

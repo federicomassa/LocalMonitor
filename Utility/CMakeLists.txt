@@ -15,6 +15,7 @@ set(MODULE_SOURCES
 	LogFunctions.cpp
 	Logger.cpp
 	Interval.cpp
+	SimulationParameters.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

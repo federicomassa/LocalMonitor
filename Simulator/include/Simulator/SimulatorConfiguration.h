@@ -7,8 +7,12 @@
 
 #include "SimulAgent.h"
 #include "WorldFeatures.h"
-#include "SimulationParameters.h"
+#include "Utility/SimulationParameters.h"
+#include "Utility/EnvironmentParameters.h"
 #include "Automation/DynamicModel.h"
+
+#include "Automation/InternalSensor.h"
+#include "Automation/ExternalSensor.h"
 #include "json.hpp"
 
 
@@ -24,7 +28,7 @@ class SimulatorConfiguration
 	nlohmann::json j;
 	std::set<std::string> mandatoryEntries;
 	
-	// This includes mandatory entries. Everything not standard is custom and goes to parameters
+	// This includes mandatory entries. Everything not standard is custom and goes to parameters. With 'standard' we only mean that it has a special meaning for the software
 	std::set<std::string> standardEntries;
 	
     SimulAgentVector agents;
@@ -34,13 +38,19 @@ class SimulatorConfiguration
 	SimulatorViewer* simulatorViewer;
     int simulSteps;
 	bool useSimulatorViewer;
-	SimulationParameters parameters;
+	
+	// Non numerical custom parameters
+	SimulationParameters simParameters;
+	// Numerical, potentially measurable, environment parameters
+	EnvironmentParameters envParameters;
 	
 	std::map<std::string, AgentParameters> agentsCustomEntries;
 	
 	std::set<DynamicModel> dynamicModels;
 	std::set<ControlModel> controlModels;
-
+	std::set<ExternalSensorPointer> extSensors;
+	std::set<InternalSensorPointer> intSensors;
+	
 	WorldEnvironmentFeatures envFeatures;
 	WorldAgentFeatures agentFeatures;
 
@@ -63,6 +73,7 @@ class SimulatorConfiguration
 	 nlohmann::json GetEntry(const std::string& entryName) const;
 	
     SimulAgent ReadAgent ( const nlohmann::json & );
+	void ReadSensor(const nlohmann::json&);
 	void AddDynamicModel ( const nlohmann::json & );
 
 	//Sensing ReadSensing(const nlohmann::json& agent);
@@ -83,7 +94,9 @@ public:
 
     const int &GetSimulationSteps() const;
 	const double &GetSimulationTimeStep() const;
-	const SimulationParameters& GetParameters() const;
+	const SimulationParameters& GetSimulationParameters() const;
+	const double& GetEnvironmentParameter(const std::string& parName) const;		const EnvironmentParameters& GetEnvironmentParameters() const;
+
 	const AgentParameters& GetAgentCustomEntry(const std::string& ID) const;
 	const WorldAgentFeatures& GetWorldAgentFeatures() const;
 	const WorldEnvironmentFeatures& GetWorldEnvironmentFeatures() const;

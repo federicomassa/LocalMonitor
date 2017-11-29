@@ -131,6 +131,12 @@ double &State::operator[](const StateName &varName)
     return state[varName];
 }
 
+void State::AddStateVariable(const std::string& varName)
+{
+	state[varName];
+}
+
+
 StateMap::iterator State::begin()
 {
 	return state.begin();
@@ -195,5 +201,3 @@ void CheckConsistency(const string &className, const State &q1, const State &q2)
                 className, errorString);
 	
 }
-
-
