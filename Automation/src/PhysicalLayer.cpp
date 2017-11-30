@@ -21,7 +21,6 @@ PhysicalLayer::PhysicalLayer(const PhysicalLayer& pL) : simulTimeStep(pL.simulTi
 
 PhysicalLayer& PhysicalLayer::operator=(const PhysicalLayer& pL)
 {
-	simulTimeStep = pL.simulTimeStep;
 	dynamicModel = pL.dynamicModel;
 }
 
@@ -31,7 +30,7 @@ const double & PhysicalLayer::GetSimulationTimeStep() const
 	return simulTimeStep;
 }
 
-State PhysicalLayer::GetNextState(const State & currentState, const Maneuver& man) const
+State PhysicalLayer::GetNextState(const State & currentState, const Control& control) const
 {
 	State dCurrentState = State::GenerateStateOfType(currentState);
 	
@@ -39,7 +38,7 @@ State PhysicalLayer::GetNextState(const State & currentState, const Maneuver& ma
 	{
 		try
 		{
-			dynamicModel.Run(dCurrentState, currentState, man);
+			dynamicModel.Run(dCurrentState, currentState, control);
 		}
 		catch (std::out_of_range& e)
 		{

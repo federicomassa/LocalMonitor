@@ -11,7 +11,6 @@ using namespace std;
 using namespace LogFunctions;
 
 extern Logger logger;
-extern int currentTimeStep;
 
 Environment::Environment()
 {
@@ -38,7 +37,7 @@ const SimulAgentVector &Environment::GetAgents() const
     return agents;
 }
 
-void Environment::Run()
+void Environment::Run(const double& currentTime)
 {	
 	/*
 	// ========= Fill states of agents (in world coordinates) ==========
@@ -73,7 +72,7 @@ void Environment::Run()
 		
 		SensorOutput sensorOutput = selfAgent.SimulateSensors(selfWorld, othersInWorld, envParameters);
 			
-		selfAgent.EvolveState(sensorOutput);
+		selfAgent.EvolveState(sensorOutput, currentTime);
 	}
 }
 

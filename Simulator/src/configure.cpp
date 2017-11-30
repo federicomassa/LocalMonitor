@@ -92,7 +92,7 @@ void generateDynamicFunctionsFile(const nlohmann::json& j, ostream& outputModels
 		outputModels.clear();
 	
 		json dynModelsJson = j.at("dynamic_models");
-		string FcnType = "typedef void (*DynamicsFcn) (State&, const Agent&, const AgentVector&, const Control&);";
+		string FcnType = "typedef void (*DynamicsFcn) (State&, const Agent&, const Control&);";
 		
 		string includeGuard = "#ifndef DYNAMIC_MODELS_H\n#define DYNAMIC_MODELS_H\n";
 		string closeIncludeGuard = "#endif";

@@ -57,7 +57,7 @@
 		
 		{
 		"name" : "VelocitySensor",
-		"type" : "eernal"
+		"type" : "external"
 		},
 		
 		{
@@ -82,7 +82,7 @@
 		{
 			"name" : "SimpleEuropean",
 			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-			"controller" : "controller1",
+			"controller" : "TestController",
 			"control_variables" : ["a", "omega"],
 			"automaton" : "automaton1"
 		}

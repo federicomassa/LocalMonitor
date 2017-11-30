@@ -37,7 +37,7 @@ public:
 	void SetStateVariables(const std::vector<std::string>&);
 	void SetDynamicsFunction(const std::string&);
 	void SetStateConversionFunction(const std::string&);
-	void Run(State&, const Agent&, const AgentVector&, const Control&);
+	void Run(State&, const Agent&, const Control&);
 	State GetWorldState(const Agent&, const State& modelWorldState) const;
 	void SetControlVariables(const std::vector<std::string>&);
 	const std::string& GetName() const;

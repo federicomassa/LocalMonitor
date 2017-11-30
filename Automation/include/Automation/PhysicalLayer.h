@@ -9,17 +9,15 @@
 
 // TODO Written here because at present time the right place does not exist :D
 // Check that world conversion function instantiates each world agent variable
-
 class PhysicalLayer
 {
-    typedef void ( *DynamicsFcn ) ( State &, const Agent &, const AgentVector&, const Control & );
-	double simulTimeStep;
+	const double& simulTimeStep;
 	DynamicModel dynamicModel;
 public:
     PhysicalLayer ( const double &simulDeltaT );
 	PhysicalLayer (const PhysicalLayer& );
 	PhysicalLayer& operator=(const PhysicalLayer&);
-	State GetNextState(const State&, const Maneuver&) const;
+	State GetNextState(const State&, const Control&) const;
 	const double& GetSimulationTimeStep() const;
     void SetDynamicModel ( const DynamicModel& );
 	const DynamicModel& GetDynamicModel() const;

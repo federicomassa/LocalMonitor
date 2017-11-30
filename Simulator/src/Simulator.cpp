@@ -17,7 +17,6 @@
 using namespace std;
 
 Logger logger(cout);
-int currentTimeStep = 0;
 SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FILE));
 
 
@@ -40,7 +39,9 @@ int main(int argc, char **argv)
    if (argc > 1) {
         LogFunctions::Error("Simulator::main", "Simulator should be called with no arguments");
     }
-		
+	
+	int currentTimeStep = 0;
+	
     // Parse config file
     conf.Parse();
 
@@ -57,6 +58,8 @@ int main(int argc, char **argv)
 	
     for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) 
 	{
+		double currentTime = currentTimeStep*conf.GetSimulationTimeStep();
+		
 		env.ConvertAgentsToWorld();
 		
 		#ifdef USE_GRAPHICS
@@ -64,7 +67,7 @@ int main(int argc, char **argv)
 		simViewer->Encode();
 		#endif
 		
-        env.Run();
+        env.Run(currentTime);
     }
     
 #ifdef USE_GRAPHICS

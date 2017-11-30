@@ -18,21 +18,13 @@ class Agent
 {
     std::string ID;
     State state;
-	Maneuver maneuver;
 	AgentParameters parameters;
-	ManeuverList possibleManeuvers;
 public:
     Agent();
     const std::string &GetID() const;
     void SetID ( const std::string & );
     const State &GetState() const;
-	const Maneuver &GetManeuver() const;
     void SetState ( const State &q );
-	void SetPossibleManeuvers(const ManeuverList&);
-		/**
-	 * @brief Returns false if maneuver was not among the possible maneuvers (manList)
-	 */
-	bool SetManeuver(const ManeuverName&);
 	void SetParameters(const AgentParameters&);
 	const double& GetParameter(const std::string&) const;
 	// State variable accessors

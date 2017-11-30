@@ -24,12 +24,10 @@ class SimulAgent
 
     Agent agent;
     PhysicalLayer pLayer;
-	Controller controller;
-	Automaton automaton;
+	Controller* controller;
 	
 	// converted state to world coordinates. Set by GenerateWorldState
 	State worldState;
-	AutomationModel automationModel;
 	
 	// NB now we use Sensor*, not SensorPointer, because we want only
 	// one real instance of a sensor (instantiated in SensorPointer), and
@@ -43,6 +41,9 @@ class SimulAgent
 	
 	InternalSensorOutput RetrieveInternalSensorOutput(const std::string& sensorName,
 		const Agent& trueSelfInWorld);
+	
+	
+	void SendToController(const SensorOutput&, const double& currentTime);
 	
 	void SetDynamicFunction ( const std::string & );
 public:
@@ -60,7 +61,7 @@ public:
 	const State& GetWorldState() const;
 	const Agent& GetAgent() const;
 	bool SetManeuver(const ManeuverName&);
-    void EvolveState(const SensorOutput&);
+    void EvolveState(const SensorOutput&, const double& currentTime);
 	
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);
 	

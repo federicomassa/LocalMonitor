@@ -28,7 +28,7 @@ public:
      * @brief Invoked at each simulation step, evolves the system
      *
      */
-    void Run();
+    void Run(const double& currentTime);
 	void Configure ( const SimulatorConfiguration & );
 	
 	void ConvertAgentsToWorld();

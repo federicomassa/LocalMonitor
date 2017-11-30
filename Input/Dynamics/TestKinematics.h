@@ -7,7 +7,7 @@
 #include <math.h>
 #include <iostream>
 
-void TestKinematics(State& qdot, const Agent &self, const AgentVector& neighbors, const Control & u)
+void TestKinematics(State& qdot, const Agent &self, const Control & u)
 {
 		const State& q0 = self.GetState();
 		

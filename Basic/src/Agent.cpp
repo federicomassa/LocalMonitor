@@ -40,36 +40,18 @@ Agent& Agent::operator=(const Agent& a)
 {
 	ID = a.ID;
 	state = a.state;
-	maneuver = a.maneuver;
-	possibleManeuvers = a.possibleManeuvers;
+	parameters = a.parameters;
+	
+	return *this;
 }
 
-const Maneuver& Agent::GetManeuver() const
-{
-	return maneuver;
-}
 
 void Agent::SetState(const State &q)
 {
     state = q;
 }
 
-void Agent::SetPossibleManeuvers(const ManeuverList& manList)
-{
-	possibleManeuvers = manList;
-}
 
-bool Agent::SetManeuver(const ManeuverName& manName)
-{
-	if (possibleManeuvers.find(manName) != possibleManeuvers.end())
-	{
-		maneuver = manName;
-		return true;
-	}
-	
-	return false;
-		
-}
 
 void Agent::SetParameters(const AgentParameters& pars)
 {
@@ -86,6 +68,9 @@ const double& Agent::GetParameter(const string& parName) const
 	{
 		LogFunctions::Error("Agent::GetParameter", string(parName) + " in agent " + ID + " was not set");
 	}
+	
+	// Added to avoid warning, but shouldn't get here
+	return parameters.at("");
 }
 
 Logger &operator<<(Logger &os, const Agent &a)

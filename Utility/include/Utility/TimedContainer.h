@@ -57,6 +57,7 @@ public:
 	TimedContainer() {}
 	void insert(const double& time, const T& element);
 	void erase(iterator itr) {obj.erase(itr.itr);}
+	void clear();
 	iterator begin() {return iterator(obj.begin());}
 	iterator last() {return iterator(--(obj.end()));}
 	iterator end() {return iterator(obj.end());}
@@ -78,5 +79,23 @@ void TimedContainer<T>::insert(const double& time, const T& element)
 	if (needsSorting)
 		std::sort(obj.begin(), obj.end());
 }
+
+template<class T>
+void TimedContainer<T>::clear()
+{
+	if (size() == 0)
+		return;
+	else if (size() == 1)
+		erase(begin());
+	else
+	{
+		for (auto itr = begin(); itr != end(); itr++)
+		{
+			erase(itr);
+			itr--;
+		}
+	}
+}
+
 
 #endif

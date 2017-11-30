@@ -99,3 +99,22 @@ void SensorOutput::RetrieveSensorData(Agent& self, AgentVector& others, Environm
 	env = measuredEnvParams;
 }
 
+const Agent & SensorOutput::RetrieveSelfData() const
+{
+	return selfMeasure;
+}
+
+const AgentVector & SensorOutput::RetrieveOtherAgentsData() const
+{
+	return measuredAgents;
+}
+
+const EnvironmentParameters & SensorOutput::RetrieveEnvironmentData() const
+{
+	return measuredEnvParams;
+}
+
+
+
+
+

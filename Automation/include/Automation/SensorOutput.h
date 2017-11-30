@@ -31,6 +31,11 @@ public:
 	// Return total sensory system output
 	void RetrieveSensorData(Agent& self, AgentVector& others, EnvironmentParameters& env);
 	
+	const Agent& RetrieveSelfData() const;
+	const AgentVector& RetrieveOtherAgentsData() const;
+	const EnvironmentParameters& RetrieveEnvironmentData() const;
+	
+	
 };
 
 #endif

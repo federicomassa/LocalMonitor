@@ -2,6 +2,7 @@
 #include "SimulatorConfiguration.h"
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
+#include "Automation/DynamicModel.h"
 
 // Automatically created header during configure
 // It contains all the dynamic models declared in the config file
@@ -15,7 +16,7 @@ using namespace LogFunctions;
 extern Logger logger;
 extern SimulatorConfiguration conf;
 
-SimulAgent::SimulAgent() : pLayer(conf.GetSimulationTimeStep())
+SimulAgent::SimulAgent() : pLayer(conf.GetSimulationTimeStep()), controller(nullptr)
 {
 }
 
@@ -40,7 +41,7 @@ const State &SimulAgent::GetState() const
 
 const DynamicModel& SimulAgent::GetDynamicModel() const
 {
-	return dynamicModel;
+	return pLayer.GetDynamicModel();
 }
 
 void SimulAgent::SetState(const State& q)
@@ -50,12 +51,12 @@ void SimulAgent::SetState(const State& q)
 
 void SimulAgent::SetPossibleManeuvers(const ManeuverList& manList)
 {
-	agent.SetPossibleManeuvers(manList);
+//FIXME	agent.SetPossibleManeuvers(manList);
 }
 
 bool SimulAgent::SetManeuver(const ManeuverName& manName)
 {
-	return agent.SetManeuver(manName);
+// FIXME return agent.SetManeuver(manName);
 }
 
 
@@ -90,10 +91,18 @@ Logger &operator<<(Logger &os, const SimulAgent &a)
 }
 
 
-void SimulAgent::EvolveState(const SensorOutput& sensorOutput)
+void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& currentTime)
 {
-    agent.SetState(pLayer.GetNextState(agent.GetState(), agent.GetManeuver()));
+	SendToController(sensorOutput, currentTime);
+	Control control = controller->ComputeControl();
+    agent.SetState(pLayer.GetNextState(agent.GetState(), control));
 }
+
+void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)
+{
+	controller->ReceiveSensorOutput(sensorOutput, currentTime);
+}
+
 
 void SimulAgent::SetParameters(const AgentParameters& pars)
 {
@@ -120,9 +129,7 @@ ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string&
 	// Build vector of visible agents (with true states) and compute sensor output for those agents
 	AgentVector trueVisibleAgents;
 	for (auto visibleID = visibleIDs.begin(); visibleID != visibleIDs.end(); visibleID++)
-	{
 		trueVisibleAgents[*visibleID] = othersInWorld.at(*visibleID);
-	}
 	
 	
 	// ================ Prepare variables for to call sensor output =================
