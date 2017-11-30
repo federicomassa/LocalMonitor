@@ -15,6 +15,7 @@ class Environment
     SimulAgentVector agents;
 	WorldAgentFeatures agentFeatures;
 	WorldEnvironmentFeatures envFeatures;
+	EnvironmentParameters envParameters;
 	
 	State GenerateWorldAgentState() const;
 	State GenerateWorldEnvironmentState() const;

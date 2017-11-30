@@ -17,6 +17,11 @@ public:
 	const double& operator()(const std::string&) const;
 	double& operator()(const std::string&);
 	
+	Params::const_iterator begin() const;
+	Params::const_iterator end() const;
+	Params::iterator begin();
+	Params::iterator end();
+	
 	void AddEntry(const std::string& key, const double& value);
 	
 };

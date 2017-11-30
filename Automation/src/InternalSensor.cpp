@@ -6,9 +6,19 @@
 
 using namespace std;
 
-void InternalSensor::AddAgentMeasuredVariable(const std::string& var)
+void InternalSensor::AddSelfMeasuredVariable(const std::string& var)
 {
 	selfVars.insert(var);
+}
+
+const InternalSensor::SensorVars& InternalSensor::GetSelfMeasuredVariables() const
+{
+	return selfVars;
+}
+
+const std::string& InternalSensor::GetName()
+{
+	return name;
 }
 
 InternalSensorPointer::InternalSensorPointer(const std::string& name) : s(nullptr)
@@ -40,4 +50,14 @@ const InternalSensor* InternalSensorPointer::GetSensor() const
 const std::string& InternalSensorPointer::GetName() const
 {
 	return s->name;
+}
+
+void InternalSensorOutput::SetMeasuredSelf(const Agent& self)
+{
+	selfMeasure = self;
+}
+
+const Agent & InternalSensorOutput::GetMeasuredSelf() const
+{
+	return selfMeasure;
 }

@@ -9,6 +9,7 @@
 #include "Automation/Automaton.h"
 #include "Automation/InternalSensor.h"
 #include "Automation/ExternalSensor.h"
+#include "Automation/SensorOutput.h"
 
 #include <string>
 #include <map>
@@ -36,8 +37,12 @@ class SimulAgent
 	std::set<const ExternalSensor *> extSensors;
 	std::set<const InternalSensor *> intSensors;
 	
-	std::map<std::string, ExternalSensorOutput> RetrieveExternalSensorData(const std::string& sensorName);
-	InternalSensorOutput RetrieveInternalSensorOutput(const std::string& sensorName);
+	ExternalSensorOutput RetrieveExternalSensorOutput(const std::string& sensorName,
+		const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, 
+		const EnvironmentParameters& trueEnvParams);
+	
+	InternalSensorOutput RetrieveInternalSensorOutput(const std::string& sensorName,
+		const Agent& trueSelfInWorld);
 	
 	void SetDynamicFunction ( const std::string & );
 public:
@@ -55,7 +60,10 @@ public:
 	const State& GetWorldState() const;
 	const Agent& GetAgent() const;
 	bool SetManeuver(const ManeuverName&);
-    void EvolveState();
+    void EvolveState(const SensorOutput&);
+	
+	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);
+	
     friend Logger &operator<< ( Logger &, const SimulAgent & );
 };
 

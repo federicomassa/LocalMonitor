@@ -8,7 +8,6 @@ class InternalSensorOutput;
 
 class InternalSensor
 {
-	typedef std::set<std::string> SensorVars;
 	
 	friend class InternalSensorPointer;
 	std::string name;
@@ -17,14 +16,18 @@ class InternalSensor
 	SensorVars vars;	
 	
 protected:	
-	void AddAgentMeasuredVariable(const std::string&);
+	void AddSelfMeasuredVariable(const std::string&);
 	
 public:
+	typedef std::set<std::string> SensorVars;
+
 	virtual ~InternalSensor() {};
 	
 	// Agents are the same as the real agents but they are expressed in world variables (world_agent_features), via the StateConversion function declared in dynamic model 
-	virtual void SimulateOutput( InternalSensorOutput &, const Agent& self) = 0;
-
+	virtual void SimulateOutput( Agent& measuredSelf, const Agent& trueSelf) const = 0;
+	const SensorVars& GetSelfMeasuredVariables() const;
+	const std::string& GetName() const;
+	
 };
 
 
@@ -45,9 +48,10 @@ public:
 
 class InternalSensorOutput
 {
-	std::map<std::string, State> states;
+	Agent selfMeasure;
 public:
-	State& operator()(const std::string&);
+	void SetMeasuredSelf(const Agent&);
+	const Agent& GetMeasuredSelf() const;
 };
 
 

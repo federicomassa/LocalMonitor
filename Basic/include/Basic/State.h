@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <set>
 
 class Logger;
 
@@ -50,6 +51,7 @@ public:
 	
 	static State GenerateStateOfType( const State & );
 	static State GenerateStateOfType( const DynamicModel & );
+	static State GenerateStateOfType( const std::set<std::string>& );
 
     friend void CheckConsistency ( const std::string &, const State &, const State & );
 };

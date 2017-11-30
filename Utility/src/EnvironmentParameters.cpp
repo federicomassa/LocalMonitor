@@ -24,3 +24,23 @@ void EnvironmentParameters::AddEntry(const std::string& key, const double& value
 {
 	params[key] = value;
 }
+
+EnvironmentParameters::Params::const_iterator EnvironmentParameters::begin() const
+{
+	return params.begin();
+}
+
+EnvironmentParameters::Params::const_iterator EnvironmentParameters::end() const
+{
+	return params.end();
+}
+
+EnvironmentParameters::Params::iterator EnvironmentParameters::begin()
+{
+	return params.begin();
+}
+
+EnvironmentParameters::Params::iterator EnvironmentParameters::end()
+{
+	return params.end();
+}

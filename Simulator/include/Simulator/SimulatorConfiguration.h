@@ -6,7 +6,7 @@
 #include <set>
 
 #include "SimulAgent.h"
-#include "WorldFeatures.h"
+#include "Utility/WorldFeatures.h"
 #include "Utility/SimulationParameters.h"
 #include "Utility/EnvironmentParameters.h"
 #include "Automation/DynamicModel.h"
