@@ -12,7 +12,7 @@ DynamicModel::DynamicModel()
 	isNameSet = isStateVarsSet = isControlVarsSet = isDynamicsFcnSet = isConversionFcnSet = false;
 }
 
-void DynamicModel::Run(State& qdot, const Agent& self, const Control& u)
+void DynamicModel::Run(State& qdot, const Agent& self, const Control& u) const
 {
 	dynamicsFcn(qdot, self, u);
 }
@@ -62,7 +62,7 @@ void DynamicModel::SetStateConversionFunction(const std::string& s)
 {
 	isConversionFcnSet = true;
 	conversionFcnName = s;
-	conversionFcn = GetConversionFunction(s);
+	conversionFcn = GetStateConversionFunction(s);
 }
 
 

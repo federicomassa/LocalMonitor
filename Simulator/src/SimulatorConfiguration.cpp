@@ -2,7 +2,10 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
 
+#include "Automation/ControlModel.h"
 #include "SimulatorBuildParams.h"
+
+#include "Input/Automation/Controllers/Controllers.h"
 
 #include <iostream>
 #include <math.h>
@@ -29,8 +32,8 @@ SimulatorConfiguration::SimulatorConfiguration(const string &fileName)
 	RegisterMandatoryEntry("simulation_time_span");
 	RegisterMandatoryEntry("simulation_time_step");
 	RegisterMandatoryEntry("dynamic_models");
-
-	RegisterStandardEntry("control_models");	
+	RegisterMandatoryEntry("control_models");
+	
 	RegisterStandardEntry("simulator_viewer");
 	RegisterStandardEntry("world_environment_features");
 	RegisterStandardEntry("world_agent_features");
@@ -40,7 +43,8 @@ SimulatorConfiguration::SimulatorConfiguration(const string &fileName)
 
 
 void SimulatorConfiguration::Parse()
-{
+{	
+	
    // First check that all mandatory entries are present
 	for (auto itr = mandatoryEntries.begin(); itr != mandatoryEntries.end(); itr++)
 	{
@@ -59,7 +63,7 @@ void SimulatorConfiguration::Parse()
 	for (auto itr = j.begin(); itr != j.end(); itr++)
 	{
 		if (standardEntries.find(itr.key()) == standardEntries.end())
-			simParameters.AddEntry(itr.key(), itr.value());
+			simCustomEntries.AddEntry(itr.key(), itr.value());
 	}
 	
 	json dynModelsJson = GetEntry("dynamic_models");
@@ -67,6 +71,12 @@ void SimulatorConfiguration::Parse()
 	{
 		AddDynamicModel(dynModelsJson.at(modelIndex));
 	}
+	
+	json controlModelsJson = GetEntry("control_models");
+	for (int modelIndex = 0; modelIndex < dynModelsJson.size(); modelIndex++)
+		AddControlModel(controlModelsJson.at(modelIndex));
+	
+	
 	
 	//Optional parameters
 	try
@@ -262,6 +272,52 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 	catch (out_of_range&)
 	{}
 	
+	
+	// ========== Add controller, it's mandatory ============
+	// TODO Could be optional. 0 control by default
+	try
+	{
+		json controllerJson = GetEntry("control_model", agent);
+		
+		// TODO add a check like this to the other entries
+		if (!controllerJson.is_string())
+			Error("SimulatorConfiguration::ReadAgent", "\'control_model\' entry should be a string");
+		
+		string modelName = controllerJson.get<string>();
+		// Now look for this name in the list of declared control_models
+		for (auto model = controlModels.begin(); model != controlModels.end();
+			 model++)
+			 {
+				if (modelName == model->GetName())
+				{
+					if (a.controller)
+						Error("SimulatorConfiguration::ReadAgent", "BUG FIXME! Why is agent's controller already filled?");
+					
+					a.controller = model->GetController();
+					break;
+				}
+			 }
+	}
+	catch(out_of_range&)
+	{
+		Error("SimulatorConfiguration::ReadAgent", "\'control_model\' entry is mandatory" /* see TODO*/);
+	}
+	
+	
+	try
+	{
+		json initManJson = GetEntry("init_maneuver", agent);
+		if (!initManJson.is_string())
+			Error("SimulatorConfiguration::ReadAgent", "\'init_maneuver\' entry must be a string");
+		
+		string initMan = initManJson.get<string>();
+		a.SetManeuver(initMan);
+	}
+	catch(out_of_range&)
+	{
+		Error("SimulatorConfiguration::ReadAgent", "\'init_maneuver\' entry is mandatory");
+	}
+	
 	return a;
     
 }
@@ -338,9 +394,9 @@ const bool& SimulatorConfiguration::UseSimulatorViewer() const
 	return useSimulatorViewer;
 }
 
-const SimulationParameters& SimulatorConfiguration::GetSimulationParameters() const
+const SimulationParameters& SimulatorConfiguration::GetCustomEntries() const
 {
-	return simParameters;
+	return simCustomEntries;
 }
 
 const EnvironmentParameters& SimulatorConfiguration::GetEnvironmentParameters() const
@@ -427,6 +483,69 @@ void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)
 	dynamicModels.insert(m);
 	
 }
+
+void SimulatorConfiguration::AddControlModel ( const nlohmann::json & modelJ)
+{
+	ControlModel m;
+	
+	bool isNameSet = false, isManeuversSet = false, isControlVarSet = false, isControllerSet = false;
+	
+	
+	for (auto itr = modelJ.begin(); itr != modelJ.end(); itr++)
+	{
+		if (itr.key() == "name")
+		{
+			m.SetName(itr.value().get<string>());
+			isNameSet = true;
+		}
+		else if (itr.key() == "maneuvers")
+		{
+			json maneuversJson = itr.value();
+			if (maneuversJson.size() < 1)
+				Error("SimulatorConfiguration::AddControlModel", "\'maneuvers\' entry in control_models must contain an array [] of state variable names");
+			
+			vector<string> maneuvers;
+			for (int index = 0; 
+				 index < maneuversJson.size(); index++)
+					maneuvers.push_back(maneuversJson.at(index).get<string>());
+			
+			m.SetManeuvers(maneuvers);
+			isManeuversSet = true;
+		}
+		else if (itr.key() == "controller")
+		{
+			m.SetController(itr.value().get<string>());
+			isControllerSet = true;
+		}
+		else if (itr.key() == "control_variables")
+		{
+			json controlVarsJson = itr.value();
+			if (controlVarsJson.size() < 1)
+				Error("SimulatorConfiguration::AddDynamicModel", "control_variables entry in dynamic_models must contain an array [] of control variable names");
+			
+			vector<string> controlVars;
+			for (int controlIndex = 0; 
+				 controlIndex < controlVarsJson.size(); controlIndex++)
+					controlVars.push_back(controlVarsJson.at(controlIndex).get<string>());
+			
+			m.SetControlVariables(controlVars);
+			isControlVarSet = true;
+		}
+		else if (itr.key() == "automaton")
+		{
+			// TODO Fill here
+		}
+		else
+			Error("SimulatorConfiguration::AddControlModel", "Unknown entry \'" + itr.key() + "\'. Control models must each contain a name, a set of maneuvers, a controller class name, a set of controller variables, and an automaton" /*FIXME Automaton*/);
+	}
+	
+	if (!isNameSet || !isControlVarSet || !isManeuversSet || !isControllerSet /*FIXME Add automaton*/)
+		Error("SimulatorConfiguration::AddControllerModel", "Missing entry. Control models must each contain a name, a set of maneuvers, a controller class name, a set of controller variables, and an automaton" /*FIXME Automaton*/);
+	
+	controlModels.insert(m);
+	
+}
+
 
 const WorldAgentFeatures & SimulatorConfiguration::GetWorldAgentFeatures() const
 {

@@ -42,7 +42,7 @@
 	"parameters" :
 	{
 	"lanes" : "3", 
-	"lane_width" : "3",
+	"lane_width" : "3"
 	},
 	
 	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desired_speed"], 
@@ -82,7 +82,7 @@
 		{
 			"name" : "SimpleEuropean",
 			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-			"controller" : "TestController",
+			"controller" : "AccOmegaControl",
 			"control_variables" : ["a", "omega"],
 			"automaton" : "automaton1"
 		}

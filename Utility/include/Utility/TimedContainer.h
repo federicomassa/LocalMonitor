@@ -59,9 +59,12 @@ public:
 	void erase(iterator itr) {obj.erase(itr.itr);}
 	void clear();
 	iterator begin() {return iterator(obj.begin());}
+	iterator begin() const {return iterator(obj.begin());}
 	iterator last() {return iterator(--(obj.end()));}
+	iterator last() const {return iterator(--(obj.end()));}
 	iterator end() {return iterator(obj.end());}
-	int size() {return obj.size();}
+	iterator end() const {return iterator(obj.end());}
+	int size() const {return obj.size();}
 };
 
 template<class T>

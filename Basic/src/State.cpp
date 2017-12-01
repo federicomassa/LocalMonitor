@@ -192,6 +192,16 @@ State State::GenerateStateOfType(const set<string>& vars)
 	return newState;
 }
 
+State State::GenerateStateOfType(const vector<string>& vars)
+{
+	State newState;
+	
+	for (auto var = vars.begin(); var != vars.end(); var++)
+		newState[*var] = 0.0;
+	
+	return newState;
+}
+
 
 void CheckConsistency(const string &className, const State &q1, const State &q2)
 {

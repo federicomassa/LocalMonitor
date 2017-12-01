@@ -1,5 +1,7 @@
 #include "EnvironmentParameters.h"
 
+using namespace std;
+
 const double& EnvironmentParameters::at(const std::string& var) const
 {
 	return params.at(var);
@@ -43,4 +45,20 @@ EnvironmentParameters::Params::iterator EnvironmentParameters::begin()
 EnvironmentParameters::Params::iterator EnvironmentParameters::end()
 {
 	return params.end();
+}
+
+bool EnvironmentParameters::IsAvailable(const std::string& key) const
+{
+	bool isAvailable = true;
+	
+	try
+	{
+		at(key);
+	}
+	catch (out_of_range&)
+	{
+		isAvailable = false;
+	}
+	
+	return isAvailable;
 }

@@ -3,7 +3,6 @@
 
 #include "Basic/Agent.h"
 #include "Automation/DynamicModel.h"
-#include "Automation/AutomationModel.h"
 #include "Automation/PhysicalLayer.h"
 #include "Automation/Controller.h"
 #include "Automation/Automaton.h"
@@ -54,7 +53,6 @@ public:
     const State &GetState() const;
 	const DynamicModel& GetDynamicModel() const;
     void SetState ( const State & );
-	void SetPossibleManeuvers(const ManeuverList&);
 	void SetDynamicModel(const DynamicModel&);
 	void SetParameters(const AgentParameters&);
 	State GenerateWorldState(const State&);

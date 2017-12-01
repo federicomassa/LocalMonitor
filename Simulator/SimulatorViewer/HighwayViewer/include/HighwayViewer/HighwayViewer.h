@@ -6,6 +6,7 @@
 #include "Utility/QTFFmpegWrapper/QVideoEncoder.h"
 #include <QApplication>
 #include <QPointer>
+#include <string>
 #include <vector>
 #include <QGraphicsScene>
 
@@ -33,7 +34,7 @@ class HighwayViewer : public SimulatorViewer
 	const int height;
 	
 	//ID of subject vehicle
-	const string subjID;
+	const std::string subjID;
 	
 	// Active the first iteration, to set oldU0
 	bool first;

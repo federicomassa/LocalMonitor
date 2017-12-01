@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
+set(CMAKE_CXX_STANDARD 11)
+
 set(MODULE_NAME
     Automation)
 
@@ -14,7 +16,7 @@ set(MODULE_SOURCE_DIR
 set(MODULE_SOURCES
 	PhysicalLayer.cpp
 	DynamicModel.cpp
-	AutomationModel.cpp
+	ControlModel.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
@@ -28,6 +30,7 @@ add_library(${MODULE_NAME} STATIC
   )
   
 target_link_libraries(${MODULE_NAME} Basic)
+target_link_libraries(${MODULE_NAME} Input)
 
 target_include_directories(${MODULE_NAME} PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${MODULE_NAME}>

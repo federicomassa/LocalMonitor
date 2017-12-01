@@ -20,6 +20,8 @@ Logger logger(std::cout);
 void generateDynamicFunctionsFile(const nlohmann::json& j, ostream& outputModels);
 void generateStateConversionFile(const nlohmann::json& j, ostream& os);
 void generateSensorList(const nlohmann::json& j, ostream& os);
+void generateControllerList(const nlohmann::json& j, ostream& os);
+
 
 int main(int argc, char** argv)
 {
@@ -33,7 +35,7 @@ int main(int argc, char** argv)
 	if (!configFile.is_open())
 		Error("configure::main", string("Cannot open ") + configFilePath);
 	
-	
+	Info("configure::main", string("Opened file ") + argv[1]);
 	
 	ofstream outputCMakeConfig((string(rootPath) + "/Simulator/src/SET_SIMULATOR_VARIABLES.in").c_str());
 	
@@ -42,7 +44,15 @@ int main(int argc, char** argv)
 	outputModels.clear();
 	
 	json j;
-	configFile >> j;
+	
+	try
+	{
+		configFile >> j;
+	}
+	catch(exception& e)
+	{
+		Error("configure - json parsing", e.what());
+	}
 	
 	try 
 	{
@@ -70,18 +80,34 @@ int main(int argc, char** argv)
 		Error("configure::main", (string("simulator_viewer was not set in ") + configFilePath).c_str());
 	}
 	
+	
+	Info("configure::main", "CMake output configured.");
+	
 	ofstream outputConversion((string(rootPath) + "/Input/Dynamics/StateConversions.h")); 
 	
 	
 	generateDynamicFunctionsFile(j, outputModels);
+	
+	Info("configure::main", "Dynamic functions configured.");
+	
 	generateStateConversionFile(j, outputConversion);
 	
-	ofstream outputSensors((string(rootPath) + "/Input/Automation/Sensors.h")); 
+	Info("configure::main", "Agent to world state conversion functions configured.");
+	
+	ofstream outputSensors((string(rootPath) + "/Input/Automation/Sensors/Sensors.h")); 
 	generateSensorList(j, outputSensors);
-
+	
+	Info("configure::main", "Sensors list configured.");
 	// TODO Generate skeleton header and source for Sensor children
 	
-	cout << "Configured." << endl;
+	
+	
+	ofstream outputControllers((string(rootPath) + "/Input/Automation/Controllers/Controllers.h")); 
+	generateControllerList(j, outputControllers);
+	
+	Info("configure::main", "Controller list configured.");
+	
+	cout << endl << "...configuration complete!" << endl;
 	return 0;	
 }
 
@@ -98,9 +124,10 @@ void generateDynamicFunctionsFile(const nlohmann::json& j, ostream& outputModels
 		string closeIncludeGuard = "#endif";
 		
 		string includeString = "#include <string>";
+		string includeCstdlib = "#include <cstdlib>";
 		string includeIostream = "#include <iostream>";
 		string includeAgent = "#include \"Basic/Agent.h\"";
-		string includeControl = "#include \"Basic/Control.h\"";
+		string includeControl = "#include \"Automation/Control.h\"";
 		
 		
 		vector<string> dynFcnName;
@@ -112,6 +139,7 @@ void generateDynamicFunctionsFile(const nlohmann::json& j, ostream& outputModels
 		
 		outputModels << includeGuard << endl;
 		outputModels << includeString << endl;
+		outputModels << includeCstdlib << endl;
 		outputModels << includeIostream << endl;
 		outputModels << includeAgent << endl;
 		outputModels << includeControl << endl;
@@ -348,4 +376,74 @@ void generateSensorList(const nlohmann::json& j, ostream& os)
 		os << closeIncludeGuard;
 		
 }
+
+
+
+void generateControllerList(const nlohmann::json& j, ostream& os)
+{
+		os.clear();
+		
+		json thisJson = j.at("control_models");
+		
+		string includeGuard = "#ifndef CONTROLLERS_H\n#define CONTROLLERS_H\n";
+		string closeIncludeGuard = "#endif";
+		
+		string includeString = "#include <string>";
+		string includeIostream = "#include <iostream>";		
+		
+		vector<string> controllerClasses;
+		for (int index = 0; index < thisJson.size(); index++)
+			controllerClasses.push_back(thisJson.at(index).at("controller").get<string>());
+		
+		
+		os << includeGuard << endl;
+		os << includeString << endl;
+		os << includeIostream << endl;
+		
+		// This file will include the header of each conversionamics function declared in conversionamic_models entry
+		for (int i = 0; i < controllerClasses.size(); i++)
+			os << "#include \"" << controllerClasses[i] << ".h\"" << endl;
+		
+		os << endl;
+		
+		// ============= Internal sensor function ============
+		// Open function
+		os <<
+		"Controller* InstantiateController(const std::string& controllerClassName) \n{\n\t";
+		
+		bool first = true;
+		for (int i = 0; i < controllerClasses.size(); i++)
+		{
+			
+			if (first)
+			{
+				os << "if (controllerClassName == " << "\"" << controllerClasses[i] << "\")\n\t\t";
+				os << "return new " << controllerClasses[i] << ";\n\t";
+				first = false;
+			}
+			else
+			{
+				os << "else if (controllerClassName == " << "\"" << controllerClasses[i] << "\")\n\t\t";
+				os << "return new " << controllerClasses[i] << ";\n\t";
+			}
+		}
+		
+		// There was at least one sensor
+		if (!first)
+		{
+			os << "else \n\t\t";
+			os << "{\n\t\t\tstd::cerr << \"Error in configure: \" << controllerClassName << \".h not found\";\n\t\t\texit(1);\n\t\t} " << endl;
+		}
+		else
+		{
+			os << "std::cerr << \"Error in configure: \" << controllerClassName << \".h not found\";\n\texit(1);\n";
+		}
+		
+		// Close function
+		os << "}" << endl << endl;
+				
+		os << closeIncludeGuard;
+		
+}
+
 

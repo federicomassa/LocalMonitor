@@ -25,12 +25,13 @@ add_library(${MODULE_NAME} STATIC
   )
 
 target_include_directories(${MODULE_NAME} PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Dynamics>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${MODULE_NAME}>
 )
 
+# to be called with Input/
 target_include_directories(${MODULE_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
     $<INSTALL_INTERFACE:>
 )
 

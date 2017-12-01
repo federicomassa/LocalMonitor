@@ -2,7 +2,7 @@
 #define PHYSICAL_LAYER_H
 
 #include "Basic/Agent.h"
-#include "Basic/Control.h"
+#include "Control.h"
 #include "DynamicModel.h"
 
 #include <string>
@@ -17,7 +17,7 @@ public:
     PhysicalLayer ( const double &simulDeltaT );
 	PhysicalLayer (const PhysicalLayer& );
 	PhysicalLayer& operator=(const PhysicalLayer&);
-	State GetNextState(const State&, const Control&) const;
+	State GetNextState(const Agent&, const Control&) const;
 	const double& GetSimulationTimeStep() const;
     void SetDynamicModel ( const DynamicModel& );
 	const DynamicModel& GetDynamicModel() const;

@@ -1,7 +1,7 @@
 #ifndef TEST_KINEMATICS_H
 #define TEST_KINEMATICS_H
 
-#include "Basic/Control.h"
+#include "Automation/Control.h"
 #include "Basic/Agent.h"
 #include "Utility/LogFunctions.h"
 #include <math.h>

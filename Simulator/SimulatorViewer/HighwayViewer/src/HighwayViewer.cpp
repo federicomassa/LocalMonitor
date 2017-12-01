@@ -2,7 +2,7 @@
 
 #include "SimulatorConfiguration.h"
 #include "SimulatorBuildParams.h"
-#include "SimulationParameters.h"
+#include "Utility/SimulationParameters.h"
 #include "Utility/LogFunctions.h"
 #include "Basic/State.h"
 #include "ConvertState.h"
@@ -29,11 +29,11 @@ using namespace LogFunctions;
 
 HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(c),
     ui(new Ui::HighwayViewer), scene(nullptr), width(1920), height(9.0 / 16.0 * double(width)), 
-    treesDistance(20), treeRadius(2), laneWidth(atof(c.GetParameters().at("lane_width").c_str())),
-    markLength(atof(c.GetParameters().at("mark_length").c_str())), 
-    markWidth(atof(c.GetParameters().at("mark_width").c_str())),
-    markDistance(atof(c.GetParameters().at("mark_distance").c_str())),
-    subjID(atof(c.GetParameters().at("subject_vehicle_id").c_str()))
+	subjID(c.GetCustomEntries().at("subject_vehicle_id").c_str()),
+    treesDistance(20), treeRadius(2), laneWidth(atof(c.GetCustomEntries().at("lane_width").c_str())),
+    markLength(atof(c.GetCustomEntries().at("mark_length").c_str())), 
+    markWidth(atof(c.GetCustomEntries().at("mark_width").c_str())),
+    markDistance(atof(c.GetCustomEntries().at("mark_distance").c_str()))
 {	
 	ui->setupUi(this);
     Q_INIT_RESOURCE(resources);
@@ -55,7 +55,7 @@ HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(
     int lanes;
 
     try {
-        lanes = int(GetSimulatorConfiguration().GetParameters().at("lanes"));
+        lanes = atoi(GetSimulatorConfiguration().GetCustomEntries().at("lanes").c_str());
         if (lanes < 1)
             Error("HighwayViewer::DrawStaticEnvironment", "Parameter \'lanes\' must contain an \
 			integer > 1");
@@ -120,7 +120,7 @@ void HighwayViewer::DrawStaticEnvironment()
 	scene->addRect(0, (height + totalRoadHeight) / 2.0 - SpaceToPixel(edgeDistance + edgeWidth), width, SpaceToPixel(edgeWidth), QPen(), QBrush(edgeColor));
 
     // Draw markers in initial position
-		int nLanes = int(GetSimulatorConfiguration().GetParameters().at("lanes"));
+		int nLanes = atoi(GetSimulatorConfiguration().GetCustomEntries().at("lanes").c_str());
         // Draw markers in initial position
 		
         for (int i = 0; i < nLanes - 1; i++) {

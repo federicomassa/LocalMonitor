@@ -43,3 +43,8 @@ Logger &operator<< ( Logger & os, const Maneuver & man)
 {
 	os << "Maneuver : " << man.man << os.EndL();
 }
+
+const std::string Maneuver::GetManeuverName() const
+{
+	return man;
+}

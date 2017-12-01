@@ -30,32 +30,32 @@ const double & PhysicalLayer::GetSimulationTimeStep() const
 	return simulTimeStep;
 }
 
-State PhysicalLayer::GetNextState(const State & currentState, const Control& control) const
+State PhysicalLayer::GetNextState(const Agent & currentAgent, const Control& control) const
 {
-	State dCurrentState = State::GenerateStateOfType(currentState);
+	State dCurrentState = State::GenerateStateOfType(currentAgent.GetState());
 	
-	if (dynamicModel.isSet())
+	if (dynamicModel.IsSet())
 	{
 		try
 		{
-			dynamicModel.Run(dCurrentState, currentState, control);
+			dynamicModel.Run(dCurrentState, currentAgent, control);
 		}
 		catch (std::out_of_range& e)
 		{
-			Error("PhysicaLLayer::GetNextState", string("Out of range exception thrown in kinematics function ") + dynamicModel.GetDynamicFunctionName());
+			Error("PhysicaLLayer::GetNextState", string("Out of range exception thrown in kinematics function ") + dynamicModel.GetDynamicsFunctionName());
 			exit(1);
 		}
 	}
 	
-	CheckConsistency("PhysicalLayer::GetNextState", dCurrentState, currentState);
+	CheckConsistency("PhysicalLayer::GetNextState", dCurrentState, currentAgent.GetState());
 	
-	State nextState =  currentState + dCurrentState*simulTimeStep;
+	State nextState =  currentAgent.GetState() + dCurrentState*simulTimeStep;
 	return nextState;
 }
 
 void PhysicalLayer::SetDynamicModel(const DynamicModel& m)
 {
-    dynamicModel = m;
+    dynamicModel = m;	
 }
 
 const DynamicModel& PhysicalLayer::GetDynamicModel() const

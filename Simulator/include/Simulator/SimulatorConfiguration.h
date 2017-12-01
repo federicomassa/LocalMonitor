@@ -15,7 +15,7 @@
 #include "Automation/ExternalSensor.h"
 #include "json.hpp"
 
-
+class ControlModel;
 class SimulatorViewer;
 
 /**
@@ -40,7 +40,7 @@ class SimulatorConfiguration
 	bool useSimulatorViewer;
 	
 	// Non numerical custom parameters
-	SimulationParameters simParameters;
+	SimulationParameters simCustomEntries;
 	// Numerical, potentially measurable, environment parameters
 	EnvironmentParameters envParameters;
 	
@@ -75,6 +75,7 @@ class SimulatorConfiguration
     SimulAgent ReadAgent ( const nlohmann::json & );
 	void ReadSensor(const nlohmann::json&);
 	void AddDynamicModel ( const nlohmann::json & );
+	void AddControlModel ( const nlohmann::json & );
 
 	//Sensing ReadSensing(const nlohmann::json& agent);
 public:
@@ -94,7 +95,7 @@ public:
 
     const int &GetSimulationSteps() const;
 	const double &GetSimulationTimeStep() const;
-	const SimulationParameters& GetSimulationParameters() const;
+	const SimulationParameters& GetCustomEntries() const;
 	const double& GetEnvironmentParameter(const std::string& parName) const;		const EnvironmentParameters& GetEnvironmentParameters() const;
 
 	const AgentParameters& GetAgentCustomEntry(const std::string& ID) const;

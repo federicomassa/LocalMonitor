@@ -12,11 +12,7 @@
 
 InternalSensor* InstantiateInternalSensor(const std::string& sensorClassName) 
 {
-	if (sensorClassName == "VisionSensor")
-		return new VisionSensor;
-	else if (sensorClassName == "VelocitySensor")
-		return new VelocitySensor;
-	else if (sensorClassName == "SelfSensor")
+	if (sensorClassName == "SelfSensor")
 		return new SelfSensor;
 	else 
 		{
@@ -27,8 +23,15 @@ InternalSensor* InstantiateInternalSensor(const std::string& sensorClassName)
 
 ExternalSensor* InstantiateExternalSensor(const std::string& sensorClassName) 
 {
-	std::cerr << "Error in configure: " << sensorClassName << ".h not found";
-	exit(1);
+	if (sensorClassName == "VisionSensor")
+		return new VisionSensor;
+	else if (sensorClassName == "VelocitySensor")
+		return new VelocitySensor;
+	else 
+		{
+			std::cerr << "Error in configure: " << sensorClassName << ".h not found";
+			exit(1);
+		} 
 }
 
 #endif

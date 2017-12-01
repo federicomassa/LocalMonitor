@@ -94,7 +94,9 @@ Logger &operator<<(Logger &os, const SimulAgent &a)
 void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& currentTime)
 {
 	SendToController(sensorOutput, currentTime);
-	Control control = controller->ComputeControl();
+	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();
+	Control control = Control::GenerateStateOfType(controlVars);
+	controller->ComputeControl(control, );
     agent.SetState(pLayer.GetNextState(agent.GetState(), control));
 }
 

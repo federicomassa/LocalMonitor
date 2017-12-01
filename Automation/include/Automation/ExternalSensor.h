@@ -12,6 +12,9 @@ class EnvironmentParameters;
 
 class ExternalSensor
 {
+public:
+	typedef std::set<std::string> SensorVars;
+private:
 	friend class SensorPointer;
 	std::string name;
  
@@ -27,7 +30,6 @@ protected:
 	void AddEnvironmentMeasuredVariable(const std::string&);
 	
 public:
-	typedef std::set<std::string> SensorVars;
 
 	ExternalSensor();
 	virtual ~ExternalSensor();

@@ -2,12 +2,13 @@
 #define DYNAMIC_MODELS_H
 
 #include <string>
+#include <cstdlib>
 #include <iostream>
 #include "Basic/Agent.h"
-#include "Basic/Control.h"
+#include "Automation/Control.h"
 #include "TestKinematics.h"
 
-typedef void (*DynamicsFcn) (State&, const Agent&, const AgentVector&, const Control&);
+typedef void (*DynamicsFcn) (State&, const Agent&, const Control&);
 
 DynamicsFcn GetDynamicsFunction(const std::string& fcnName) 
 {

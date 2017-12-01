@@ -16,15 +16,19 @@ class Controller
 	TimedContainer<Agent> selfTrajectory;
 	TimedContainer<AgentVector> othersTrajectory;
 	TimedContainer<EnvironmentParameters> environmentTrajectory;
-	TimedContainer<Maneuver> selfManeuvers;
 public:
-	virtual Control ComputeControl() const = 0;
+	virtual void ComputeControl(Control&, const Maneuver&) const = 0;
 	
 	// By default, stores only last sensor data. If a different behaviour
 	// is desired, please override this function in your controller
+	// TODO make other functions to facilitate this task for the user
 	virtual void ReceiveSensorOutput(const SensorOutput&, const double& currentTime);
+
+	const TimedContainer<Agent>& GetSelfTrajectory() const;
+	const TimedContainer<AgentVector>& GetOtherAgentsTrajectory() const;
+	const TimedContainer<EnvironmentParameters>& GetEnvironmentTrajectory() const;
 	
-	
+	virtual ~Controller() = 0;
 	
 };
 

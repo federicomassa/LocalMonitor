@@ -8,7 +8,9 @@ class InternalSensorOutput;
 
 class InternalSensor
 {
-	
+public:
+	typedef std::set<std::string> SensorVars;
+private:	
 	friend class InternalSensorPointer;
 	std::string name;
  
@@ -18,8 +20,7 @@ class InternalSensor
 protected:	
 	void AddSelfMeasuredVariable(const std::string&);
 	
-public:
-	typedef std::set<std::string> SensorVars;
+
 
 	virtual ~InternalSensor() {};
 	
@@ -40,7 +41,6 @@ public:
 	~InternalSensorPointer();
 	bool operator==(const InternalSensorPointer &) const;
 	bool operator<(const InternalSensorPointer &) const;
-	~InternalSensorPointer();
 	InternalSensor * GetSensor();
 	const InternalSensor * GetSensor() const;
 	const std::string& GetName() const;

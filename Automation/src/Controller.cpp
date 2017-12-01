@@ -15,3 +15,21 @@ void Controller::ReceiveSensorOutput(const SensorOutput& sensorOutput, const dou
 	othersTrajectory.insert(currentTime, currentOthers);
 	environmentTrajectory.insert(currentTime, currentEnv);
 }
+
+const TimedContainer<Agent> & Controller::GetSelfTrajectory() const
+{
+	return selfTrajectory;
+}
+
+const TimedContainer<AgentVector> & Controller::GetOtherAgentsTrajectory() const
+{
+	return othersTrajectory;
+}
+
+const TimedContainer<EnvironmentParameters> & Controller::GetEnvironmentTrajectory() const
+{
+	return environmentTrajectory;
+}
+
+
+

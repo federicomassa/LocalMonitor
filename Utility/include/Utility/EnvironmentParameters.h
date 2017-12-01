@@ -17,6 +17,8 @@ public:
 	const double& operator()(const std::string&) const;
 	double& operator()(const std::string&);
 	
+	bool IsAvailable(const std::string& key) const;
+	
 	Params::const_iterator begin() const;
 	Params::const_iterator end() const;
 	Params::iterator begin();
