@@ -176,8 +176,9 @@ void HighwayViewer::DrawStaticEnvironment()
 			 double vehicleLength;
 			 try
 			 {
-			imageName = ":/" + GetSimulatorConfiguration().GetAgentParameters(agent->first).at("image");
-			vehicleLength = atof(GetSimulatorConfiguration().GetAgentParameters(agent->first).at("length").c_str());
+			imageName = string(":/") + GetSimulatorConfiguration().GetAgentCustomEntries(agent->first)("image");
+			
+			vehicleLength = atof(GetSimulatorConfiguration().GetAgentCustomEntries(agent->first).at("length").c_str());
 			 }
 			 catch(out_of_range&)
 			 {

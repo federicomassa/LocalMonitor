@@ -10,12 +10,14 @@
 class SensorOutput;
 class EnvironmentParameters;
 
+class ExternalSensorOutput;
+
 class ExternalSensor
 {
 public:
 	typedef std::set<std::string> SensorVars;
 private:
-	friend class SensorPointer;
+	friend class ExternalSensorPointer;
 	std::string name;
  
 
@@ -37,7 +39,7 @@ public:
 	// Agents are the same as the real agents but they are expressed in world variables (world_agent_features), via the StateConversion function declared in dynamic model 
 	virtual void SimulateVisibility(StateRegion& visibleRegion, std::set<std::string>& visibleIDs, const Agent& selfInWorld, const AgentVector& othersInWorld) const = 0;
 	
-	virtual void SimulateOutput(AgentVector& measuredAgents, EnvironmentParameters& measuredEnv, const Agent& trueSelf, const AgentVector& trueOthers, const EnvironmentParameters& trueEnvParams) const = 0;
+	virtual void SimulateOutput(ExternalSensorOutput& output, const Agent& trueSelf, const AgentVector& trueOthers, const EnvironmentParameters& trueEnvParams) const = 0;
 	
 	const SensorVars& GetMeasuredAgentVariables() const;
 	const SensorVars& GetMeasuredEnvironmentVariables() const;

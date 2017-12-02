@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 
-
+class Logger;
 
 class EnvironmentParameters
 {
@@ -26,6 +26,10 @@ public:
 	
 	void AddEntry(const std::string& key, const double& value);
 	
+	friend Logger& operator<< (Logger &, const EnvironmentParameters&);
+	
 };
+
+Logger& operator<< (Logger&, const EnvironmentParameters&);
 
 #endif

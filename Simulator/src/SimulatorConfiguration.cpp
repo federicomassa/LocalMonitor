@@ -82,9 +82,30 @@ void SimulatorConfiguration::Parse()
 	try
 	{
 		json envParametersJson = GetEntry("parameters");
-		for (auto itr = envParametersJson.begin(); itr != envParametersJson.end();
-			 itr++)
-				envParameters.AddEntry(itr.key(), itr.value().get<double>());
+		if (!envParametersJson.is_array())
+			Error("SimulatorConfiguration::Parse", "Entry \'parameters\' must be an array of strings");
+		
+		for (int index = 0; index < envParametersJson.size(); index++)
+		{
+			// Look for the parameters in the main json object
+			string key = envParametersJson.at(index).get<string>();
+			string valueStr;
+			
+			try
+			{
+				if (GetEntry(key).is_string())
+					valueStr = GetEntry(key).get<string>();
+				else
+					Error("SimulatorConfiguration::Parse", string("All parameters are strings, i.e. between quotes. Please define \'") + key + "\' as string");
+			}
+			catch(out_of_range&)
+			{
+				Error("SimulatorConfiguration::Parse", string("parameter \'") +
+				key + "\' was not found in config file. Please set a value for it somewhere in the file");
+			}
+			
+			envParameters.AddEntry(key, atof(valueStr.c_str()));
+		}
 	}
 	catch (out_of_range&)
 	{}
@@ -99,7 +120,10 @@ void SimulatorConfiguration::Parse()
     simulSteps = round(simulRealTimeSpan / simulTimeStep);
 
     set<string> IDSet;
-
+	json agentsJson = GetEntry("agents");
+	if (!agentsJson.is_array())
+		Error("SimulatorConfiguration", "Entry \'agents\' must be an array");
+	
     for (int agentIndex = 0; agentIndex < agentsJson.size(); agentIndex++) {
         json agentJson = agentsJson.at(agentIndex);
 
@@ -162,7 +186,7 @@ void SimulatorConfiguration::Parse()
 SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 {
     SimulAgent a;
-	AgentParameters aCustomEntries;
+	AgentCustomEntries aCustomEntries;
 
     try {
 		for (json::const_iterator it = agent.begin(); it != agent.end();
@@ -176,11 +200,12 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 					it.key() != "communication" &&
 					it.key() != "sensors" &&
 					it.key() != "parameters")
-					aCustomEntries[it.key()] = it.value();
+					aCustomEntries.AddEntry(it.key(), it.value());
 			 }
 		
         a.SetID(agent.at("id"));
-		
+		agentsCustomEntries[a.GetID()] = aCustomEntries;
+
 		string dynamicModelName = agent.at("dynamic_model").get<string>();
 		DynamicModel tmpModel;
 		tmpModel.SetName(dynamicModelName);
@@ -213,10 +238,28 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 		try
 		{
 			json agentParameters = agent.at("parameters");
+			if (!agentParameters.is_array())
+				Error("SimulatorConfiguration::ReadAgent", "Entry \'parameters\' in agent must be an array");
+			
 			AgentParameters aParam;
-			for (auto parItr = agentParameters.begin(); 
-				 parItr != agentParameters.end(); parItr++)
-					aParam[parItr.key()] = parItr.value().get<double>();
+			for (int parIndex = 0; parIndex < agentParameters.size(); 
+				 parIndex++)
+				 {
+					string key = agentParameters.at(parIndex).get<string>();
+					string value;
+					// Now check if this key is linked to a value in agent json
+					try
+					{
+						value = GetEntry(key, agent).get<string>();
+					}
+					catch(out_of_range&)
+					{
+						Error("SimulatorConfiguration::ReadAgent", string("parameter \'") +
+				key + "\' was not found in agent object. Please set a value for it somewhere in the agent object.");
+					}
+					
+					aParam.AddEntry(key, atof(value.c_str()));
+				 }
 					
 			a.SetParameters(aParam);
 				 
@@ -231,7 +274,6 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
         exit(1);
 	}
 
-	agentsCustomEntries[a.GetID()] = aCustomEntries;
 	
 	// Add sensors to agent (optional)
 	try
@@ -409,7 +451,7 @@ const double& SimulatorConfiguration::GetEnvironmentParameter(const std::string&
 	return envParameters(parName);
 }
 
-const AgentParameters & SimulatorConfiguration::GetAgentCustomEntry(const std::string& ID) const
+const AgentCustomEntries & SimulatorConfiguration::GetAgentCustomEntries(const std::string& ID) const
 {
 	try
 	{

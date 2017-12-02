@@ -11,7 +11,7 @@ public:
 	void SimulateVisibility(StateRegion& visible, std::set<std::string>& visibleIDs, const Agent& selfInWorld,
 						   const AgentVector& othersInWorld) const override;
 						   
-	void SimulateOutput(SensorOutput& outputInWorld, const Agent& selfInWorld, const AgentVector& othersInWorld, const SimulationParameters& envParam) const override;
+	void SimulateOutput(ExternalSensorOutput& outputInWorld, const Agent& selfInWorld, const AgentVector& othersInWorld, const EnvironmentParameters& envParam) const override;
 };
 
 #endif

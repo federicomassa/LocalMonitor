@@ -4,8 +4,6 @@
 #include <map>
 #include <string>
 
-
-
 class SimulationParameters
 {
 	typedef std::map<std::string, std::string> Params;

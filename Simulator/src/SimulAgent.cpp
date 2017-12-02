@@ -49,14 +49,14 @@ void SimulAgent::SetState(const State& q)
     agent.SetState(q);
 }
 
-void SimulAgent::SetPossibleManeuvers(const ManeuverList& manList)
+void SimulAgent::SetManeuver(const ManeuverName& manName)
 {
-//FIXME	agent.SetPossibleManeuvers(manList);
+	automaton.SetManeuver(manName);
 }
 
-bool SimulAgent::SetManeuver(const ManeuverName& manName)
+const Maneuver& SimulAgent::GetManeuver() const
 {
-// FIXME return agent.SetManeuver(manName);
+	return automaton.GetManeuver();
 }
 
 
@@ -96,8 +96,8 @@ void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& cur
 	SendToController(sensorOutput, currentTime);
 	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();
 	Control control = Control::GenerateStateOfType(controlVars);
-	controller->ComputeControl(control, );
-    agent.SetState(pLayer.GetNextState(agent.GetState(), control));
+	controller->ComputeControl(control, GetManeuver());
+    agent.SetState(pLayer.GetNextState(agent, control));
 }
 
 void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)
@@ -158,14 +158,9 @@ ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string&
 		measuredEnvParameters.AddEntry(*itr, 0.0);
 	
 	// Compute the output
-	sensor->SimulateOutput(measuredVisibleAgents, measuredEnvParameters, selfInWorld, othersInWorld, envParams);
-	
-	// Now build output object and return it
 	ExternalSensorOutput output;
-	output.SetVisibleRegion(visibleRegion);
-	output.SetMeasuredAgents(measuredVisibleAgents);
-	output.SetMeasuredEnvironment(measuredEnvParameters);
-	
+	sensor->SimulateOutput(output, selfInWorld, othersInWorld, envParams);
+		
 	return output;
 	
 }
@@ -192,11 +187,8 @@ InternalSensorOutput SimulAgent::RetrieveInternalSensorOutput(const std::string&
 	measuredSelf.SetState(measuredSelfState);
 	
 	// Compute the output
-	sensor->SimulateOutput(measuredSelf, trueSelfInWorld);
-	
-	// Now build output object and return it
 	InternalSensorOutput output;
-	output.SetMeasuredSelf(measuredSelf);
+	sensor->SimulateOutput(output, trueSelfInWorld);
 	
 	return output;
 }

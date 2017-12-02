@@ -17,6 +17,11 @@ set(MODULE_SOURCES
 	PhysicalLayer.cpp
 	DynamicModel.cpp
 	ControlModel.cpp
+	Automaton.cpp
+	ExternalSensor.cpp
+	InternalSensor.cpp
+	SensorOutput.cpp
+	Controller.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

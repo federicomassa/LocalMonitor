@@ -1,5 +1,5 @@
 #include "InternalSensor.h"
-#include "Input/Automation/Sensors.h"
+#include "Input/Automation/Sensors/Sensors.h"
 #include "Utility/LogFunctions.h"
 
 #include <string>
@@ -16,7 +16,7 @@ const InternalSensor::SensorVars& InternalSensor::GetSelfMeasuredVariables() con
 	return selfVars;
 }
 
-const std::string& InternalSensor::GetName()
+const std::string& InternalSensor::GetName() const
 {
 	return name;
 }
@@ -25,7 +25,7 @@ InternalSensorPointer::InternalSensorPointer(const std::string& name) : s(nullpt
 {
 	s = InstantiateInternalSensor(name);
 	
-	LogFunctions::Require(s != nullptr, "InternalSensorPointer::InternalSensorPointer", string("Sensor ") + sens.name + " was not correctly instantiated.");
+	LogFunctions::Require(s != nullptr, "InternalSensorPointer::InternalSensorPointer", string("Sensor ") + name + " was not correctly instantiated.");
 	
 	s->name = name;
 }
@@ -51,6 +51,18 @@ const std::string& InternalSensorPointer::GetName() const
 {
 	return s->name;
 }
+
+
+bool InternalSensorPointer::operator<(const InternalSensorPointer& p) const
+{
+	return (GetName() < p.GetName());
+}
+
+bool InternalSensorPointer::operator==(const InternalSensorPointer& p) const
+{
+	return (GetName() == p.GetName());
+}
+
 
 void InternalSensorOutput::SetMeasuredSelf(const Agent& self)
 {

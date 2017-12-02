@@ -1,5 +1,5 @@
 #include "ExternalSensor.h"
-#include "Input/Automation/Sensors.h"
+#include "Input/Automation/Sensors/Sensors.h"
 #include "Utility/LogFunctions.h"
 
 #include <string>
@@ -33,10 +33,17 @@ const std::string& ExternalSensor::GetName() const
 	return name;
 }
 
-void ExternalSensor::SetType(const SensorType& t)
+const ExternalSensor::SensorVars & ExternalSensor::GetMeasuredAgentVariables() const
 {
-	type = t;
+	return agentVars;
 }
+
+
+const ExternalSensor::SensorVars & ExternalSensor::GetMeasuredEnvironmentVariables() const
+{
+	return envVars;
+}
+
 
 ExternalSensorPointer::ExternalSensorPointer(const std::string& name) : s(nullptr) 
 {
@@ -78,13 +85,46 @@ bool ExternalSensorPointer::operator<(const ExternalSensorPointer & sp) const
 	return (s->name < sp.s->name);
 }
 
-
-State& ExternalSensorOutput::AgentID(const std::string& id)
+void ExternalSensorOutput::SetMeasuredEnvironment(const EnvironmentParameters& e)
 {
-	return states.at(id);
+	envParams = e;
 }
 
-double& ExternalSensorOutput::Environment(const std::string& envParameter)
+
+void ExternalSensorOutput::SetMeasuredAgents(const AgentVector& agents)
 {
-	return envParams.at(envParameter);
+	agentMeasuredStates = agents;
 }
+
+const AgentVector & ExternalSensorOutput::GetMeasuredAgents() const
+{
+	agentMeasuredStates;
+}
+
+
+void ExternalSensorOutput::SetVisibleRegion(const StateRegion& vis)
+{
+	visibleRegion = vis;
+}
+
+const StateRegion & ExternalSensorOutput::GetVisibleRegion() const
+{
+	return visibleRegion;
+}
+
+
+State & ExternalSensorOutput::AgentID(const std::string& ID)
+{
+	return agentMeasuredStates.at(ID).state;
+}
+
+double & ExternalSensorOutput::Environment(const std::string& param)
+{
+	return envParams(param);
+}
+
+const EnvironmentParameters & ExternalSensorOutput::GetMeasuredEnvironment() const
+{
+	return envParams;
+}
+

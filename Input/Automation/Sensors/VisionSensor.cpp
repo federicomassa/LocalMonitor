@@ -25,7 +25,7 @@ void VisionSensor::SimulateVisibility(StateRegion& visible, std::set<std::string
 	visibleIDs.insert("0");
 }
 
-void VisionSensor::SimulateOutput(ExternalSensorOutput& outputInWorld, const Agent& selfInWorld, const AgentVector& othersInWorld, const SimulationParameters& envParam) const
+void VisionSensor::SimulateOutput(ExternalSensorOutput& outputInWorld, const Agent& selfInWorld, const AgentVector& othersInWorld, const EnvironmentParameters& envParam) const
 {
 	for (auto itr = othersInWorld.begin(); itr != othersInWorld.end(); itr++)
 	{
@@ -38,6 +38,6 @@ void VisionSensor::SimulateOutput(ExternalSensorOutput& outputInWorld, const Age
 		outputInWorld.AgentID(itr->first)("length") = itr->second.GetParameter("length");
 	}
 	
-	outputInWorld.Environment("lanes") = atof(envParam("lanes").c_str());
+	outputInWorld.Environment("lanes") = envParam("lanes");
 		
 }

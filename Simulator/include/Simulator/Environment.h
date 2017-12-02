@@ -4,7 +4,7 @@
 #include "SimulatorConfiguration.h"
 #include "SimulAgent.h"
 
-#include "WorldFeatures.h"
+#include "Utility/WorldFeatures.h"
 
 #include "Utility/SystemTypes.h"
 #include "Basic/Agent.h"

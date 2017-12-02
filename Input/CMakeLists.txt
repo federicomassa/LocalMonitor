@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
+set(CMAKE_CXX_STANDARD 11)
+
 set(MODULE_NAME
     Input)
 
@@ -8,10 +10,16 @@ set(MODULE_HEADERS_DIR
 )
 
 set(MODULE_SOURCE_DIR
-    ./
+    .
 )
 
 set(MODULE_SOURCES
+	Automation/Controllers/AccOmegaControl.cpp
+    Automation/Sensors/VisionSensor.cpp
+    Dynamics/DynamicModels.cpp
+    Dynamics/StateConversions.cpp
+    Automation/Controllers/Controllers.cpp
+    Automation/Sensors/Sensors.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

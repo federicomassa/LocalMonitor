@@ -31,5 +31,4 @@ const TimedContainer<EnvironmentParameters> & Controller::GetEnvironmentTrajecto
 	return environmentTrajectory;
 }
 
-
-
+Controller::~Controller() {}

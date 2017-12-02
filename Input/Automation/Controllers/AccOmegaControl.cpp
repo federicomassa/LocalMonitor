@@ -1,5 +1,10 @@
 #include "AccOmegaControl.h"
+#include "Utility/LogFunctions.h"
 #include <math.h>
+#include <string>
+
+using namespace LogFunctions;
+using namespace std;
 
 void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {

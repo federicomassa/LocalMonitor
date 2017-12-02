@@ -10,6 +10,7 @@
 #include "Utility/SimulationParameters.h"
 #include "Utility/EnvironmentParameters.h"
 #include "Automation/DynamicModel.h"
+#include "Automation/ControlModel.h"
 
 #include "Automation/InternalSensor.h"
 #include "Automation/ExternalSensor.h"
@@ -44,7 +45,7 @@ class SimulatorConfiguration
 	// Numerical, potentially measurable, environment parameters
 	EnvironmentParameters envParameters;
 	
-	std::map<std::string, AgentParameters> agentsCustomEntries;
+	std::map<std::string, AgentCustomEntries> agentsCustomEntries;
 	
 	std::set<DynamicModel> dynamicModels;
 	std::set<ControlModel> controlModels;
@@ -98,7 +99,7 @@ public:
 	const SimulationParameters& GetCustomEntries() const;
 	const double& GetEnvironmentParameter(const std::string& parName) const;		const EnvironmentParameters& GetEnvironmentParameters() const;
 
-	const AgentParameters& GetAgentCustomEntry(const std::string& ID) const;
+	const AgentCustomEntries& GetAgentCustomEntries(const std::string& ID) const;
 	const WorldAgentFeatures& GetWorldAgentFeatures() const;
 	const WorldEnvironmentFeatures& GetWorldEnvironmentFeatures() const;
 	const bool& UseSimulatorViewer() const;

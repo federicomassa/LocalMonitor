@@ -9,6 +9,7 @@
 #include "Automation/InternalSensor.h"
 #include "Automation/ExternalSensor.h"
 #include "Automation/SensorOutput.h"
+#include "Utility/AgentParameters.h"
 
 #include <string>
 #include <map>
@@ -24,7 +25,7 @@ class SimulAgent
     Agent agent;
     PhysicalLayer pLayer;
 	Controller* controller;
-	
+	Automaton automaton;
 	// converted state to world coordinates. Set by GenerateWorldState
 	State worldState;
 	
@@ -44,13 +45,13 @@ class SimulAgent
 	
 	void SendToController(const SensorOutput&, const double& currentTime);
 	
-	void SetDynamicFunction ( const std::string & );
 public:
     SimulAgent();
 	SimulAgent(const SimulAgent&);
     const std::string &GetID() const;
     void SetID ( const std::string & );
     const State &GetState() const;
+	const Maneuver& GetManeuver() const;
 	const DynamicModel& GetDynamicModel() const;
     void SetState ( const State & );
 	void SetDynamicModel(const DynamicModel&);
@@ -58,7 +59,7 @@ public:
 	State GenerateWorldState(const State&);
 	const State& GetWorldState() const;
 	const Agent& GetAgent() const;
-	bool SetManeuver(const ManeuverName&);
+	void SetManeuver(const ManeuverName&);
     void EvolveState(const SensorOutput&, const double& currentTime);
 	
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);

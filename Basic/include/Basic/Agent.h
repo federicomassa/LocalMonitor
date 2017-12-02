@@ -8,14 +8,14 @@
 
 #include "State.h"
 #include "Maneuver.h"
-#include "AgentParameters.h"
+#include "Utility/AgentParameters.h"
 
 
 class Logger;
 
-
 class Agent
 {
+	friend class ExternalSensorOutput;
     std::string ID;
     State state;
 	AgentParameters parameters;

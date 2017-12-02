@@ -28,7 +28,7 @@ public:
 	const TimedContainer<AgentVector>& GetOtherAgentsTrajectory() const;
 	const TimedContainer<EnvironmentParameters>& GetEnvironmentTrajectory() const;
 	
-	virtual ~Controller() = 0;
+	virtual ~Controller();
 	
 };
 

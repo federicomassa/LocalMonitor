@@ -52,6 +52,21 @@ class TimedContainer
 		bool operator !=(const iterator& i) {return (itr != i.itr);}
 	};
 
+	class const_iterator
+	{
+		friend class TimedContainer<T>;
+		typename timedObject::const_iterator itr;
+	public:
+		const_iterator(typename timedObject::const_iterator i) : itr(i) {}
+		const double& time() const {return itr->time();}
+		const T& value() const {return itr->value();}
+		iterator operator++() {return iterator(++itr);}
+		iterator operator--() {return iterator(--itr);}
+		iterator operator++(int) {return iterator(itr++);}
+		iterator operator--(int) {return iterator(itr--);}
+		bool operator !=(const iterator& i) {return (itr != i.itr);}
+	};
+
 	
 public:
 	TimedContainer() {}
@@ -59,11 +74,11 @@ public:
 	void erase(iterator itr) {obj.erase(itr.itr);}
 	void clear();
 	iterator begin() {return iterator(obj.begin());}
-	iterator begin() const {return iterator(obj.begin());}
+	const_iterator begin() const {return const_iterator(obj.cbegin());}
 	iterator last() {return iterator(--(obj.end()));}
-	iterator last() const {return iterator(--(obj.end()));}
+	const_iterator last() const {return const_iterator(--(obj.cend()));}
 	iterator end() {return iterator(obj.end());}
-	iterator end() const {return iterator(obj.end());}
+	const_iterator end() const {return const_iterator(obj.cend());}
 	int size() const {return obj.size();}
 };
 
@@ -86,18 +101,7 @@ void TimedContainer<T>::insert(const double& time, const T& element)
 template<class T>
 void TimedContainer<T>::clear()
 {
-	if (size() == 0)
-		return;
-	else if (size() == 1)
-		erase(begin());
-	else
-	{
-		for (auto itr = begin(); itr != end(); itr++)
-		{
-			erase(itr);
-			itr--;
-		}
-	}
+	obj.clear();
 }
 
 

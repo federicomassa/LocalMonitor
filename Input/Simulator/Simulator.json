@@ -6,20 +6,19 @@
 			"dynamic_model" : "Unicycle1",
 			"control_model" : "SimpleEuropean",
 			"init_maneuver" : "FAST",
-			"sensors" : ["VisionSensor", "VelocitySensor"],
+			"sensors" : ["VisionSensor"],
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_red.png",
-			"parameters" : {
-				"length" : 4.47,
-				"desiredV" : 20
-				}
+			"length" : "4.47",
+			"desiredV" : "20",
+			"parameters" : ["length", "desiredV"]
 			},
 			
 			{"id" : "1",
 			"init_states" : [5.1, 1.5, 0, 20],
 			"dynamic_model" : "Unicycle1",
 			"control_model" : "SimpleEuropean",
-			"sensors" : ["VisionSensor", "VelocitySensor"],
+			"sensors" : ["VisionSensor"],
 			"init_maneuver" : "FAST",
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_yellow.png",
@@ -39,11 +38,7 @@
 	"mark_width" : "0.1",
 	"mark_distance" : "1.5",
 	
-	"parameters" :
-	{
-	"lanes" : "3", 
-	"lane_width" : "3"
-	},
+	"parameters" : ["lanes", "lane_width"],
 	
 	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desired_speed"], 
 	"world_environment_features" : ["lanes", "lane_width"],
@@ -53,16 +48,6 @@
 		{
 		"name" : "VisionSensor", 
 		"type" : "external"
-		},
-		
-		{
-		"name" : "VelocitySensor",
-		"type" : "external"
-		},
-		
-		{
-		"name" : "SelfSensor",
-		"type" : "internal"
 		}
 	],
 	
