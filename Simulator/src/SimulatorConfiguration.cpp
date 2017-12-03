@@ -1,7 +1,7 @@
 #include "SimulatorConfiguration.h"
 #include "Utility/LogFunctions.h"
 #include "Utility/Logger.h"
-
+#include "Utility/Math.h"
 #include "Automation/ControlModel.h"
 #include "SimulatorBuildParams.h"
 
@@ -14,6 +14,7 @@
 using namespace std;
 using json = nlohmann::json;
 using namespace LogFunctions;
+using namespace Utility;
 
 extern Logger logger;
 
@@ -67,14 +68,14 @@ void SimulatorConfiguration::Parse()
 	}
 	
 	json dynModelsJson = GetEntry("dynamic_models");
-	for (int modelIndex = 0; modelIndex < dynModelsJson.size(); modelIndex++)
+	for (auto modelIndex = dynModelsJson.begin(); modelIndex != dynModelsJson.end(); modelIndex++)
 	{
-		AddDynamicModel(dynModelsJson.at(modelIndex));
+		AddDynamicModel(*modelIndex);
 	}
 	
 	json controlModelsJson = GetEntry("control_models");
-	for (int modelIndex = 0; modelIndex < dynModelsJson.size(); modelIndex++)
-		AddControlModel(controlModelsJson.at(modelIndex));
+	for (auto modelIndex = controlModelsJson.begin(); modelIndex != controlModelsJson.end(); modelIndex++)
+		AddControlModel(*modelIndex);
 	
 	
 	
@@ -85,10 +86,10 @@ void SimulatorConfiguration::Parse()
 		if (!envParametersJson.is_array())
 			Error("SimulatorConfiguration::Parse", "Entry \'parameters\' must be an array of strings");
 		
-		for (int index = 0; index < envParametersJson.size(); index++)
+		for (auto index = envParametersJson.begin(); index != envParametersJson.end(); index++)
 		{
 			// Look for the parameters in the main json object
-			string key = envParametersJson.at(index).get<string>();
+			string key = index->get<string>();
 			string valueStr;
 			
 			try
@@ -104,7 +105,7 @@ void SimulatorConfiguration::Parse()
 				key + "\' was not found in config file. Please set a value for it somewhere in the file");
 			}
 			
-			envParameters.AddEntry(key, atof(valueStr.c_str()));
+			envParameters.AddEntry(key, ToDouble(valueStr));
 		}
 	}
 	catch (out_of_range&)
@@ -119,21 +120,6 @@ void SimulatorConfiguration::Parse()
     simulRealTimeSpan = simulTimeStep * ceil(simulTimeSpan / simulTimeStep);
     simulSteps = round(simulRealTimeSpan / simulTimeStep);
 
-    set<string> IDSet;
-	json agentsJson = GetEntry("agents");
-	if (!agentsJson.is_array())
-		Error("SimulatorConfiguration", "Entry \'agents\' must be an array");
-	
-    for (int agentIndex = 0; agentIndex < agentsJson.size(); agentIndex++) {
-        json agentJson = agentsJson.at(agentIndex);
-
-        SimulAgent a = ReadAgent(agentJson);
-        agents[a.GetID()] = a;
-        pair<set<string>::iterator, bool> lastID = IDSet.insert(a.GetID());
-        if (lastID.second == false) {
-            Error("SimulatorConfiguration::Parse", "Agents should have different IDs");
-        }
-    }
     
     try
     {
@@ -150,8 +136,8 @@ void SimulatorConfiguration::Parse()
 	try
 	{
 		json envFeaturesJson = GetEntry("world_environment_features");
-		for (int index = 0; index < envFeaturesJson.size(); index++)
-			envFeatures.insert(envFeaturesJson.at(index).get<string>());
+		for (auto index = envFeaturesJson.begin(); index != envFeaturesJson.end(); index++)
+			envFeatures.insert(index->get<string>());
 	}
 	catch (out_of_range&)
 	{}
@@ -160,9 +146,9 @@ void SimulatorConfiguration::Parse()
 	{
 		//TODO check that user has inserted an array of string
 		json agentFeaturesJson = GetEntry("world_agent_features");
-		for (int index = 0; index < agentFeaturesJson.size(); index++)
+		for (auto index = agentFeaturesJson.begin(); index != agentFeaturesJson.end(); index++)
 		{
-			agentFeatures.insert(agentFeaturesJson.at(index).get<string>());
+			agentFeatures.insert(index->get<string>());
 		}
 	}
 	catch (out_of_range&)
@@ -172,16 +158,41 @@ void SimulatorConfiguration::Parse()
 	try
 	{
 		json sensorsJson = GetEntry("sensors");
-		for (int index = 0; index < sensorsJson.size(); index++)
-			ReadSensor(sensorsJson.at(index));
+		for (auto index = sensorsJson.begin(); index != sensorsJson.end(); index++)
+			ReadSensor(*index);
 		
 	}
 	catch(out_of_range&)
 	{}
 		
+		
+	// At last, read agents
+	try
+	{
+		set<string> IDSet;
+		json agentsJson = GetEntry("agents");
+		if (!agentsJson.is_array())
+		Error("SimulatorConfiguration", "Entry \'agents\' must be an array");
+	
+		for (auto agentIndex = agentsJson.begin(); agentIndex != agentsJson.end(); agentIndex++) {
+			json agentJson = *agentIndex;
+
+			SimulAgent a = ReadAgent(agentJson);
+			agents[a.GetID()] = a;
+			pair<set<string>::iterator, bool> lastID = IDSet.insert(a.GetID());
+			if (lastID.second == false) {
+				Error("SimulatorConfiguration::Parse", "Agents should have different IDs");
+			}
+		}
+
+	}
+	catch (out_of_range&)
+	{
+		Error("SimulatorConfiguration::Parse", "\'agents\' entry is mandatory");
+	}
 	
 }
-
+	
 // TODO Manage mandatory agents entries
 SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 {
@@ -225,11 +236,12 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
             Error("SimulatorConfiguration::ReadAgent", "There should be one init_states entry for each state_variables entry in agent " + a.GetID());
         }
 
+        
+        // NB Do this after setting dynamic model!
+        // Set init states in the same order as appearing in the dynamic model
         StateMap stateVector;
-
-        for (auto stateItr = a.GetDynamicModel().GetStateVariables().begin(); 
-			 stateItr != a.GetDynamicModel().GetStateVariables().end(); stateItr++)
-				stateVector[*stateItr] = initStates.at(*stateItr).get<double>();
+        for (auto stateItr = initStates.begin(); stateItr != initStates.end(); stateItr++)
+				stateVector[a.GetDynamicModel().GetStateVariables()[stateItr - initStates.begin()]] = stateItr->get<double>();
 
         a.SetState(State(stateVector));
 
@@ -242,10 +254,10 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 				Error("SimulatorConfiguration::ReadAgent", "Entry \'parameters\' in agent must be an array");
 			
 			AgentParameters aParam;
-			for (int parIndex = 0; parIndex < agentParameters.size(); 
+			for (auto parIndex = agentParameters.begin(); parIndex != agentParameters.end(); 
 				 parIndex++)
 				 {
-					string key = agentParameters.at(parIndex).get<string>();
+					string key = parIndex->get<string>();
 					string value;
 					// Now check if this key is linked to a value in agent json
 					try
@@ -258,7 +270,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 				key + "\' was not found in agent object. Please set a value for it somewhere in the agent object.");
 					}
 					
-					aParam.AddEntry(key, atof(value.c_str()));
+					aParam.AddEntry(key, ToDouble(value));
 				 }
 					
 			a.SetParameters(aParam);
@@ -279,15 +291,16 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 	try
 	{
 		json sensorsJson = GetEntry("sensors", agent);
-		for (int i = 0; i < sensorsJson.size(); i++)
+		for (auto i = sensorsJson.begin(); i != sensorsJson.end(); i++)
 		{
-			string sensorName = sensorsJson.at(i).get<string>();
+			string sensorName = i->get<string>();
 			bool found = false;
 			// Look for registered sensor
 			
 			if (!found)
 				for (std::set<ExternalSensorPointer>::iterator itr = extSensors.begin(); itr != extSensors.end(); itr++)
 				{
+					logger << "try " << itr->GetName() << logger.EndL();
 					if (sensorName == itr->GetName())
 					{
 						a.extSensors.insert(itr->GetSensor());
@@ -379,6 +392,7 @@ void SimulatorConfiguration::ReadSensor(const nlohmann::json& sensorJson)
 	{
 		string name = GetEntry("name", sensorJson).get<string>();
 		string type = GetEntry("type", sensorJson).get<string>();
+		
 		
 		if (type == "internal" || type == "Internal" || type == "INTERNAL")
 			intSensors.insert(InternalSensorPointer(name));
@@ -480,13 +494,13 @@ void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)
 		else if (itr.key() == "state_variables")
 		{
 			json stateVarsJson = itr.value();
-			if (stateVarsJson.size() < 1)
+			if (!stateVarsJson.is_array())
 				Error("SimulatorConfiguration::AddDynamicModel", "state_variables entry in dynamic_models must contain an array [] of state variable names");
 			
 			vector<string> stateVars;
-			for (int stateIndex = 0; 
-				 stateIndex < stateVarsJson.size(); stateIndex++)
-					stateVars.push_back(stateVarsJson.at(stateIndex).get<string>());
+			for (auto stateIndex = stateVarsJson.begin(); 
+				 stateIndex != stateVarsJson.end(); stateIndex++)
+					stateVars.push_back(stateIndex->get<string>());
 			
 			m.SetStateVariables(stateVars);
 			isStateVarSet = true;
@@ -499,13 +513,13 @@ void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)
 		else if (itr.key() == "control_variables")
 		{
 			json controlVarsJson = itr.value();
-			if (controlVarsJson.size() < 1)
+			if (!controlVarsJson.is_array())
 				Error("SimulatorConfiguration::AddDynamicModel", "control_variables entry in dynamic_models must contain an array [] of control variable names");
 			
 			vector<string> controlVars;
-			for (int controlIndex = 0; 
-				 controlIndex < controlVarsJson.size(); controlIndex++)
-					controlVars.push_back(controlVarsJson.at(controlIndex).get<string>());
+			for (auto controlIndex = controlVarsJson.begin(); 
+				 controlIndex != controlVarsJson.end(); controlIndex++)
+					controlVars.push_back(controlIndex->get<string>());
 			
 			m.SetControlVariables(controlVars);
 			isControlVarSet = true;
@@ -543,13 +557,13 @@ void SimulatorConfiguration::AddControlModel ( const nlohmann::json & modelJ)
 		else if (itr.key() == "maneuvers")
 		{
 			json maneuversJson = itr.value();
-			if (maneuversJson.size() < 1)
+			if (!maneuversJson.is_array())
 				Error("SimulatorConfiguration::AddControlModel", "\'maneuvers\' entry in control_models must contain an array [] of state variable names");
 			
 			vector<string> maneuvers;
-			for (int index = 0; 
-				 index < maneuversJson.size(); index++)
-					maneuvers.push_back(maneuversJson.at(index).get<string>());
+			for (auto index = maneuversJson.begin(); 
+				 index != maneuversJson.end(); index++)
+					maneuvers.push_back(index->get<string>());
 			
 			m.SetManeuvers(maneuvers);
 			isManeuversSet = true;
@@ -562,13 +576,13 @@ void SimulatorConfiguration::AddControlModel ( const nlohmann::json & modelJ)
 		else if (itr.key() == "control_variables")
 		{
 			json controlVarsJson = itr.value();
-			if (controlVarsJson.size() < 1)
+			if (!controlVarsJson.is_array())
 				Error("SimulatorConfiguration::AddDynamicModel", "control_variables entry in dynamic_models must contain an array [] of control variable names");
 			
 			vector<string> controlVars;
-			for (int controlIndex = 0; 
-				 controlIndex < controlVarsJson.size(); controlIndex++)
-					controlVars.push_back(controlVarsJson.at(controlIndex).get<string>());
+			for (auto controlIndex = controlVarsJson.begin(); 
+				 controlIndex != controlVarsJson.end(); controlIndex++)
+					controlVars.push_back(controlIndex->get<string>());
 			
 			m.SetControlVariables(controlVars);
 			isControlVarSet = true;

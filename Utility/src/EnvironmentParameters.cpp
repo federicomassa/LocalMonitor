@@ -70,7 +70,7 @@ Logger& operator<< (Logger& os, const EnvironmentParameters& params)
     os << "{" << os.EndL(Logger::INC);
     
 	for (auto itr = params.begin(); itr != params.end(); itr++)
-		os << itr->first << '\t' << itr->second << os.EndL();
+		os << itr->first << "\t" << itr->second << os.EndL();
 	
 	os << "}" << os.EndL(Logger::DEC);
 

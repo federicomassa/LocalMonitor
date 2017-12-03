@@ -54,6 +54,28 @@ ExternalSensorPointer::ExternalSensorPointer(const std::string& name) : s(nullpt
 	s->name = name;
 }
 
+ExternalSensorPointer::ExternalSensorPointer(const ExternalSensorPointer& ep) : s(nullptr) 
+{
+	s = InstantiateExternalSensor(ep.s->GetName());
+	
+	LogFunctions::Require(s != nullptr, "ExternalSensorPointer::ExternalSensorPointer", string("Sensor ") + ep.s->GetName() + " was not correctly instantiated.");
+	
+	s->name = ep.s->GetName();
+}
+
+ExternalSensorPointer& ExternalSensorPointer::operator=(const ExternalSensorPointer& ep)
+{
+	if (s)
+		delete s;
+	
+	s = InstantiateExternalSensor(ep.s->GetName());
+	
+	LogFunctions::Require(s != nullptr, "ExternalSensorPointer::ExternalSensorPointer", string("Sensor ") + ep.s->GetName() + " was not correctly instantiated.");
+	
+	s->name = ep.s->GetName();
+}
+
+
 ExternalSensor * ExternalSensorPointer::GetSensor()
 {
 	return s;
@@ -114,7 +136,7 @@ const StateRegion & ExternalSensorOutput::GetVisibleRegion() const
 
 
 State & ExternalSensorOutput::AgentID(const std::string& ID)
-{
+{	
 	return agentMeasuredStates.at(ID).state;
 }
 

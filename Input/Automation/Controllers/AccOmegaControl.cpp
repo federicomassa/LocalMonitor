@@ -1,20 +1,28 @@
 #include "AccOmegaControl.h"
 #include "Utility/LogFunctions.h"
+#include "Utility/Logger.h"
 #include <math.h>
 #include <string>
+#include <iostream>
 
 using namespace LogFunctions;
 using namespace std;
 
+extern Logger logger;
+
 void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {
-	const double K = 10;
+	const double K = 1;
 	
 	const State& q0 = GetSelfTrajectory().last().value().GetState();
+	
+	
 	const EnvironmentParameters& env = GetEnvironmentTrajectory().last().value();
 	
 	const double& y = (q0("yb") + q0("yf"))/2.0;
 	const double& theta = atan2(q0("yf") - q0("yb"), q0("xf") - q0("xb"));
+	
+	cout << "Theta? " << theta << endl;
 	
 	double laneWidth;
 	if (env.IsAvailable("lane_width"))
@@ -23,14 +31,23 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 		Error("AccOmegaControl::ComputeControl", "Environment lane width is needed");
 	
 	
-	double beginOfLaneY = floor(q0("y")/laneWidth);
+	double beginOfLaneY = floor(y/laneWidth);
+	
+	
+	logger << "lw: " << laneWidth << " \t beginOfLaneY: " << beginOfLaneY << logger.EndL();
 	
 	if (maneuver == "FAST")
 	{
 		u("a") = 1;
-		u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
+		if (fabs(theta) > 1E-9)
+			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
+		else
+			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");
 	}
 	else
 		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetManeuverName());
+	
+	
+	logger << "Control: " << u << logger.EndL();
 	
 }

@@ -48,7 +48,6 @@ int main(int argc, char **argv)
     Environment env;
     env.Configure(conf);
 	
-	
 	#ifdef USE_GRAPHICS
 	QApplication app(argc, argv);
 	SimulatorViewer* simViewer = new CHOSEN_VIEWER(conf);

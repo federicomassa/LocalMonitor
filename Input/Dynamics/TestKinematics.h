@@ -4,11 +4,14 @@
 #include "Automation/Control.h"
 #include "Basic/Agent.h"
 #include "Utility/LogFunctions.h"
+#include "Utility/Logger.h"
 #include <math.h>
 #include <iostream>
 
+extern Logger logger;
+
 void TestKinematics(State& qdot, const Agent &self, const Control & u)
-{
+{	
 		const State& q0 = self.GetState();
 		
 		qdot("x") = q0("v")*cos(q0("theta"));	

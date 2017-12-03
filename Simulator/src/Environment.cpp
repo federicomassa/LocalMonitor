@@ -61,12 +61,14 @@ void Environment::Run(const double& currentTime)
 		// Fill with states of agents different than self
 		AgentVector othersInWorld;
 		for (auto otherAgent = agents.begin(); otherAgent != agents.end(); otherAgent++)
-			if (otherAgent->first != agent->first)
+			// Do not include self
+			if (otherAgent->first != agent->first) 
 			{
 				// Build world agent
 				Agent otherWorldAgent;
 				otherWorldAgent.SetID(otherAgent->first);
 				otherWorldAgent.SetState(otherAgent->second.GetWorldState());
+				otherWorldAgent.SetParameters(otherAgent->second.GetParameters());
 				othersInWorld[otherAgent->first] = otherWorldAgent;
 			}
 		
@@ -81,7 +83,7 @@ void Environment::ConvertAgentsToWorld()
 	for (auto agent = agents.begin(); agent != agents.end(); agent++)
 	{
 		SimulAgent& a = agent->second;
-		State worldState = a.GenerateWorldState(GenerateWorldAgentState());
+		a.GenerateWorldState(GenerateWorldAgentState());
 	}
 }
 

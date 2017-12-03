@@ -3,6 +3,8 @@
 
 #include "Basic/Agent.h"
 #include <math.h>
+#include <iostream>
+
 
 void TestKinematicsConversion(State& worldState, const Agent& agent)
 {
@@ -17,6 +19,8 @@ void TestKinematicsConversion(State& worldState, const Agent& agent)
 	worldState("v") = agent("v");
 	
 	worldState("length") = L;
+	worldState("desiredV") = agent.GetParameter("desiredV");
+	
 }
 
 #endif

@@ -3,8 +3,7 @@
 
 #include <string>
 #include <iostream>
-
-#include "Automation/Controller.h"
+#include "AccOmegaControl.h"
 
 Controller* InstantiateController(const std::string& controllerClassName);
 

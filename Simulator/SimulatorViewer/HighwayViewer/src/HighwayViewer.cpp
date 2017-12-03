@@ -5,6 +5,7 @@
 #include "Utility/SimulationParameters.h"
 #include "Utility/LogFunctions.h"
 #include "Basic/State.h"
+#include "Utility/Math.h"
 #include "ConvertState.h"
 
 #include <iostream>
@@ -19,22 +20,30 @@
 #include <QTransform>
 #include <QColor>
 #include <math.h>
+#include <iomanip>
 
 #include "ui_HighwayViewer.h"
 
 using namespace std;
 using namespace LogFunctions;
+using namespace Utility;
 
-//FIXME Draw during app event loop
+//FIXME Draw during app event loop, EDIT probably useless
+// TODO Draw road edge (yellow line) beyond lane width, so that each lane has the same width (plus the edge for the extreme ones)
 
 HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(c),
     ui(new Ui::HighwayViewer), scene(nullptr), width(1920), height(9.0 / 16.0 * double(width)), 
 	subjID(c.GetCustomEntries().at("subject_vehicle_id").c_str()),
-    treesDistance(20), treeRadius(2), laneWidth(atof(c.GetCustomEntries().at("lane_width").c_str())),
-    markLength(atof(c.GetCustomEntries().at("mark_length").c_str())), 
-    markWidth(atof(c.GetCustomEntries().at("mark_width").c_str())),
-    markDistance(atof(c.GetCustomEntries().at("mark_distance").c_str()))
+    treesDistance(20), treeRadius(2), laneWidth(ToDouble(c.GetCustomEntries().at("lane_width"))),
+    markLength(ToDouble(c.GetCustomEntries().at("mark_length"))), 
+    markWidth(ToDouble(c.GetCustomEntries().at("mark_width"))),
+    markDistance(ToDouble(c.GetCustomEntries().at("mark_distance")))
 {	
+	cout << fixed << setprecision(3) << laneWidth << '\t' << markLength << '\t' << markWidth << '\t' << markDistance << endl;
+	
+	cout << fixed << setprecision(3) << c.GetCustomEntries().at("lane_width").c_str() << '\t' << c.GetCustomEntries().at("mark_length").c_str() << '\t' << c.GetCustomEntries().at("mark_width").c_str() << '\t' << c.GetCustomEntries().at("mark_distance").c_str() << endl;
+	
+	
 	ui->setupUi(this);
     Q_INIT_RESOURCE(resources);
 	
@@ -178,7 +187,7 @@ void HighwayViewer::DrawStaticEnvironment()
 			 {
 			imageName = string(":/") + GetSimulatorConfiguration().GetAgentCustomEntries(agent->first)("image");
 			
-			vehicleLength = atof(GetSimulatorConfiguration().GetAgentCustomEntries(agent->first).at("length").c_str());
+			vehicleLength = ToDouble(GetSimulatorConfiguration().GetAgentCustomEntries(agent->first).at("length"));
 			 }
 			 catch(out_of_range&)
 			 {

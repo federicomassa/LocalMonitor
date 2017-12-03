@@ -73,12 +73,18 @@ const double& Agent::GetParameter(const string& parName) const
 	return parameters.at("");
 }
 
+const AgentParameters & Agent::GetParameters() const
+{
+	return parameters;
+}
+
+
 Logger &operator<<(Logger &os, const Agent &a)
 {
     os << "Agent " << a.ID << os.EndL(Logger::INC);
     os << "{" << os.EndL(Logger::INC);
     os << a.state << os.EndL();
-	os << a.parameters << os.EndL();
+	os << a.parameters << os.EndL(Logger::DEC);
 	os << "}" << os.EndL(Logger::DEC);
 
     return os;

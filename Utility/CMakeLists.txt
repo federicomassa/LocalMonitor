@@ -19,6 +19,7 @@ set(MODULE_SOURCES
 	Interval.cpp
 	SimulationParameters.cpp
 	EnvironmentParameters.cpp
+	Math.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

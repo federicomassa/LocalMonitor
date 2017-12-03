@@ -30,6 +30,30 @@ InternalSensorPointer::InternalSensorPointer(const std::string& name) : s(nullpt
 	s->name = name;
 }
 
+InternalSensorPointer::InternalSensorPointer(const InternalSensorPointer& ip)
+{
+	const string& name = ip.s->GetName();
+	s = InstantiateInternalSensor(name);
+	
+	LogFunctions::Require(s != nullptr, "InternalSensorPointer::InternalSensorPointer", string("Sensor ") + name + " was not correctly instantiated.");
+	
+	s->name = name;	
+}
+
+ 
+InternalSensorPointer& InternalSensorPointer::operator=(const InternalSensorPointer& ip)
+{
+	if (s)
+		delete s;
+	
+	const string& name = ip.s->GetName();
+	s = InstantiateInternalSensor(name);
+	
+	LogFunctions::Require(s != nullptr, "InternalSensorPointer::InternalSensorPointer", string("Sensor ") + name + " was not correctly instantiated.");
+	
+	s->name = name;	
+}
+
 InternalSensorPointer::~InternalSensorPointer() 
 {
 	if (s)
@@ -61,6 +85,11 @@ bool InternalSensorPointer::operator<(const InternalSensorPointer& p) const
 bool InternalSensorPointer::operator==(const InternalSensorPointer& p) const
 {
 	return (GetName() == p.GetName());
+}
+
+double & InternalSensorOutput::operator()(const std::string& varName)
+{
+	return selfMeasure(varName);
 }
 
 

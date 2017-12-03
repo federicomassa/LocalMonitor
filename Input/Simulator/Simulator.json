@@ -2,11 +2,11 @@
 	"agents" : 
 		[
 			{"id" : "0",
-			"init_states" : [0.01, 1.5, 0, 15],
+			"init_states" : [0.01, 1.8, -0.3, 20],
 			"dynamic_model" : "Unicycle1",
 			"control_model" : "SimpleEuropean",
 			"init_maneuver" : "FAST",
-			"sensors" : ["VisionSensor"],
+			"sensors" : ["VisionSensor", "SelfSensor"],
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_red.png",
 			"length" : "4.47",
@@ -15,14 +15,16 @@
 			},
 			
 			{"id" : "1",
-			"init_states" : [5.1, 1.5, 0, 20],
+			"init_states" : [5.1, 1.3, 0.1, 20],
 			"dynamic_model" : "Unicycle1",
 			"control_model" : "SimpleEuropean",
-			"sensors" : ["VisionSensor"],
+			"sensors" : ["VisionSensor", "SelfSensor"],
 			"init_maneuver" : "FAST",
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_yellow.png",
-			"length" : "4.47"
+			"length" : "4.47",
+			"desiredV" : "20",
+			"parameters" : ["length", "desiredV"]
 			}		
 		],
 		
@@ -40,7 +42,7 @@
 	
 	"parameters" : ["lanes", "lane_width"],
 	
-	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desired_speed"], 
+	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desiredV"], 
 	"world_environment_features" : ["lanes", "lane_width"],
 	
 	"sensors" : 
@@ -48,6 +50,10 @@
 		{
 		"name" : "VisionSensor", 
 		"type" : "external"
+		},
+		{
+		"name" : "SelfSensor",
+		"type" : "internal"
 		}
 	],
 	

@@ -55,6 +55,8 @@ class ExternalSensorPointer
 	
 public:
 	ExternalSensorPointer (const std::string& name);
+	ExternalSensorPointer (const ExternalSensorPointer&);
+	ExternalSensorPointer& operator=(const ExternalSensorPointer&);
 	bool operator==(const ExternalSensorPointer &) const;
 	bool operator<(const ExternalSensorPointer &) const;
 	~ExternalSensorPointer();

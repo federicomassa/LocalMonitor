@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-
 #include "Basic/Agent.h"
 
 typedef void (*StateConversionFcn) (State&, const Agent&);

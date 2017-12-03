@@ -38,6 +38,8 @@ class InternalSensorPointer
 	
 public:
 	InternalSensorPointer (const std::string& name);
+	InternalSensorPointer(const InternalSensorPointer&);
+	InternalSensorPointer& operator=(const InternalSensorPointer&);
 	~InternalSensorPointer();
 	bool operator==(const InternalSensorPointer &) const;
 	bool operator<(const InternalSensorPointer &) const;
@@ -52,6 +54,7 @@ class InternalSensorOutput
 public:
 	void SetMeasuredSelf(const Agent&);
 	const Agent& GetMeasuredSelf() const;
+	double& operator()(const std::string& varName);
 };
 
 

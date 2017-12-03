@@ -56,6 +56,7 @@ public:
     void SetState ( const State & );
 	void SetDynamicModel(const DynamicModel&);
 	void SetParameters(const AgentParameters&);
+	const AgentParameters& GetParameters() const;
 	State GenerateWorldState(const State&);
 	const State& GetWorldState() const;
 	const Agent& GetAgent() const;

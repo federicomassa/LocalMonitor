@@ -16,6 +16,7 @@ set(MODULE_SOURCE_DIR
 set(MODULE_SOURCES
 	Automation/Controllers/AccOmegaControl.cpp
     Automation/Sensors/VisionSensor.cpp
+    Automation/Sensors/SelfSensor.cpp
     Dynamics/DynamicModels.cpp
     Dynamics/StateConversions.cpp
     Automation/Controllers/Controllers.cpp

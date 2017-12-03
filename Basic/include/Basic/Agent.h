@@ -27,6 +27,7 @@ public:
     void SetState ( const State &q );
 	void SetParameters(const AgentParameters&);
 	const double& GetParameter(const std::string&) const;
+	const AgentParameters& GetParameters() const;
 	// State variable accessors
 	double& operator()(const std::string&);
 	const double& operator()(const std::string&) const;

@@ -93,6 +93,8 @@ Logger &operator<<(Logger &os, const SimulAgent &a)
 
 void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& currentTime)
 {
+	logger << "Evolve!" << agent << logger.EndL();
+	
 	SendToController(sensorOutput, currentTime);
 	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();
 	Control control = Control::GenerateStateOfType(controlVars);
@@ -110,6 +112,12 @@ void SimulAgent::SetParameters(const AgentParameters& pars)
 {
 	agent.SetParameters(pars);
 }
+
+const AgentParameters & SimulAgent::GetParameters() const
+{
+	return agent.GetParameters();
+}
+
 
 ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string& sensorName, const Agent& selfInWorld, const AgentVector& othersInWorld, const EnvironmentParameters& envParams)
 {
@@ -131,11 +139,13 @@ ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string&
 	// Build vector of visible agents (with true states) and compute sensor output for those agents
 	AgentVector trueVisibleAgents;
 	for (auto visibleID = visibleIDs.begin(); visibleID != visibleIDs.end(); visibleID++)
+	{
 		trueVisibleAgents[*visibleID] = othersInWorld.at(*visibleID);
-	
+	}
 	
 	// ================ Prepare variables for to call sensor output =================
 	ExternalSensor::SensorVars agentVars = sensor->GetMeasuredAgentVariables();
+	
 	State measuredState = State::GenerateStateOfType(agentVars);
 	
 	// measuredVisibleAgents will contain the output of the sensor
@@ -144,8 +154,11 @@ ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string&
 	{
 		// Create agent with true ID and empty state with vars that can be measured by this sensor
 		Agent newAgent;
-		newAgent.SetID(visibleAgent->second.GetID());
+		newAgent.SetID(visibleAgent->first);
 		newAgent.SetState(measuredState);
+		 
+		// FIXME This should set only parameters measured by sensor.
+		//newAgent.SetParameters(visibleAgent->second.GetParameters());
 		
 		measuredVisibleAgents[newAgent.GetID()] = newAgent;
 	}
@@ -159,6 +172,12 @@ ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string&
 	
 	// Compute the output
 	ExternalSensorOutput output;
+	output.SetMeasuredAgents(measuredVisibleAgents);
+	output.SetMeasuredEnvironment(measuredEnvParameters);
+	
+	// TODO set visible region?
+	
+	// By default, set 
 	sensor->SimulateOutput(output, selfInWorld, othersInWorld, envParams);
 		
 	return output;
@@ -185,9 +204,11 @@ InternalSensorOutput SimulAgent::RetrieveInternalSensorOutput(const std::string&
 	Agent measuredSelf;
 	measuredSelf.SetID(trueSelfInWorld.GetID());
 	measuredSelf.SetState(measuredSelfState);
+	//measuredSelf.SetParameters(trueSelfInWorld.GetParameters());
 	
 	// Compute the output
 	InternalSensorOutput output;
+	output.SetMeasuredSelf(measuredSelf);
 	sensor->SimulateOutput(output, trueSelfInWorld);
 	
 	return output;
