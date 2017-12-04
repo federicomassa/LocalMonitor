@@ -93,7 +93,7 @@ Logger &operator<<(Logger &os, const SimulAgent &a)
 
 void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& currentTime)
 {
-	logger << "Evolve!" << agent << logger.EndL();
+	logger << "Pre-Evolve!" << agent << logger.EndL();
 	
 	SendToController(sensorOutput, currentTime);
 	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();

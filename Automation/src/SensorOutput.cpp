@@ -41,6 +41,7 @@ void SensorOutput::MergeExternalSensor(const ExternalSensorOutput& extOutput)
 			 
 			 // Update sensor data
 			 measuredAgents[agent->first].SetState(oldState);
+			 measuredAgents[agent->first].SetID(agent->first);
 		 }
 		 
 	// =============== Now update environment
@@ -90,6 +91,7 @@ void SensorOutput::MergeInternalSensor(const InternalSensorOutput& intOutput)
 		
 	// Update
 	selfMeasure.SetState(oldState);
+	selfMeasure.SetID(newSelf.GetID());
 }
 
 void SensorOutput::RetrieveSensorData(Agent& self, AgentVector& others, EnvironmentParameters& env)

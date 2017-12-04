@@ -12,9 +12,27 @@ extern Logger logger;
 
 void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {
-	const double K = 1;
+	const double K = 0.5;
 	
 	const State& q0 = GetSelfTrajectory().last().value().GetState();
+	
+	const string& myID = GetSelfTrajectory().last().value().GetID();
+	
+	string otherID;
+	if (myID == "0")
+		otherID = "1";
+	else
+		otherID = "0";
+	
+	const AgentVector& others = GetOtherAgentsTrajectory().last().value();
+	for (auto itr = others.begin(); itr != others.end(); itr++)
+	{
+		logger <<  myID << " sees: " << itr->first << logger.EndL();
+	}
+	
+	Agent otherAgent = others.at(otherID);
+	
+	logger << "Other agent: " << otherAgent << logger.EndL();
 	
 	
 	const EnvironmentParameters& env = GetEnvironmentTrajectory().last().value();

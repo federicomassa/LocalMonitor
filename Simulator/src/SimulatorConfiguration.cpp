@@ -114,6 +114,11 @@ void SimulatorConfiguration::Parse()
     json simulTimeSpanJson = GetEntry("simulation_time_span");
 	simulTimeSpan = simulTimeSpanJson.get<double>();
 
+	// FIXME This is an important parameter. For the discretized simulated system
+	// to reflect the properties of the continuous system it must be sufficiently
+	// small. From a calculation I did, I found out a form of the Nyquist 
+	// sampling theorem: deltaT < |2/lambda_max|, where lambda_max is the value
+	// of the largest (in module) eigenvalue of the continuous linearized matrix
     json simulTimeStepJson = GetEntry("simulation_time_step");
 	simulTimeStep = simulTimeStepJson.get<double>();
 	
