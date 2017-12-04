@@ -44,3 +44,4 @@ target_include_directories(${MODULE_NAME} PUBLIC
 
 add_subdirectory(json-2.1.1)
 add_subdirectory(QTFFmpegWrapper)
+add_subdirectory(QCustomPlot)

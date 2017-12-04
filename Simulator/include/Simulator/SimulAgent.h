@@ -44,7 +44,8 @@ class SimulAgent
 	
 	
 	void SendToController(const SensorOutput&, const double& currentTime);
-	
+	void SetManeuver(const ManeuverName&);
+
 public:
     SimulAgent();
 	SimulAgent(const SimulAgent&);
@@ -60,7 +61,6 @@ public:
 	State GenerateWorldState(const State&);
 	const State& GetWorldState() const;
 	const Agent& GetAgent() const;
-	void SetManeuver(const ManeuverName&);
     void EvolveState(const SensorOutput&, const double& currentTime);
 	
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);

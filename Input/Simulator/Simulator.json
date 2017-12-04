@@ -28,7 +28,7 @@
 			}		
 		],
 		
-	"simulation_time_span" : 10,
+	"simulation_time_span" : 1,
 	"simulation_time_step" : 0.01,
 	"visibility_function" : "VehicleVisibility",
 	"simulator_viewer" : "HighwayViewer",
