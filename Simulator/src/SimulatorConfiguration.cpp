@@ -212,7 +212,8 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 				if (it.key() != "id" && 
 					it.key() != "init_states" &&
 					it.key() != "init_maneuver" &&
-					it.key() != "visibility" &&
+					it.key() != "dynamic_model" &&
+					it.key() != "control_model" &&
 					it.key() != "communication" &&
 					it.key() != "sensors" &&
 					it.key() != "parameters")
@@ -350,10 +351,11 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 			 {
 				if (modelName == model->GetName())
 				{
-					if (a.controller)
-						Error("SimulatorConfiguration::ReadAgent", "BUG FIXME! Why is agent's controller already filled?");
+					if (a.controller || a.automaton)
+						Error("SimulatorConfiguration::ReadAgent", "BUG FIXME! Why is agent's controller or automaton already filled?");
 					
 					a.controller = model->GetController();
+					a.automaton = model->GetAutomaton();
 					break;
 				}
 			 }
@@ -549,7 +551,7 @@ void SimulatorConfiguration::AddControlModel ( const nlohmann::json & modelJ)
 {
 	ControlModel m;
 	
-	bool isNameSet = false, isManeuversSet = false, isControlVarSet = false, isControllerSet = false;
+	bool isNameSet = false, isManeuversSet = false, isControlVarSet = false, isControllerSet = false, isAutomatonSet = false;
 	
 	
 	for (auto itr = modelJ.begin(); itr != modelJ.end(); itr++)
@@ -594,14 +596,15 @@ void SimulatorConfiguration::AddControlModel ( const nlohmann::json & modelJ)
 		}
 		else if (itr.key() == "automaton")
 		{
-			// TODO Fill here
+			m.SetAutomaton(itr.value().get<string>());
+			isAutomatonSet = true;
 		}
 		else
 			Error("SimulatorConfiguration::AddControlModel", "Unknown entry \'" + itr.key() + "\'. Control models must each contain a name, a set of maneuvers, a controller class name, a set of controller variables, and an automaton" /*FIXME Automaton*/);
 	}
 	
-	if (!isNameSet || !isControlVarSet || !isManeuversSet || !isControllerSet /*FIXME Add automaton*/)
-		Error("SimulatorConfiguration::AddControllerModel", "Missing entry. Control models must each contain a name, a set of maneuvers, a controller class name, a set of controller variables, and an automaton" /*FIXME Automaton*/);
+	if (!isNameSet || !isControlVarSet || !isManeuversSet || !isControllerSet || !isAutomatonSet)
+		Error("SimulatorConfiguration::AddControllerModel", "Missing entry. Control models must each contain a name, a set of maneuvers, a controller class name, a set of controller variables, and an automaton");
 	
 	controlModels.insert(m);
 	

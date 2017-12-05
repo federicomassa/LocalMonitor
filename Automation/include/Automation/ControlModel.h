@@ -15,6 +15,8 @@ class ControlModel
 	std::vector<std::string> controlVars;
 	std::string controllerClassName;
     Controller* controller;
+	std::string automatonClassName;
+	Automaton* automaton;
 		
 public:
 	ControlModel();
@@ -24,13 +26,15 @@ public:
 	bool operator<(const ControlModel&) const;
 	bool operator==(const ControlModel&) const;
 	void SetName(const std::string&);
+	void SetAutomaton(const std::string&);
 	void SetManeuvers(const std::vector<std::string>&);
 	void SetController(const std::string& className);
 	void SetControlVariables(const std::vector<std::string>&);
 	const std::string& GetName() const;
 	const std::vector<std::string>& GetControlVariables() const;
 	Controller* const & GetController() const;
-	
+	Automaton* const & GetAutomaton() const;
+	const std::string& GetAutomatonName() const;
 };
 
 #endif

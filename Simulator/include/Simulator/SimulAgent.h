@@ -25,7 +25,7 @@ class SimulAgent
     Agent agent;
     PhysicalLayer pLayer;
 	Controller* controller;
-	Automaton automaton;
+	Automaton* automaton;
 	// converted state to world coordinates. Set by GenerateWorldState
 	State worldState;
 	

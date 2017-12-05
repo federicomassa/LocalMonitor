@@ -13,6 +13,7 @@ set(MODULE_SOURCE_DIR
     .
 )
 
+# TODO Automatize insertion of user-defined classes (controllers, automatons and such)
 set(MODULE_SOURCES
 	Automation/Controllers/AccOmegaControl.cpp
     Automation/Sensors/VisionSensor.cpp
@@ -21,6 +22,7 @@ set(MODULE_SOURCES
     Dynamics/StateConversions.cpp
     Automation/Controllers/Controllers.cpp
     Automation/Sensors/Sensors.cpp
+    Automation/Automatons/Automatons.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
