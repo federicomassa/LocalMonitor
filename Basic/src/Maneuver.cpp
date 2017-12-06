@@ -34,6 +34,16 @@ bool Maneuver::operator==(const ManeuverName& mName) const
 	return false;
 }
 
+bool Maneuver::operator!=(const Maneuver& m) const
+{
+	return !(*this == m);
+}
+
+bool Maneuver::operator!=(const ManeuverName& mName) const
+{
+	return !(*this == mName);
+}
+
 bool Maneuver::SetManeuver(const ManeuverName& manName)
 {
 	man = manName;
@@ -44,7 +54,7 @@ Logger &operator<< ( Logger & os, const Maneuver & man)
 	os << "Maneuver : " << man.man << os.EndL();
 }
 
-const std::string Maneuver::GetManeuverName() const
+const std::string Maneuver::GetName() const
 {
 	return man;
 }

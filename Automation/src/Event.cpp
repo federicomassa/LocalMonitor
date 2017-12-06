@@ -35,5 +35,18 @@ bool Event::operator==(const Event& e) const
 	return equal;
 }
 
-
+bool Event::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const
+{
+	// An event evaluates to true if the AND of its subevents evaluation 
+	// is true. NB each subevent is evaluated based on its EvalMode (OR, NOR, SINGLE, NSINGLE...)
+	
+	bool evaluation = true;
+	for (auto sub = subEvents.begin(); sub != subEvents.end(); sub++)
+	{
+		evaluation = evaluation && (*sub)->Evaluate(self, others, env);
+	}
+	
+	return evaluation;
+	
+}
 

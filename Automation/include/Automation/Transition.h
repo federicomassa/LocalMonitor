@@ -4,24 +4,28 @@
 #include <string>
 #include <set>
 
-class Event;
+#include "Basic/Maneuver.h"
+#include "Basic/Agent.h"
+#include "Utility/TimedContainer.h"
+#include "Utility/EnvironmentParameters.h"
 
+class Event;
 class Transition
 {	
 	// The transition is between two discrete states: initDiscrState->finalDiscrState
-	std::string initDiscrState;
-	std::string finalDiscrState;
+	Maneuver initDiscrState;
+	Maneuver finalDiscrState;
 	
 	// A transition is true when at least one event evaluates to true
 	std::set<const Event*> events;
 	
 
 public:
-	Transition(const std::string& init, const std::string& final, const std::set<const Event*>& listOfEvents);
+	Transition(const Maneuver& init, const Maneuver& final, const std::set<const Event*>& listOfEvents);
 	
 	void AddEvent(const Event*);
 	
-	
+	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const;
 };
 
 #endif

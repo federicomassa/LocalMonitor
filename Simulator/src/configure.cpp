@@ -424,7 +424,7 @@ void generateControllerList(const nlohmann::json& j, ostream& os)
 			else
 			{
 				os << "else if (controllerClassName == " << "\"" << controllerClasses[i] << "\")\n\t\t";
-				os << "return new " << controllerClasses[i] << ";\n\t";
+				os << "return new " << controllerClasses[i] << "(" << controllerClasses[i] << ")" << ";\n\t";
 			}
 		}
 		

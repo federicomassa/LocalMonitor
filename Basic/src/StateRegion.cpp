@@ -55,6 +55,17 @@ bool StateRegion::Belongs(const StateCell& cell)
 	return true;
 }
 
+bool StateRegion::Contains(const State& q) const
+{
+	bool contain = false;
+	
+	for (auto cell = region.begin(); cell != region.end(); cell++)
+		contain = contain || cell->Contains(q);
+	
+	
+	return contain;
+}
+
 bool StateRegion::Join(const StateRegion& reg)
 {
 	bool result = false;

@@ -20,8 +20,10 @@ public:
 	
 	bool operator==(const ManeuverName& ) const;
 	bool operator==(const Maneuver&) const;
+	bool operator!=(const ManeuverName&) const;
+	bool operator!=(const Maneuver&) const;
 	bool SetManeuver(const ManeuverName&);
-	const std::string GetManeuverName() const;
+	const std::string GetName() const;
 	friend Logger &operator<< ( Logger &, const Maneuver & );
 };
 

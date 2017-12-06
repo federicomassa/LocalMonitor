@@ -7,6 +7,9 @@
 // Automatically created header during configure
 // It contains all the dynamic models declared in the config file
 #include "Input/Dynamics/DynamicModels.h"
+#include "Input/Automation/Controllers/Controllers.h"
+#include "Input/Automation/Automatons/Automatons.h"
+
 
 #include <iostream>
 
@@ -16,13 +19,28 @@ using namespace LogFunctions;
 extern Logger logger;
 extern SimulatorConfiguration conf;
 
-SimulAgent::SimulAgent() : pLayer(conf.GetSimulationTimeStep()), controller(nullptr)
+SimulAgent::SimulAgent() : pLayer(conf.GetSimulationTimeStep()), controller(nullptr), automaton(nullptr)
 {
+}
+
+SimulAgent::~SimulAgent()
+{
+	if (controller)
+		delete controller;
+	
+	if (automaton)
+		delete automaton;
 }
 
 SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 {
 	agent = a.agent;
+	controller = InstantiateController(a.controller->GetName());
+	automaton = InstantiateAutomaton(a.automaton->GetName());
+	
+	worldState = a.worldState;
+	extSensors = a.extSensors;
+	intSensors = a.intSensors;
 }
 
 const string &SimulAgent::GetID() const
@@ -49,16 +67,10 @@ void SimulAgent::SetState(const State& q)
     agent.SetState(q);
 }
 
-void SimulAgent::SetManeuver(const ManeuverName& manName)
-{
-	automaton.SetManeuver(manName);
-}
-
 const Maneuver& SimulAgent::GetManeuver() const
 {
-	return automaton.GetManeuver();
+	return automaton->GetManeuver();
 }
-
 
 //TODO Check compatibility between model and function
 void SimulAgent::SetDynamicModel(const DynamicModel& m)

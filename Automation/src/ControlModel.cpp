@@ -1,6 +1,4 @@
 #include "ControlModel.h"
-#include "Input/Automation/Controllers/Controllers.h"
-#include "Input/Automation/Automatons/Automatons.h"
 
 using namespace std;
 
@@ -21,21 +19,13 @@ void ControlModel::SetControlVariables(const std::vector<std::string>& c)
 
 void ControlModel::SetAutomaton(const std::string& aName)
 {
-	automatonName = aName;
-	
-	if (automaton)
-		delete automaton;
+	automatonClassName = aName;
 }
 
 
 void ControlModel::SetController(const string& className)
 {
 	controllerClassName = className;
-	
-	if (controller)
-		delete controller;
-	
-	controller = InstantiateController(className);
 }
 
 
@@ -49,25 +39,27 @@ const std::string& ControlModel::GetAutomatonName() const
 	return automatonClassName;
 }
 
+const std::string& ControlModel::GetControllerName() const
+{
+	return controllerClassName;
+}
+
+
 const std::string & ControlModel::GetName() const
 {
 	return name;
 }
 
-ControlModel::ControlModel() : controller(nullptr), automaton(nullptr)
+ControlModel::ControlModel()
 {
 }
 
 ControlModel::~ControlModel() 
 {
-	if (controller)
-		delete controller;
-	
-	if (automaton)
-		delete automaton;
+
 }
 
-ControlModel::ControlModel(const ControlModel& m) : controller(nullptr), automaton(nullptr)
+ControlModel::ControlModel(const ControlModel& m) 
 {
 	name = m.name;
 	maneuvers = m.maneuvers;
@@ -75,8 +67,6 @@ ControlModel::ControlModel(const ControlModel& m) : controller(nullptr), automat
 	controllerClassName = m.controllerClassName;
 	automatonClassName = m.automatonClassName;
 	
-	controller = InstantiateController(m.controllerClassName);
-	automaton = InstantiateAutomaton(m.automatonClassName);
 }
 
 
@@ -86,15 +76,6 @@ ControlModel & ControlModel::operator=(const ControlModel& m)
 	maneuvers = m.maneuvers;
 	controlVars = m.controlVars;
 	controllerClassName = m.controllerClassName;
-	
-	if (controller)
-		delete controller;
-	
-	if (automaton)
-		delete automaton;
-	
-	controller = InstantiateController(m.controllerClassName);
-	automaton = InstantiateAutomaton(m.automatonClassName);
 
 }
 
@@ -109,7 +90,3 @@ bool ControlModel::operator==(const ControlModel& model) const
 	return (name == model.name);
 }
 
-Controller* const & ControlModel::GetController() const
-{
-	return controller;
-}

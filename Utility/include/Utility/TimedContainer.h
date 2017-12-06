@@ -75,8 +75,8 @@ public:
 	void clear();
 	iterator begin() {return iterator(obj.begin());}
 	const_iterator begin() const {return const_iterator(obj.cbegin());}
-	iterator last() {return iterator(--(obj.end()));}
-	const_iterator last() const {return const_iterator(--(obj.cend()));}
+	iterator latest() {return iterator(--(obj.end()));}
+	const_iterator latest() const {return const_iterator(--(obj.cend()));}
 	iterator end() {return iterator(obj.end());}
 	const_iterator end() const {return const_iterator(obj.cend());}
 	int size() const {return obj.size();}

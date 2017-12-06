@@ -1,5 +1,10 @@
 #include "Controller.h"
 
+Controller::Controller(const std::string& n)
+{
+	name = n;
+}
+
 // Default functionality, stores only most current data
 void Controller::ReceiveSensorOutput(const SensorOutput& sensorOutput, const double& currentTime)
 {
@@ -32,3 +37,8 @@ const TimedContainer<EnvironmentParameters> & Controller::GetEnvironmentTrajecto
 }
 
 Controller::~Controller() {}
+
+const std::string & Controller::GetName() const
+{
+	return name;
+}

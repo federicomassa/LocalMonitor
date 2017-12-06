@@ -33,6 +33,8 @@ public:
 	bool Join(const StateRegion&);
 	void RemoveCell(const Region::const_iterator&);
 	
+	bool Contains(const State&) const;
+	
 	friend Logger & operator<<(Logger&, const StateRegion&);
 
 };

@@ -13,10 +13,13 @@
 // This is the base class for controllers. Every controller **can (it must be specified in the children)** if and how it should store in memory the trajectories as seen by sensors. This info can be used to plan the controller.
 class Controller
 {
+	std::string name;
+	
 	TimedContainer<Agent> selfTrajectory;
 	TimedContainer<AgentVector> othersTrajectory;
 	TimedContainer<EnvironmentParameters> environmentTrajectory;
 public:
+	Controller(const std::string&);
 	virtual void ComputeControl(Control&, const Maneuver&) const = 0;
 	
 	// By default, stores only last sensor data. If a different behaviour
@@ -27,6 +30,8 @@ public:
 	const TimedContainer<Agent>& GetSelfTrajectory() const;
 	const TimedContainer<AgentVector>& GetOtherAgentsTrajectory() const;
 	const TimedContainer<EnvironmentParameters>& GetEnvironmentTrajectory() const;
+	
+	const std::string& GetName() const;
 	
 	virtual ~Controller();
 	

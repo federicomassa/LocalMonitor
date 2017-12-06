@@ -14,9 +14,9 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {
 	const double K = 0.5;
 	
-	const State& q0 = GetSelfTrajectory().last().value().GetState();
+	const State& q0 = GetSelfTrajectory().latest().value().GetState();
 	
-	const string& myID = GetSelfTrajectory().last().value().GetID();
+	const string& myID = GetSelfTrajectory().latest().value().GetID();
 	
 	string otherID;
 	if (myID == "0")
@@ -24,7 +24,7 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	else
 		otherID = "0";
 	
-	const AgentVector& others = GetOtherAgentsTrajectory().last().value();
+	const AgentVector& others = GetOtherAgentsTrajectory().latest().value();
 	for (auto itr = others.begin(); itr != others.end(); itr++)
 	{
 		logger <<  myID << " sees: " << itr->first << logger.EndL();
@@ -35,7 +35,7 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	logger << "Other agent: " << otherAgent << logger.EndL();
 	
 	
-	const EnvironmentParameters& env = GetEnvironmentTrajectory().last().value();
+	const EnvironmentParameters& env = GetEnvironmentTrajectory().latest().value();
 	
 	const double& y = (q0("yb") + q0("yf"))/2.0;
 	const double& theta = atan2(q0("yf") - q0("yb"), q0("xf") - q0("xb"));

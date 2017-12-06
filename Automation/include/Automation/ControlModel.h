@@ -14,9 +14,7 @@ class ControlModel
 	std::vector<std::string> maneuvers;
 	std::vector<std::string> controlVars;
 	std::string controllerClassName;
-    Controller* controller;
 	std::string automatonClassName;
-	Automaton* automaton;
 		
 public:
 	ControlModel();
@@ -32,9 +30,9 @@ public:
 	void SetControlVariables(const std::vector<std::string>&);
 	const std::string& GetName() const;
 	const std::vector<std::string>& GetControlVariables() const;
-	Controller* const & GetController() const;
-	Automaton* const & GetAutomaton() const;
 	const std::string& GetAutomatonName() const;
+	const std::string& GetControllerName() const;
+	
 };
 
 #endif

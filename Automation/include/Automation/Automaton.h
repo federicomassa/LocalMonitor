@@ -11,15 +11,26 @@
 #include "Transition.h"
 #include "Basic/Maneuver.h"
 #include "Basic/StateRegion.h"
+#include "Utility/TimedContainer.h"
+#include "Utility/EnvironmentParameters.h"
 #include <set>
 #include <map>
+
+class SensorOutput;
 
 class Automaton
 {
 public:
 private:
+	std::string name;
 	
-	friend class SimulAgent;
+	// Like controller, also the automaton can store trajectories in memory
+	// and use them to determine next maneuver
+	TimedContainer<Agent> selfTrajectory;
+	TimedContainer<AgentVector> othersTrajectory;
+	TimedContainer<EnvironmentParameters> environmentTrajectory;
+	
+	friend class SimulatorConfiguration;
 	Maneuver maneuver;
 	void SetManeuver(const Maneuver&);
 
@@ -64,11 +75,19 @@ protected:
 	
 	
 public:
-	
+	Automaton(const std::string&);
+	virtual ~Automaton();
 	// This method is where the user defines its rules
 	virtual void DefineRules() = 0;
 	const Maneuver& GetManeuver() const;
-	void Evolve();
+	void Evolve(const bool& optimize = false);
+	
+	const std::string& GetName() const;
+	
+	// By default, stores only last sensor data. If a different behaviour
+	// is desired, please override this function in your controller
+	// TODO make other functions to facilitate this task for the user
+	virtual void ReceiveSensorOutput(const SensorOutput&, const double& currentTime);
 	
 };
 

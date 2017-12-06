@@ -3,6 +3,10 @@
 
 #include <string>
 
+#include "Utility/TimedContainer.h"
+#include "Utility/EnvironmentParameters.h"
+#include "Basic/Agent.h"
+
 class StateRegion;
 
 
@@ -16,8 +20,8 @@ public:
 private:
 	EvalMode mode;
 	typedef StateRegion (*AreaFcn) (const Agent& self);
-	typedef bool (*InteractionFcn) (const Agent& self, const Agent& other);
-	typedef bool (*SingleEvaluationFcn) (const Agent& self);
+	typedef bool (*InteractionFcn) (const Agent& self, const Agent& other, const EnvironmentParameters& env);
+	typedef bool (*SingleEvaluationFcn) (const Agent& self, const EnvironmentParameters& env);
 	
 	
 	// 'single' sub-events, i.e. sub-events that can be evaluated
@@ -41,6 +45,8 @@ public:
 	// Used to create sets. NB two subevents are equal if they have the same name
 	bool operator<(const SubEvent&) const;
 	bool operator==(const SubEvent&) const;
+	
+	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const;
 };
 
 #endif

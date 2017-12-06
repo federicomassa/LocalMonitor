@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(TimedContainerTest)
 	
 	BOOST_REQUIRE_EQUAL(t.size(), 4);
 	BOOST_REQUIRE_EQUAL(t.begin().time(), 9.1);
-	BOOST_REQUIRE_EQUAL(t.last().time(), 0.1);
+	BOOST_REQUIRE_EQUAL(t.latest().time(), 0.1);
 	
 	
 	t.erase(t.begin());
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(TimedContainerTest)
 	
 	BOOST_REQUIRE_EQUAL(t.size(), 3);
 	BOOST_REQUIRE_EQUAL(t.begin().time(), 5.6);
-	BOOST_REQUIRE_EQUAL(t.last().time(), 0.1);
+	BOOST_REQUIRE_EQUAL(t.latest().time(), 0.1);
 	
 	
 }

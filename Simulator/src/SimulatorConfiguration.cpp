@@ -6,6 +6,7 @@
 #include "SimulatorBuildParams.h"
 
 #include "Input/Automation/Controllers/Controllers.h"
+#include "Input/Automation/Automatons/Automatons.h"
 
 #include <iostream>
 #include <math.h>
@@ -354,8 +355,8 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 					if (a.controller || a.automaton)
 						Error("SimulatorConfiguration::ReadAgent", "BUG FIXME! Why is agent's controller or automaton already filled?");
 					
-					a.controller = model->GetController();
-					a.automaton = model->GetAutomaton();
+					a.controller = InstantiateController(model->GetControllerName());
+					a.automaton = InstantiateAutomaton(model->GetAutomatonName());
 					break;
 				}
 			 }
@@ -600,7 +601,7 @@ void SimulatorConfiguration::AddControlModel ( const nlohmann::json & modelJ)
 			isAutomatonSet = true;
 		}
 		else
-			Error("SimulatorConfiguration::AddControlModel", "Unknown entry \'" + itr.key() + "\'. Control models must each contain a name, a set of maneuvers, a controller class name, a set of controller variables, and an automaton" /*FIXME Automaton*/);
+			Error("SimulatorConfiguration::AddControlModel", "Unknown entry \'" + itr.key() + "\'. Control models must each contain a name, a set of maneuvers, a controller class name, a set of controller variables, and an automaton");
 	}
 	
 	if (!isNameSet || !isControlVarSet || !isManeuversSet || !isControllerSet || !isAutomatonSet)

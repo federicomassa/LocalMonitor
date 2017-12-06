@@ -44,11 +44,11 @@ class SimulAgent
 	
 	
 	void SendToController(const SensorOutput&, const double& currentTime);
-	void SetManeuver(const ManeuverName&);
 
 public:
     SimulAgent();
 	SimulAgent(const SimulAgent&);
+	~SimulAgent();
     const std::string &GetID() const;
     void SetID ( const std::string & );
     const State &GetState() const;

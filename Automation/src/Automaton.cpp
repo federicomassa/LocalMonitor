@@ -1,8 +1,91 @@
 #include "Automaton.h"
 #include "Utility/LogFunctions.h"
+#include "SensorOutput.h"
 
 using namespace std;
 using namespace LogFunctions;
+
+Automaton::Automaton(const std::string& n)
+{
+	name = n;
+}
+
+Automaton::~Automaton()
+{
+}
+
+// Default functionality, stores only most current data
+void Automaton::ReceiveSensorOutput(const SensorOutput& sensorOutput, const double& currentTime)
+{
+	const Agent& currentSelf = sensorOutput.RetrieveSelfData();
+	const AgentVector& currentOthers = sensorOutput.RetrieveOtherAgentsData();
+	const EnvironmentParameters& currentEnv = sensorOutput.RetrieveEnvironmentData();
+	
+	selfTrajectory.clear();
+	othersTrajectory.clear();
+	environmentTrajectory.clear();
+	
+	selfTrajectory.insert(currentTime, currentSelf);
+	othersTrajectory.insert(currentTime, currentOthers);
+	environmentTrajectory.insert(currentTime, currentEnv);
+}
+
+
+
+const std::string & Automaton::GetName() const
+{
+	return name;
+}
+
+void Automaton::Evolve(const bool& optimize)
+{
+	
+	// Evaluates each transition from currentManeuver (as initDiscrState)
+	// If more than once is possible, error if optimize==false, 
+	// transite to the first possible maneuver if true.
+	// Optimization is recommended only if sure that only one transition 
+	// evaluates to true at the same time.
+	
+	//Only useful when not optimized
+	bool hasFoundTransition = false;
+	Maneuver firstFoundTransition = string("UNKNOWN");
+	Maneuver otherFoundTransition = string("UNKNOWN");
+	
+	for (auto transition = transitions.begin(); transition != transitions.end(); transition++)
+	{
+		const Maneuver& initDiscrState = transition->first.first;
+		
+		// We are only interested on transitions from currentManeuver to others
+		if (initDiscrState != maneuver)
+			continue;
+		
+		const Maneuver& finalDiscrState = transition->first.second;
+		
+		// Evaluate transition
+		bool currentResult = transition->second.Evaluate(selfTrajectory, othersTrajectory, environmentTrajectory);
+		
+		// A possible transition was already found
+		if (currentResult && hasFoundTransition)
+			Error("Automaton::Evolve", string("More than one transition possible in automaton \'") + name + "\' ---  " + initDiscrState.GetName() + "-->" + firstFoundTransition.GetName() + " and " + 
+			initDiscrState.GetName() + "-->" + finalDiscrState.GetName());
+		
+		if (currentResult)
+			hasFoundTransition = true;
+		
+		if (currentResult && optimize)
+		{
+			maneuver = finalDiscrState;
+			return;
+		}
+		else if (currentResult && !optimize)
+		{
+			firstFoundTransition = finalDiscrState;
+			maneuver = finalDiscrState;
+		}
+		
+	}
+	
+}
 
 const Maneuver& Automaton::GetManeuver() const
 {
@@ -15,26 +98,12 @@ void Automaton::SetManeuver(const Maneuver& man)
 }
 
 void Automaton::RegisterSubEvent(const std::string& name, SubEvent::InteractionFcn subEventFcn, SubEvent::AreaFcn areaFcn, const SubEvent::EvalMode& mode, const std::string& description)
-{
-	if (mode != SubEvent::OR || mode != SubEvent::NOR)
-		Error("Automaton::RegisterSubEvent", "Trying to construct an interaction sub-event with mode different from OR or NOR");
-	
-	Require(subEventFcn != nullptr, "Automaton::RegisterSubEvent", "Cannot register sub-event without logical condition function");
-	
-	// TODO treat the case of interaction without areaFcn
-	if (areaFcn == nullptr)
-		Error("Automaton::RegisterSubEvent", "How to treat null area case?");
-	
+{		
 	subEvents.insert(SubEvent(name, subEventFcn, areaFcn, mode, description));
 }
 
 void Automaton::RegisterSubEvent(const std::string& name, SubEvent::SingleEvaluationFcn subEventFcn, const SubEvent::EvalMode& mode, const std::string& description)
 {
-	if (mode != SubEvent::SINGLE || mode != SubEvent::NSINGLE)
-		Error("Automaton::RegisterSubEvent", "Trying to construct a single-evaluating sub-event with mode different from SINGLE or NSINGLE");
-	
-	Require(subEventFcn != nullptr, "Automaton::RegisterSubEvent", "Cannot register sub-event without logical condition function");
-	
 	subEvents.insert(SubEvent(name, subEventFcn, mode, description));
 }
 
