@@ -10,6 +10,11 @@ using namespace std;
 
 extern Logger logger;
 
+AccOmegaControl::AccOmegaControl(const std::string& className) : Controller(className)
+{
+}
+
+
 void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {
 	const double K = 0.5;
@@ -56,16 +61,30 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	
 	if (maneuver == "FAST")
 	{
-		u("a") = 1;
+		u("a") = 3;
 		if (fabs(theta) > 1E-9)
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
 		else
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");
 	}
+	else if (maneuver == "SLOW")
+	{
+		u("a") = -3;
+		if (fabs(theta) > 1E-9)
+			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
+		else
+			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");		
+	}
 	else
-		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetManeuverName());
+		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());
 	
 	
-	logger << "Control: " << u << logger.EndL();
+	// Saturation
+	const double maxOmega = 2;
+	
+	if (u("omega") > maxOmega)
+		u("omega") = maxOmega;
+	else if (u("omega") < -maxOmega)
+		u("omega") = -maxOmega;
 	
 }

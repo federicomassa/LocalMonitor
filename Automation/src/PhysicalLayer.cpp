@@ -38,7 +38,7 @@ State PhysicalLayer::GetNextState(const Agent & currentAgent, const Control& con
 	{
 		try
 		{
-			dynamicModel.Run(dCurrentState, currentAgent, control);
+			dynamicModel.Run(dCurrentState, currentAgent, control, simulTimeStep);
 		}
 		catch (std::out_of_range& e)
 		{

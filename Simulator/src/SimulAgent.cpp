@@ -34,13 +34,45 @@ SimulAgent::~SimulAgent()
 
 SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 {
+	cout << "Copy" << endl;
+	
 	agent = a.agent;
 	controller = InstantiateController(a.controller->GetName());
+	
 	automaton = InstantiateAutomaton(a.automaton->GetName());
+	automaton->DefineRules();
+	automaton->SetManeuver(a.automaton->GetManeuver());
+
 	
 	worldState = a.worldState;
 	extSensors = a.extSensors;
 	intSensors = a.intSensors;
+}
+
+SimulAgent& SimulAgent::operator=(const SimulAgent& a)
+{
+	cout << "simulagent operator=" << endl;
+	
+	if (controller)
+		delete controller;
+	
+	if (automaton)
+		delete automaton;
+	
+	agent = a.agent;
+	controller = InstantiateController(a.controller->GetName());
+	
+	automaton = InstantiateAutomaton(a.automaton->GetName());
+	automaton->DefineRules();
+	automaton->SetManeuver(a.automaton->GetManeuver());
+	
+	pLayer = a.pLayer;
+	
+	worldState = a.worldState;
+	extSensors = a.extSensors;
+	intSensors = a.intSensors;
+	
+	return *this;
 }
 
 const string &SimulAgent::GetID() const
@@ -105,18 +137,34 @@ Logger &operator<<(Logger &os, const SimulAgent &a)
 
 void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& currentTime)
 {
-	logger << "Pre-Evolve!" << agent << logger.EndL();
-	
 	SendToController(sensorOutput, currentTime);
+	SendToAutomaton(sensorOutput, currentTime);
 	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();
 	Control control = Control::GenerateStateOfType(controlVars);
 	controller->ComputeControl(control, GetManeuver());
     agent.SetState(pLayer.GetNextState(agent, control));
+	
+	automaton->Evolve();
 }
 
 void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)
 {
+	std::cout << "Here0?" << std::endl;
+	
+	if (controller == nullptr)
+		logger << "SendToController, WTF?" << logger.EndL();
+	
+	std::cout << "Here00?" << std::endl;
+	
 	controller->ReceiveSensorOutput(sensorOutput, currentTime);
+	
+	
+	std::cout << "Here000?" << std::endl;
+}
+
+void SimulAgent::SendToAutomaton(const SensorOutput& sensorOutput, const double& currentTime)
+{
+	automaton->ReceiveSensorOutput(sensorOutput, currentTime);
 }
 
 

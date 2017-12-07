@@ -23,6 +23,7 @@ set(MODULE_SOURCES
     Automation/Controllers/Controllers.cpp
     Automation/Sensors/Sensors.cpp
     Automation/Automatons/Automatons.cpp
+    Automation/Automatons/TestAutomaton.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

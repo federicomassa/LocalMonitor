@@ -20,6 +20,7 @@ class SensorOutput;
 
 class Automaton
 {
+	friend class SimulatorConfiguration;
 public:
 private:
 	std::string name;
@@ -32,7 +33,6 @@ private:
 	
 	friend class SimulatorConfiguration;
 	Maneuver maneuver;
-	void SetManeuver(const Maneuver&);
 
 	std::set<SubEvent> subEvents;
 	std::set<Event> events;
@@ -83,7 +83,8 @@ public:
 	void Evolve(const bool& optimize = false);
 	
 	const std::string& GetName() const;
-	
+	void SetManeuver(const Maneuver&);
+
 	// By default, stores only last sensor data. If a different behaviour
 	// is desired, please override this function in your controller
 	// TODO make other functions to facilitate this task for the user

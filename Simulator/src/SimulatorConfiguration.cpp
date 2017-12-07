@@ -307,7 +307,6 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 			if (!found)
 				for (std::set<ExternalSensorPointer>::iterator itr = extSensors.begin(); itr != extSensors.end(); itr++)
 				{
-					logger << "try " << itr->GetName() << logger.EndL();
 					if (sensorName == itr->GetName())
 					{
 						a.extSensors.insert(itr->GetSensor());
@@ -356,7 +355,9 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 						Error("SimulatorConfiguration::ReadAgent", "BUG FIXME! Why is agent's controller or automaton already filled?");
 					
 					a.controller = InstantiateController(model->GetControllerName());
+					cout << "Print in sim: " << a.controller->GetName() << endl;
 					a.automaton = InstantiateAutomaton(model->GetAutomatonName());
+					a.automaton->DefineRules();
 					break;
 				}
 			 }
@@ -374,7 +375,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 			Error("SimulatorConfiguration::ReadAgent", "\'init_maneuver\' entry must be a string");
 		
 		string initMan = initManJson.get<string>();
-		a.SetManeuver(initMan);
+		a.automaton->SetManeuver(initMan);
 	}
 	catch(out_of_range&)
 	{

@@ -1,11 +1,14 @@
 #include "Controllers.h"
-
-#include "Input/Automation/Controllers/AccOmegaControl.h"
+#include "AccOmegaControl.h"
+#include <iostream>
 
 Controller* InstantiateController(const std::string& controllerClassName) 
 {
 	if (controllerClassName == "AccOmegaControl")
-		return new AccOmegaControl;
+	{
+		std::cout << "AccOmegaaa" << std::endl;
+		return new AccOmegaControl(controllerClassName);
+	}
 	else 
 		{
 			std::cerr << "Error in configure: " << controllerClassName << ".h not found";

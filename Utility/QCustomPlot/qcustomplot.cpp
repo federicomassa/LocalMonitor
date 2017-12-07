@@ -1059,7 +1059,7 @@ QCPLayer::~QCPLayer()
   // call QCustomPlot::removeLayer, which moves all layerables off this layer before deleting it.)
   
   while (!mChildren.isEmpty())
-    mChildren.latest()->setLayer(0); // removes itself from mChildren via removeChild()
+    mChildren.last()->setLayer(0); // removes itself from mChildren via removeChild()
   
   if (mParentPlot->currentLayer() == this)
     qDebug() << Q_FUNC_INFO << "The parent plot's mCurrentLayer will be a dangling pointer. Should have been set to a valid layer or 0 beforehand.";
@@ -2530,7 +2530,7 @@ QCPDataRange QCPDataSelection::span() const
   if (isEmpty())
     return QCPDataRange();
   else
-    return QCPDataRange(mDataRanges.first().begin(), mDataRanges.latest().end());
+    return QCPDataRange(mDataRanges.first().begin(), mDataRanges.last().end());
 }
 
 /*!
@@ -2717,8 +2717,8 @@ QCPDataSelection QCPDataSelection::inverse(const QCPDataRange &outerRange) const
   for (int i=1; i<mDataRanges.size(); ++i)
     result.addDataRange(QCPDataRange(mDataRanges.at(i-1).end(), mDataRanges.at(i).begin()), false);
   // last unselected segment:
-  if (mDataRanges.latest().end() != fullRange.end())
-    result.addDataRange(QCPDataRange(mDataRanges.latest().end(), fullRange.end()), false);
+  if (mDataRanges.last().end() != fullRange.end())
+    result.addDataRange(QCPDataRange(mDataRanges.last().end(), fullRange.end()), false);
   result.simplify();
   return result;
 }
@@ -13513,7 +13513,7 @@ QCPAbstractPlottable *QCustomPlot::plottable()
 {
   if (!mPlottables.isEmpty())
   {
-    return mPlottables.latest();
+    return mPlottables.last();
   } else
     return 0;
 }
@@ -13678,7 +13678,7 @@ QCPGraph *QCustomPlot::graph() const
 {
   if (!mGraphs.isEmpty())
   {
-    return mGraphs.latest();
+    return mGraphs.last();
   } else
     return 0;
 }
@@ -13818,7 +13818,7 @@ QCPAbstractItem *QCustomPlot::item() const
 {
   if (!mItems.isEmpty())
   {
-    return mItems.latest();
+    return mItems.last();
   } else
     return 0;
 }
@@ -14058,7 +14058,7 @@ int QCustomPlot::layerCount() const
 bool QCustomPlot::addLayer(const QString &name, QCPLayer *otherLayer, QCustomPlot::LayerInsertMode insertMode)
 {
   if (!otherLayer)
-    otherLayer = mLayers.latest();
+    otherLayer = mLayers.last();
   if (!mLayers.contains(otherLayer))
   {
     qDebug() << Q_FUNC_INFO << "otherLayer not a layer of this QCustomPlot:" << reinterpret_cast<quintptr>(otherLayer);
@@ -17726,7 +17726,7 @@ int QCPAxisRect::calculateAutoMargin(QCP::MarginSide side)
   // note: only need to look at the last (outer most) axis to determine the total margin, due to updateAxisOffset call
   const QList<QCPAxis*> axesList = mAxes.value(QCPAxis::marginSideToAxisType(side));
   if (axesList.size() > 0)
-    return axesList.latest()->offset() + axesList.latest()->calculateMargin();
+    return axesList.last()->offset() + axesList.last()->calculateMargin();
   else
     return 0;
 }
@@ -21438,9 +21438,9 @@ const QPolygonF QCPGraph::getChannelFillPolygon(const QVector<QPointF> *thisData
     (*croppedData)[0].setX(staticData->first().x());
     
     // crop upper bound:
-    if (staticData->latest().x() > croppedData->latest().x()) // other one must be cropped
+    if (staticData->last().x() > croppedData->last().x()) // other one must be cropped
       qSwap(staticData, croppedData);
-    int highBound = findIndexAboveX(croppedData, staticData->latest().x());
+    int highBound = findIndexAboveX(croppedData, staticData->last().x());
     if (highBound == -1) return QPolygonF(); // key ranges have no overlap
     croppedData->remove(highBound+1, croppedData->size()-(highBound+1));
     // set highest point of cropped data to fit exactly key position of last static data point via linear interpolation:
@@ -21450,8 +21450,8 @@ const QPolygonF QCPGraph::getChannelFillPolygon(const QVector<QPointF> *thisData
       slope = (croppedData->at(li).y()-croppedData->at(li-1).y())/(croppedData->at(li).x()-croppedData->at(li-1).x());
     else
       slope = 0;
-    (*croppedData)[li].setY(croppedData->at(li-1).y()+slope*(staticData->latest().x()-croppedData->at(li-1).x()));
-    (*croppedData)[li].setX(staticData->latest().x());
+    (*croppedData)[li].setY(croppedData->at(li-1).y()+slope*(staticData->last().x()-croppedData->at(li-1).x()));
+    (*croppedData)[li].setX(staticData->last().x());
   } else // mKeyAxis->orientation() == Qt::Vertical
   {
     // y is key
@@ -21472,9 +21472,9 @@ const QPolygonF QCPGraph::getChannelFillPolygon(const QVector<QPointF> *thisData
     (*croppedData)[0].setY(staticData->first().y());
     
     // crop upper bound:
-    if (staticData->latest().y() > croppedData->latest().y()) // other one must be cropped
+    if (staticData->last().y() > croppedData->last().y()) // other one must be cropped
       qSwap(staticData, croppedData);
-    int highBound = findIndexAboveY(croppedData, staticData->latest().y());
+    int highBound = findIndexAboveY(croppedData, staticData->last().y());
     if (highBound == -1) return QPolygonF(); // key ranges have no overlap
     croppedData->remove(highBound+1, croppedData->size()-(highBound+1));
     // set highest point of cropped data to fit exactly key position of last static data point via linear interpolation:
@@ -21484,8 +21484,8 @@ const QPolygonF QCPGraph::getChannelFillPolygon(const QVector<QPointF> *thisData
       slope = (croppedData->at(li).x()-croppedData->at(li-1).x())/(croppedData->at(li).y()-croppedData->at(li-1).y());
     else
       slope = 0;
-    (*croppedData)[li].setX(croppedData->at(li-1).x()+slope*(staticData->latest().y()-croppedData->at(li-1).y()));
-    (*croppedData)[li].setY(staticData->latest().y());
+    (*croppedData)[li].setX(croppedData->at(li-1).x()+slope*(staticData->last().y()-croppedData->at(li-1).y()));
+    (*croppedData)[li].setY(staticData->last().y());
   }
   
   // return joined:
@@ -22585,13 +22585,13 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
         case 4: { result << coordsToPixels(keyMin, valueMax); break; }
         case 3: { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMin, valueMin); break; }
         case 7: { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMax, valueMax); break; }
-        case 6: { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMin, valueMin); result.append(result.latest()); break; }
-        case 8: { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMax, valueMax); result.append(result.latest()); break; }
+        case 6: { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMin, valueMin); result.append(result.last()); break; }
+        case 8: { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMax, valueMax); result.append(result.last()); break; }
         case 9: { // in this case we need another distinction of cases: segment may pass below or above rect, requiring either bottom right or top left corner points
           if ((value-prevValue)/(key-prevKey)*(keyMin-key)+value < valueMin) // segment passes below R
-          { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMin, valueMin); result.append(result.latest()); result << coordsToPixels(keyMax, valueMin); }
+          { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMin, valueMin); result.append(result.last()); result << coordsToPixels(keyMax, valueMin); }
           else
-          { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMax, valueMax); result.append(result.latest()); result << coordsToPixels(keyMax, valueMin); }
+          { result << coordsToPixels(keyMin, valueMax) << coordsToPixels(keyMax, valueMax); result.append(result.last()); result << coordsToPixels(keyMax, valueMin); }
           break;
         }
       }
@@ -22603,10 +22603,10 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
       {
         case 1: { result << coordsToPixels(keyMin, valueMax); break; }
         case 3: { result << coordsToPixels(keyMin, valueMin); break; }
-        case 4: { result << coordsToPixels(keyMin, valueMax); result.append(result.latest()); break; }
-        case 6: { result << coordsToPixels(keyMin, valueMin); result.append(result.latest()); break; }
-        case 7: { result << coordsToPixels(keyMin, valueMax); result.append(result.latest()); result << coordsToPixels(keyMax, valueMax); break; }
-        case 9: { result << coordsToPixels(keyMin, valueMin); result.append(result.latest()); result << coordsToPixels(keyMax, valueMin); break; }
+        case 4: { result << coordsToPixels(keyMin, valueMax); result.append(result.last()); break; }
+        case 6: { result << coordsToPixels(keyMin, valueMin); result.append(result.last()); break; }
+        case 7: { result << coordsToPixels(keyMin, valueMax); result.append(result.last()); result << coordsToPixels(keyMax, valueMax); break; }
+        case 9: { result << coordsToPixels(keyMin, valueMin); result.append(result.last()); result << coordsToPixels(keyMax, valueMin); break; }
       }
       break;
     }
@@ -22618,13 +22618,13 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
         case 6: { result << coordsToPixels(keyMin, valueMin); break; }
         case 1: { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMin, valueMax); break; }
         case 9: { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMax, valueMin); break; }
-        case 4: { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMin, valueMax); result.append(result.latest()); break; }
-        case 8: { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMax, valueMin); result.append(result.latest()); break; }
+        case 4: { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMin, valueMax); result.append(result.last()); break; }
+        case 8: { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMax, valueMin); result.append(result.last()); break; }
         case 7: { // in this case we need another distinction of cases: segment may pass below or above rect, requiring either bottom right or top left corner points
           if ((value-prevValue)/(key-prevKey)*(keyMax-key)+value < valueMin) // segment passes below R
-          { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMax, valueMin); result.append(result.latest()); result << coordsToPixels(keyMax, valueMax); }
+          { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMax, valueMin); result.append(result.last()); result << coordsToPixels(keyMax, valueMax); }
           else
-          { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMin, valueMax); result.append(result.latest()); result << coordsToPixels(keyMax, valueMax); }
+          { result << coordsToPixels(keyMin, valueMin) << coordsToPixels(keyMin, valueMax); result.append(result.last()); result << coordsToPixels(keyMax, valueMax); }
           break;
         }
       }
@@ -22636,10 +22636,10 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
       {
         case 1: { result << coordsToPixels(keyMin, valueMax); break; }
         case 7: { result << coordsToPixels(keyMax, valueMax); break; }
-        case 2: { result << coordsToPixels(keyMin, valueMax); result.append(result.latest()); break; }
-        case 8: { result << coordsToPixels(keyMax, valueMax); result.append(result.latest()); break; }
-        case 3: { result << coordsToPixels(keyMin, valueMax); result.append(result.latest()); result << coordsToPixels(keyMin, valueMin); break; }
-        case 9: { result << coordsToPixels(keyMax, valueMax); result.append(result.latest()); result << coordsToPixels(keyMax, valueMin); break; }
+        case 2: { result << coordsToPixels(keyMin, valueMax); result.append(result.last()); break; }
+        case 8: { result << coordsToPixels(keyMax, valueMax); result.append(result.last()); break; }
+        case 3: { result << coordsToPixels(keyMin, valueMax); result.append(result.last()); result << coordsToPixels(keyMin, valueMin); break; }
+        case 9: { result << coordsToPixels(keyMax, valueMax); result.append(result.last()); result << coordsToPixels(keyMax, valueMin); break; }
       }
       break;
     }
@@ -22660,10 +22660,10 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
       {
         case 3: { result << coordsToPixels(keyMin, valueMin); break; }
         case 9: { result << coordsToPixels(keyMax, valueMin); break; }
-        case 2: { result << coordsToPixels(keyMin, valueMin); result.append(result.latest()); break; }
-        case 8: { result << coordsToPixels(keyMax, valueMin); result.append(result.latest()); break; }
-        case 1: { result << coordsToPixels(keyMin, valueMin); result.append(result.latest()); result << coordsToPixels(keyMin, valueMax); break; }
-        case 7: { result << coordsToPixels(keyMax, valueMin); result.append(result.latest()); result << coordsToPixels(keyMax, valueMax); break; }
+        case 2: { result << coordsToPixels(keyMin, valueMin); result.append(result.last()); break; }
+        case 8: { result << coordsToPixels(keyMax, valueMin); result.append(result.last()); break; }
+        case 1: { result << coordsToPixels(keyMin, valueMin); result.append(result.last()); result << coordsToPixels(keyMin, valueMax); break; }
+        case 7: { result << coordsToPixels(keyMax, valueMin); result.append(result.last()); result << coordsToPixels(keyMax, valueMax); break; }
       }
       break;
     }
@@ -22675,13 +22675,13 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
         case 8: { result << coordsToPixels(keyMax, valueMax); break; }
         case 1: { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMin, valueMax); break; }
         case 9: { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMax, valueMin); break; }
-        case 2: { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMin, valueMax); result.append(result.latest()); break; }
-        case 6: { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMax, valueMin); result.append(result.latest()); break; }
+        case 2: { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMin, valueMax); result.append(result.last()); break; }
+        case 6: { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMax, valueMin); result.append(result.last()); break; }
         case 3: { // in this case we need another distinction of cases: segment may pass below or above rect, requiring either bottom right or top left corner points
           if ((value-prevValue)/(key-prevKey)*(keyMax-key)+value < valueMin) // segment passes below R
-          { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMax, valueMin); result.append(result.latest()); result << coordsToPixels(keyMin, valueMin); }
+          { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMax, valueMin); result.append(result.last()); result << coordsToPixels(keyMin, valueMin); }
           else
-          { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMin, valueMax); result.append(result.latest()); result << coordsToPixels(keyMin, valueMin); }
+          { result << coordsToPixels(keyMax, valueMax) << coordsToPixels(keyMin, valueMax); result.append(result.last()); result << coordsToPixels(keyMin, valueMin); }
           break;
         }
       }
@@ -22693,10 +22693,10 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
       {
         case 7: { result << coordsToPixels(keyMax, valueMax); break; }
         case 9: { result << coordsToPixels(keyMax, valueMin); break; }
-        case 4: { result << coordsToPixels(keyMax, valueMax); result.append(result.latest()); break; }
-        case 6: { result << coordsToPixels(keyMax, valueMin); result.append(result.latest()); break; }
-        case 1: { result << coordsToPixels(keyMax, valueMax); result.append(result.latest()); result << coordsToPixels(keyMin, valueMax); break; }
-        case 3: { result << coordsToPixels(keyMax, valueMin); result.append(result.latest()); result << coordsToPixels(keyMin, valueMin); break; }
+        case 4: { result << coordsToPixels(keyMax, valueMax); result.append(result.last()); break; }
+        case 6: { result << coordsToPixels(keyMax, valueMin); result.append(result.last()); break; }
+        case 1: { result << coordsToPixels(keyMax, valueMax); result.append(result.last()); result << coordsToPixels(keyMin, valueMax); break; }
+        case 3: { result << coordsToPixels(keyMax, valueMin); result.append(result.last()); result << coordsToPixels(keyMin, valueMin); break; }
       }
       break;
     }
@@ -22708,13 +22708,13 @@ QVector<QPointF> QCPCurve::getOptimizedCornerPoints(int prevRegion, int currentR
         case 8: { result << coordsToPixels(keyMax, valueMin); break; }
         case 3: { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMin, valueMin); break; }
         case 7: { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMax, valueMax); break; }
-        case 2: { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMin, valueMin); result.append(result.latest()); break; }
-        case 4: { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMax, valueMax); result.append(result.latest()); break; }
+        case 2: { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMin, valueMin); result.append(result.last()); break; }
+        case 4: { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMax, valueMax); result.append(result.last()); break; }
         case 1: { // in this case we need another distinction of cases: segment may pass below or above rect, requiring either bottom right or top left corner points
           if ((value-prevValue)/(key-prevKey)*(keyMin-key)+value < valueMin) // segment passes below R
-          { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMin, valueMin); result.append(result.latest()); result << coordsToPixels(keyMin, valueMax); }
+          { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMin, valueMin); result.append(result.last()); result << coordsToPixels(keyMin, valueMax); }
           else
-          { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMax, valueMax); result.append(result.latest()); result << coordsToPixels(keyMin, valueMax); }
+          { result << coordsToPixels(keyMax, valueMin) << coordsToPixels(keyMax, valueMax); result.append(result.last()); result << coordsToPixels(keyMin, valueMax); }
           break;
         }
       }

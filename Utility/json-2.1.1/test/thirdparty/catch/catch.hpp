@@ -4597,7 +4597,7 @@ const_iterator end() const
 {
     return lines.end();
 }
-std::string const &latest() const
+std::string const &last() const
 {
     return lines.back();
 }
@@ -6054,7 +6054,7 @@ const_iterator end() const
 {
     return lines.end();
 }
-std::string const &latest() const
+std::string const &last() const
 {
     return lines.back();
 }

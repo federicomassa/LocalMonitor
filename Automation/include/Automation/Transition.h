@@ -21,7 +21,11 @@ class Transition
 	
 
 public:
+	Transition();
 	Transition(const Maneuver& init, const Maneuver& final, const std::set<const Event*>& listOfEvents);
+	
+	Transition(const Transition&);
+	Transition& operator=(const Transition&);
 	
 	void AddEvent(const Event*);
 	

@@ -6,6 +6,7 @@
 class AccOmegaControl : public Controller 
 {
 public:
+	AccOmegaControl(const std::string& className);
 	void ComputeControl(Control&, const Maneuver&) const override;
 };
 

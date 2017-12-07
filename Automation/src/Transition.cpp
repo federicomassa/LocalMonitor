@@ -12,6 +12,28 @@ Transition::Transition(const Maneuver& init, const Maneuver& final, const std::s
 	events = listOfEvents;
 }
 
+Transition::Transition()
+{
+	initDiscrState = string("UNKNOWN");
+	finalDiscrState = string("UNKNOWN");
+}
+
+Transition::Transition(const Transition& t)
+{
+	initDiscrState = t.initDiscrState;
+	finalDiscrState = t.finalDiscrState;
+	events = t.events;
+}
+
+Transition & Transition::operator=(const Transition& t)
+{
+	initDiscrState = t.initDiscrState;
+	finalDiscrState = t.finalDiscrState;
+	events = t.events;
+}
+
+
+
 void Transition::AddEvent(const Event* e)
 {
 	// Check that the event is new

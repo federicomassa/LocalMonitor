@@ -22,6 +22,9 @@ set(MODULE_SOURCES
 	InternalSensor.cpp
 	SensorOutput.cpp
 	Controller.cpp
+	SubEvent.cpp
+	Event.cpp
+	Transition.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

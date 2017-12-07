@@ -3,7 +3,8 @@
 
 #include <string>
 #include <iostream>
-#include "AccOmegaControl.h"
+
+class Controller;
 
 Controller* InstantiateController(const std::string& controllerClassName);
 

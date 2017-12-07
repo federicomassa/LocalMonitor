@@ -12,9 +12,9 @@ DynamicModel::DynamicModel()
 	isNameSet = isStateVarsSet = isControlVarsSet = isDynamicsFcnSet = isConversionFcnSet = false;
 }
 
-void DynamicModel::Run(State& qdot, const Agent& self, const Control& u) const
+void DynamicModel::Run(State& qdot, const Agent& self, const Control& u, const double& simulDeltaT) const
 {
-	dynamicsFcn(qdot, self, u);
+	dynamicsFcn(qdot, self, u, simulDeltaT);
 }
 
 

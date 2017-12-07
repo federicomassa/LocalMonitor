@@ -1,7 +1,9 @@
 #include "Event.h"
 #include "SubEvent.h"
+#include "Utility/LogFunctions.h"
 
 using namespace std;
+using namespace LogFunctions;
 
 Event::Event(const string& n, const set<const SubEvent*>& listOfSubevents, const string& descr)
 {
@@ -43,7 +45,14 @@ bool Event::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<Age
 	bool evaluation = true;
 	for (auto sub = subEvents.begin(); sub != subEvents.end(); sub++)
 	{
-		evaluation = evaluation && (*sub)->Evaluate(self, others, env);
+		try
+		{	
+			evaluation = evaluation && (*sub)->Evaluate(self, others, env);
+		}
+		catch (out_of_range&)
+		{
+			Error("Event::Evaluate", string("Out of range exception in sub-event \'" ) + (*sub)->GetName() + "\'...maybe required non measured state variable? Check if all variables required are measured by sensors");
+		}
 	}
 	
 	return evaluation;
