@@ -268,6 +268,11 @@ bool QVideoEncoder::close()
    // close_video
 
    //avcodec_close(pVideoStream->codec);
+   
+   // FIXME tmp
+	delete pVideoStream;
+   //
+
    avcodec_close(pCodecCtx);
    freeFrame();
    freeOutputBuf();
@@ -278,22 +283,29 @@ bool QVideoEncoder::close()
    
    for(unsigned i = 0; i < pFormatCtx->nb_streams; i++)
    {
-	   //av_freep(&pFormatCtx->streams[i]->codec);
+	   // FIXME tmp
+	  //av_freep(&pFormatCtx->streams[i]->codec);
       av_freep(&pFormatCtx->streams[i]);
-
-     //tmp
+	  
+	  // FIXME Test to solve memory leak
+	  //av_freep(&pFormatCtx->data_codec);
+	  
+	  
+     //tmp FIXME
      //avcodec_close(pFormatCtx->streams[i]->codec);
    }
    
 
-   //tmp
-   /*
+   // FIXME tmp
+   
    // Close file
    avio_close(pFormatCtx->pb);
 
    // Free the stream
    av_free(pFormatCtx);
-   */
+	// END FIXME 
+   
+   
    // Added to solve memory leak
    sws_freeContext(img_convert_ctx);
 

@@ -15,7 +15,7 @@
 #include <map>
 #include <set>
 
-class Logger;
+class MyLogger;
 
 
 class SimulAgent
@@ -68,11 +68,11 @@ public:
 	
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);
 	
-    friend Logger &operator<< ( Logger &, const SimulAgent & );
+    friend MyLogger &operator<< ( MyLogger &, const SimulAgent & );
 };
 
 typedef std::map<std::string, SimulAgent> SimulAgentVector;
 
-Logger &operator<< ( Logger &, const SimulAgent & );
+MyLogger &operator<< ( MyLogger &, const SimulAgent & );
 
 #endif

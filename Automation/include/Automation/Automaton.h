@@ -13,15 +13,16 @@
 #include "Basic/StateRegion.h"
 #include "Utility/TimedContainer.h"
 #include "Utility/EnvironmentParameters.h"
+#include "Utility/Properties.h"
 #include <set>
 #include <map>
+#include <string>
 
 class SensorOutput;
 
 class Automaton
 {
 	friend class SimulatorConfiguration;
-public:
 private:
 	std::string name;
 	
@@ -39,8 +40,9 @@ private:
 	
 	// each transition correspond to a pair initDiscrState->finalDiscrState
 	std::map<std::pair<std::string, std::string>, Transition> transitions;
-	
-	
+		
+	//Properties
+	Properties properties;
 	
 protected:
 	// Register a sub-event (add it to the set). InteractionFcn is a function returning
@@ -74,6 +76,15 @@ protected:
 	void AddTransition(const std::string& initDiscrState, const std::string& finalDiscrState, const std::set<std::string>& listOfEventNames);
 	
 	
+	const TimedContainer<Agent>& GetSelfTrajectory() const;
+	const TimedContainer<AgentVector>& GetOtherAgentsTrajectory() const;
+	const TimedContainer<EnvironmentParameters>& GetEnvironmentTrajectory() const;
+	
+	void SetProperty(const std::string& propertyName, const std::string& propertyValue);
+	void UnsetProperty(const std::string& propertyName);
+	std::string GetProperty(const std::string& propertyName) const;
+	bool IsPropertyAvailable(const std::string& propertyName) const;
+	
 public:
 	Automaton(const std::string&);
 	virtual ~Automaton();
@@ -81,6 +92,10 @@ public:
 	virtual void DefineRules() = 0;
 	const Maneuver& GetManeuver() const;
 	void Evolve(const bool& optimize = false);
+	
+	// Functions called before and after evolution, might be of use for specific automatons
+	virtual void PreEvolve();
+	virtual void PostEvolve();
 	
 	const std::string& GetName() const;
 	void SetManeuver(const Maneuver&);

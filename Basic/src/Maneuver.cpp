@@ -1,6 +1,8 @@
 #include "Maneuver.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include <string>
+
+using namespace std;
 
 Maneuver::Maneuver() : man("")
 {}
@@ -44,17 +46,27 @@ bool Maneuver::operator!=(const ManeuverName& mName) const
 	return !(*this == mName);
 }
 
-bool Maneuver::SetManeuver(const ManeuverName& manName)
+void Maneuver::SetManeuver(const ManeuverName& manName)
 {
 	man = manName;
 }
 
-Logger &operator<< ( Logger & os, const Maneuver & man)
+MyLogger &operator<< ( MyLogger & os, const Maneuver & man)
 {
 	os << "Maneuver : " << man.man << os.EndL();
+	
+	return os;
 }
 
-const std::string Maneuver::GetName() const
+ostream& operator<< ( ostream & os, const Maneuver & man)
+{
+	os << "Maneuver : " << std::string(man.man) << endl;
+	
+	return os;
+}
+
+
+const std::string& Maneuver::GetName() const
 {
 	return man;
 }

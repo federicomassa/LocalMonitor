@@ -3,10 +3,12 @@
 
 #include <string>
 #include <set>
+#include <map>
 
 #include "Basic/Agent.h"
 #include "Utility/TimedContainer.h"
 #include "Utility/EnvironmentParameters.h"
+#include "Utility/Properties.h"
 
 class SubEvent;
 
@@ -27,7 +29,7 @@ public:
 	
 	const std::string& GetName() const;
 	
-	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const;
+	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env, const Properties& automatonProperties) const;
 	
 };
 

@@ -15,7 +15,7 @@ set(MODULE_SOURCE_DIR
 
 set(MODULE_SOURCES
 	LogFunctions.cpp
-	Logger.cpp
+	MyLogger.cpp
 	Interval.cpp
 	SimulationParameters.cpp
 	EnvironmentParameters.cpp
@@ -43,5 +43,6 @@ target_include_directories(${MODULE_NAME} PUBLIC
 )
 
 add_subdirectory(json-2.1.1)
-add_subdirectory(QTFFmpegWrapper)
+#add_subdirectory(QTFFmpegWrapper)
 add_subdirectory(QCustomPlot)
+add_subdirectory(libopenshot-0.1.8)

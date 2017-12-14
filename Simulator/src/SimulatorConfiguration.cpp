@@ -1,6 +1,6 @@
 #include "SimulatorConfiguration.h"
 #include "Utility/LogFunctions.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Utility/Math.h"
 #include "Automation/ControlModel.h"
 #include "SimulatorBuildParams.h"
@@ -17,7 +17,7 @@ using json = nlohmann::json;
 using namespace LogFunctions;
 using namespace Utility;
 
-extern Logger logger;
+extern MyLogger logger;
 
 //FIXME Maybe it's better to only define mandatory entries, via RegisterMandatoryEntry,
 // and make GetEntry iterate on the whole json, so that user defined properties are

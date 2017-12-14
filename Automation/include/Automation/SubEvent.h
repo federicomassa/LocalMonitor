@@ -2,10 +2,12 @@
 #define SUBEVENT_H
 
 #include <string>
+#include <map>
 
 #include "Utility/TimedContainer.h"
 #include "Utility/EnvironmentParameters.h"
 #include "Basic/Agent.h"
+#include "Utility/Properties.h"
 
 class StateRegion;
 
@@ -20,8 +22,8 @@ public:
 private:
 	EvalMode mode;
 	typedef StateRegion (*AreaFcn) (const Agent& self);
-	typedef bool (*InteractionFcn) (const Agent& self, const Agent& other, const EnvironmentParameters& env);
-	typedef bool (*SingleEvaluationFcn) (const Agent& self, const EnvironmentParameters& env);
+	typedef bool (*InteractionFcn) (const Agent& self, const Agent& other, const EnvironmentParameters& env, const Properties& automatonProperties);
+	typedef bool (*SingleEvaluationFcn) (const Agent& self, const EnvironmentParameters& env, const Properties& automatonProperties);
 	
 	
 	// 'single' sub-events, i.e. sub-events that can be evaluated
@@ -46,7 +48,7 @@ public:
 	bool operator<(const SubEvent&) const;
 	bool operator==(const SubEvent&) const;
 	
-	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const;
+	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env, const Properties& automatonProperties) const;
 };
 
 #endif

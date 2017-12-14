@@ -11,7 +11,7 @@
 #include "Utility/AgentParameters.h"
 
 
-class Logger;
+class MyLogger;
 
 class Agent
 {
@@ -33,12 +33,12 @@ public:
 	const double& operator()(const std::string&) const;
 	Agent& operator=(const Agent&);
 	
-    friend Logger &operator<< ( Logger &, const Agent & );
+    friend MyLogger &operator<< ( MyLogger &, const Agent & );
 };
 
 typedef std::map<std::string, Agent> AgentVector;
 
-Logger &operator<< ( Logger &, const Agent & );
+MyLogger &operator<< ( MyLogger &, const Agent & );
 
 
 #endif

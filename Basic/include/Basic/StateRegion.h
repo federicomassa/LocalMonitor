@@ -4,7 +4,7 @@
 #include "StateCell.h"
 #include <vector>
 
-class Logger;
+class MyLogger;
 
 class StateRegion
 {
@@ -35,11 +35,11 @@ public:
 	
 	bool Contains(const State&) const;
 	
-	friend Logger & operator<<(Logger&, const StateRegion&);
+	friend MyLogger & operator<<(MyLogger&, const StateRegion&);
 
 };
 
-Logger & operator<<(Logger&, const StateRegion&);
+MyLogger & operator<<(MyLogger&, const StateRegion&);
 
 
 #endif

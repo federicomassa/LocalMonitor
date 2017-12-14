@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 
-class Logger;
+class MyLogger;
 
 typedef std::string StateName;
 typedef std::map<StateName, double> StateMap;
@@ -30,7 +30,7 @@ public:
 	State (const State&);
     State();
     int Size() const;
-    friend Logger &operator<< ( Logger &, const State & );
+    friend MyLogger &operator<< ( MyLogger &, const State & );
     bool operator== ( const State & ) const;
     bool operator!= ( const State & ) const;
     State &operator= ( const State & );
@@ -60,7 +60,7 @@ public:
 
 
 
-Logger &operator<< ( Logger &, const State & );
+MyLogger &operator<< ( MyLogger &, const State & );
 
 void CheckConsistency ( const std::string &, const State &, const State & );
 

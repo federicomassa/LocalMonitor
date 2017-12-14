@@ -3,11 +3,13 @@
 
 #include <string>
 #include <set>
+#include <map>
 
 #include "Basic/Maneuver.h"
 #include "Basic/Agent.h"
 #include "Utility/TimedContainer.h"
 #include "Utility/EnvironmentParameters.h"
+#include "Utility/Properties.h"
 
 class Event;
 class Transition
@@ -29,7 +31,7 @@ public:
 	
 	void AddEvent(const Event*);
 	
-	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const;
+	bool Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env, const Properties& automatonProperties) const;
 };
 
 #endif

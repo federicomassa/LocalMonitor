@@ -1,4 +1,5 @@
 #include "SimulationParameters.h"
+#include "LogFunctions.h"
 
 SimulationParameters::SimulationParameters()
 {}
@@ -26,4 +27,13 @@ std::string& SimulationParameters::operator()(const std::string& var)
 void SimulationParameters::AddEntry(const std::string& key, const std::string& value)
 {
 	params[key] = value;
+}
+
+void SimulationParameters::RemoveEntry(const std::string& key)
+{
+	Params::iterator itr = params.find(key);
+	if (itr == params.end())
+		LogFunctions::Error("SimulationParameters::RemoveEntry", std::string("Parameter \'") + key + "\' not found");
+	
+	params.erase(itr);
 }

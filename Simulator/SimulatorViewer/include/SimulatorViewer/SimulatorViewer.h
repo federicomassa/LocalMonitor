@@ -34,14 +34,12 @@ class SimulatorViewer : public QMainWindow
 	
 protected:
 	
-
-	
 	const SimulatorConfiguration& GetSimulatorConfiguration() const;
 public:
 	SimulatorViewer(const SimulatorConfiguration&);
 	virtual ~SimulatorViewer();
-	virtual void DrawStaticEnvironment() = 0; 
-	virtual void DrawDynamicEnvironment(const SimulAgentVector&) = 0; 
+	virtual void DrawStaticEnvironment(); 
+	virtual void DrawDynamicEnvironment(const SimulAgentVector&); 
 	
 	/**
 	 * @brief Set a viewer property, that must have been registered in the constructor of the child viewer
@@ -49,7 +47,7 @@ public:
 	 */
 	void SetProperty(const std::string& propertyName, const std::string& propertyValue);
 	std::string GetProperty(const std::string& propertyName) const;
-	virtual void Encode() = 0;
+	virtual void Encode();
 };
 
 #endif

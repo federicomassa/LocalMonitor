@@ -3,7 +3,7 @@
 
 #include "State.h"
 
-class Logger;
+class MyLogger;
 class StateRegion;
 
 class StateCell
@@ -27,11 +27,11 @@ public:
 	void Weld(const StateCell&, const StateName &);
 	bool Slice(const StateCell&, StateRegion&) const;
 
-	friend Logger & operator<<(Logger&, const StateCell&);
+	friend MyLogger & operator<<(MyLogger&, const StateCell&);
 };
 
 typedef std::vector<StateCell> Region;
 
-Logger& operator<<(Logger&, const StateCell&);
+MyLogger& operator<<(MyLogger&, const StateCell&);
 
 #endif

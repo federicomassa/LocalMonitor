@@ -1,5 +1,7 @@
 #include "HighwayViewer.h"
 
+#include "Frame.h"
+
 #include "SimulatorConfiguration.h"
 #include "SimulatorBuildParams.h"
 #include "Utility/SimulationParameters.h"
@@ -22,34 +24,38 @@
 #include <math.h>
 #include <iomanip>
 
-#include "ui_HighwayViewer.h"
+//#include "ui_HighwayViewer.h"
 
 using namespace std;
 using namespace LogFunctions;
 using namespace Utility;
+using namespace openshot;
 
 //FIXME Draw during app event loop, EDIT probably useless
 // TODO Draw road edge (yellow line) beyond lane width, so that each lane has the same width (plus the edge for the extreme ones)
 
 HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(c),
-    ui(new Ui::HighwayViewer), scene(nullptr), width(1920), height(9.0 / 16.0 * double(width)), 
+    /*ui(new Ui::HighwayViewer), */ scene(nullptr), width(1920), height(9.0 / 16.0 * double(width)), 
 	subjID(c.GetCustomEntries().at("subject_vehicle_id").c_str()),
     treesDistance(20), treeRadius(2), laneWidth(ToDouble(c.GetCustomEntries().at("lane_width"))),
     markLength(ToDouble(c.GetCustomEntries().at("mark_length"))), 
     markWidth(ToDouble(c.GetCustomEntries().at("mark_width"))),
-    markDistance(ToDouble(c.GetCustomEntries().at("mark_distance")))
+    markDistance(ToDouble(c.GetCustomEntries().at("mark_distance"))),
+    ffmpegWriter(VIDEO_OUTPUT)
 {	
 	cout << fixed << setprecision(3) << laneWidth << '\t' << markLength << '\t' << markWidth << '\t' << markDistance << endl;
 	
 	cout << fixed << setprecision(3) << c.GetCustomEntries().at("lane_width").c_str() << '\t' << c.GetCustomEntries().at("mark_length").c_str() << '\t' << c.GetCustomEntries().at("mark_width").c_str() << '\t' << c.GetCustomEntries().at("mark_distance").c_str() << endl;
 	
 	
-	ui->setupUi(this);
+	//ui->setupUi(this);
     Q_INIT_RESOURCE(resources);
 	
-	ui->graphicsView->setScene(new QGraphicsScene);
-	scene = ui->graphicsView->scene();
-	connect(this, SIGNAL(finished(const SimulAgentVector&)), this, SLOT(paint(const SimulAgentVector&)));
+	//ui->graphicsView->setScene(new QGraphicsScene);
+	//scene = ui->graphicsView->scene();
+	scene = new QGraphicsScene(nullptr);
+	
+	//connect(this, SIGNAL(finished(const SimulAgentVector&)), this, SLOT(paint(const SimulAgentVector&)));
     first = true;
 	u0 = 0;
     oldU0 = 0;
@@ -93,15 +99,17 @@ HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(
 	// TODO FPS decoupled from simulation discrete time
 	unsigned fps = round(1.0/GetSimulatorConfiguration().GetSimulationTimeStep());
 	
-	enc = new QVideoEncoder;
-    enc->createFile(VIDEO_OUTPUT, width, height, 1000000, 20, fps);
-	
+	//enc = new QVideoEncoder;
+    //enc->createFile(VIDEO_OUTPUT, width, height, 1000000, 20, fps);
+	ffmpegWriter.SetVideoOptions(true, "libvpx", openshot::Fraction(fps,1), width, height, openshot::Fraction(1,1), false, false, 300000); // FPS: fps, Size: widthxheight, Pixel Ratio: 1/1, Bitrate: 300000
+	ffmpegWriter.Open();
 }
 
 HighwayViewer::~HighwayViewer()
 {	
-	delete enc;	
-	delete ui;
+	//delete enc;	
+	//delete ui;
+	ffmpegWriter.Close();
 }
 
 void HighwayViewer::DrawStaticEnvironment()
@@ -209,7 +217,7 @@ void HighwayViewer::DrawStaticEnvironment()
 
 void HighwayViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
 {
-	emit finished(agents);
+	paint(agents);
 }
 
 void HighwayViewer::DrawVehicles(const SimulAgentVector& a)
@@ -318,15 +326,27 @@ void HighwayViewer::DrawDecorations()
 
 void HighwayViewer::Encode()
 {
-    QImage img(width, height, QImage::Format_RGB32);
-    img.fill(Qt::transparent);
-
-    QPainter painter(&img);
+  	QImage copyImg(width, height, QImage::Format_RGBA8888);
+	copyImg.fill(Qt::transparent);
+	
+    QPainter painter(&copyImg);
     painter.setRenderHint(QPainter::Antialiasing);
 
     scene->render(&painter);
-
-    enc->encodeImage(img);
+	
+  //  enc->encodeImage(img);
+	std::shared_ptr<QImage> imgPtr(new QImage(copyImg));
+	
+	Frame* f = new Frame;
+	f->AddImage(imgPtr);
+	
+	cout << "B Frame: " << f->GetWidth() << " x " << f->GetHeight() << endl;
+	
+	std::shared_ptr<Frame> framePtr(f);
+	
+	cout << "Frame: " << framePtr->GetWidth() << " x " << framePtr->GetHeight() << endl;
+	
+	ffmpegWriter.WriteFrame(framePtr);
 }
 
 int HighwayViewer::GetPixelX(const double &x) const

@@ -24,7 +24,7 @@ public:
 	Control (const Control&);
     Control();
     int Size() const;
-    friend Logger &operator<< ( Logger &, const Control & );
+    friend MyLogger &operator<< ( MyLogger &, const Control & );
     bool operator== ( const Control & ) const;
     bool operator!= ( const Control & ) const;
     Control &operator= ( const Control & );
@@ -47,7 +47,7 @@ public:
 typedef std::vector<Control> ControlVector;
 
 
-Logger &operator<< ( Logger &, const Control & );
+MyLogger &operator<< ( MyLogger &, const Control & );
 
 void CheckConsistency ( const std::string &, const Control &, const Control & );
 

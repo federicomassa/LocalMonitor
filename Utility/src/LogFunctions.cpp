@@ -1,5 +1,5 @@
 #include "LogFunctions.h"
-#include "Logger.h"
+#include "MyLogger.h"
 
 #include <iostream>
 #include <sstream>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-extern Logger logger;
+extern MyLogger logger;
 
 string LogFunctions::ClassInfo(const string &className)
 {

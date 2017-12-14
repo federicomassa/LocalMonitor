@@ -68,7 +68,7 @@ const string& SubEvent::GetName() const
 	return name;
 }
 
-bool SubEvent::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const
+bool SubEvent::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env, const Properties& automatonProperties) const
 {
 	// A sub-event evaluates to true based on the logical condition, the sensor data available, the evaluation mode chosen in Automaton::DefineRules for this sub-event.
 	
@@ -104,17 +104,17 @@ bool SubEvent::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<
 				 {
 					 // If area fcn was linked to the sub-event, use it to verify that the agent lies inside that area, otherwise just use the logical condition					 
 					 if (areaFcn == nullptr)
-						result = result || interactionFcn(currSelf, currOther->second, currEnv);
+						result = result || interactionFcn(currSelf, currOther->second, currEnv, automatonProperties);
 					 else
-						 result = result || (interactionFcn(currSelf, currOther->second, currEnv) && areaFcn(currSelf).Contains(currOther->second.GetState()));
+						 result = result || (interactionFcn(currSelf, currOther->second, currEnv, automatonProperties) && areaFcn(currSelf).Contains(currOther->second.GetState()));
 				 }
 				 else if (mode == NOR)
 				 {
 					// If area fcn was linked to the sub-event, use it to verify that the agent lies inside that area, otherwise just use the logical condition
 					 if (areaFcn == nullptr)
-						result = result && !interactionFcn(currSelf, currOther->second, currEnv);
+						result = result && !interactionFcn(currSelf, currOther->second, currEnv, automatonProperties);
 					 else
-						 result = result && !(interactionFcn(currSelf, currOther->second, currEnv) && areaFcn(currSelf).Contains(currOther->second.GetState()));
+						 result = result && !(interactionFcn(currSelf, currOther->second, currEnv, automatonProperties) && areaFcn(currSelf).Contains(currOther->second.GetState()));
 				 }
 			 }
 	}
@@ -125,7 +125,7 @@ bool SubEvent::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<
 		// TODO For now automaton can store in memory but sub-events can only
 		// evaluate based on latest measurement
 		
-		result = singleEvaluationFcn(currSelf, currEnv);
+		result = singleEvaluationFcn(currSelf, currEnv, automatonProperties);
 		
 		if (mode == NSINGLE)
 			result = !result;

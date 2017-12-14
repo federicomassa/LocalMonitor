@@ -4,7 +4,7 @@
  * */
 
 #include "Utility/LogFunctions.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "SimulatorBuildParams.h"
 #include "json.hpp"
 #include <iostream>
@@ -15,7 +15,7 @@
 using namespace nlohmann;
 using namespace LogFunctions;
 using namespace std;
-Logger logger(std::cout);
+MyLogger logger(std::cout);
 
 void generateDynamicFunctionsFile(const nlohmann::json& j, ostream& outputModels);
 void generateStateConversionFile(const nlohmann::json& j, ostream& os);

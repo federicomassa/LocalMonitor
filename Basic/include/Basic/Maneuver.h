@@ -3,8 +3,9 @@
 
 #include <set>
 #include <string>
+#include <fstream>
 
-class Logger;
+class MyLogger;
 
 typedef std::string ManeuverName;
 typedef std::set<ManeuverName> ManeuverList;
@@ -22,12 +23,13 @@ public:
 	bool operator==(const Maneuver&) const;
 	bool operator!=(const ManeuverName&) const;
 	bool operator!=(const Maneuver&) const;
-	bool SetManeuver(const ManeuverName&);
-	const std::string GetName() const;
-	friend Logger &operator<< ( Logger &, const Maneuver & );
+	void SetManeuver(const ManeuverName&);
+	const std::string& GetName() const;
+	friend MyLogger &operator<< ( MyLogger &, const Maneuver & );
+	friend std::ostream &operator<< ( std::ostream &, const Maneuver & );
 };
 
-Logger &operator<< ( Logger &, const Maneuver & );
-
+MyLogger &operator<< ( MyLogger &, const Maneuver & );
+std::ostream &operator<< ( std::ostream &, const Maneuver & );
 
 #endif

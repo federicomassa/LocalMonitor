@@ -1,5 +1,5 @@
 #include "EnvironmentParameters.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 
 using namespace std;
 
@@ -64,15 +64,15 @@ bool EnvironmentParameters::IsAvailable(const std::string& key) const
 	return isAvailable;
 }
 
-Logger& operator<< (Logger& os, const EnvironmentParameters& params)
+MyLogger& operator<< (MyLogger& os, const EnvironmentParameters& params)
 {
 	os << "Parameters: " << os.EndL();
-    os << "{" << os.EndL(Logger::INC);
+    os << "{" << os.EndL(MyLogger::INC);
     
 	for (auto itr = params.begin(); itr != params.end(); itr++)
 		os << itr->first << "\t" << itr->second << os.EndL();
 	
-	os << "}" << os.EndL(Logger::DEC);
+	os << "}" << os.EndL(MyLogger::DEC);
 
     return os;
 }

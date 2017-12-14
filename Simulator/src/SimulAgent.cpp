@@ -1,7 +1,7 @@
 #include "SimulAgent.h"
 #include "SimulatorConfiguration.h"
 #include "Utility/LogFunctions.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Automation/DynamicModel.h"
 
 // Automatically created header during configure
@@ -16,7 +16,7 @@
 using namespace std;
 using namespace LogFunctions;
 
-extern Logger logger;
+extern MyLogger logger;
 extern SimulatorConfiguration conf;
 
 SimulAgent::SimulAgent() : pLayer(conf.GetSimulationTimeStep()), controller(nullptr), automaton(nullptr)
@@ -128,7 +128,7 @@ const Agent& SimulAgent::GetAgent() const
 	return agent;
 }
 
-Logger &operator<<(Logger &os, const SimulAgent &a)
+MyLogger &operator<<(MyLogger &os, const SimulAgent &a)
 {
     os << a.agent;
     return os;
@@ -144,7 +144,9 @@ void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& cur
 	controller->ComputeControl(control, GetManeuver());
     agent.SetState(pLayer.GetNextState(agent, control));
 	
+	automaton->PreEvolve();
 	automaton->Evolve();
+	automaton->PostEvolve();
 }
 
 void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)

@@ -2,6 +2,9 @@
 #include "Automation/ExternalSensor.h"
 #include "Automation/InternalSensor.h"
 
+#include <iostream>
+
+
 using namespace std;
 
 SensorOutput::SensorOutput()
@@ -12,15 +15,18 @@ SensorOutput::SensorOutput()
 void SensorOutput::MergeExternalSensor(const ExternalSensorOutput& extOutput)
 {
 	// FIXME visible region is ignored
-	
+	cout << "1" << endl;
 	AgentVector newAgentMeasurement = extOutput.GetMeasuredAgents();
-	
+	cout << "2" << endl;
 	// ============ For each agent, merge sensor info
 	for (auto agent = newAgentMeasurement.begin(); 
 		 agent != newAgentMeasurement.end(); agent++)
 		 {
 			 State oldState = measuredAgents[agent->first].GetState();
 			 const State& newState = agent->second.GetState();
+			 
+			cout << "3" << endl;
+
 			 
 			 for (auto stateVar = newState.begin(); stateVar != newState.end(); stateVar++)
 			 {
@@ -42,10 +48,16 @@ void SensorOutput::MergeExternalSensor(const ExternalSensorOutput& extOutput)
 			 // Update sensor data
 			 measuredAgents[agent->first].SetState(oldState);
 			 measuredAgents[agent->first].SetID(agent->first);
+			 
+			 	cout << "4" << endl;
+
 		 }
 		 
 	// =============== Now update environment
 	EnvironmentParameters newEnvironmentMeasurement = extOutput.GetMeasuredEnvironment();
+	
+		cout << "5" << endl;
+
 	
 	for (auto envParam = newEnvironmentMeasurement.begin(); 
 		 envParam != newEnvironmentMeasurement.end(); envParam++)
@@ -64,6 +76,9 @@ void SensorOutput::MergeExternalSensor(const ExternalSensorOutput& extOutput)
 			}
 			
 		 }
+		 
+		 	cout << "6" << endl;
+
 	
 }
 

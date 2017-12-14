@@ -6,6 +6,7 @@
 namespace Utility
 {
 	double ToDouble(const std::string& value);
+	std::string ToString(const double& value, const int& precision = 5);
 }
 
 #endif

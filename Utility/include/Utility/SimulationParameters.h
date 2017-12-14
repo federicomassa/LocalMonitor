@@ -17,7 +17,7 @@ public:
 	std::string& operator()(const std::string&);
 	
 	void AddEntry(const std::string& key, const std::string& value);
-	
+	void RemoveEntry(const std::string& key);
 };
 
 #endif

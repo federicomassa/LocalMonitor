@@ -3,9 +3,12 @@
 
 #include "SimulatorViewer/SimulatorViewer.h"
 #include "SimulAgent.h"
-#include "Utility/QTFFmpegWrapper/QVideoEncoder.h"
+//#include "Utility/QTFFmpegWrapper/QVideoEncoder.h"
+#include "FFmpegWriter.h"
+#include "Frame.h"
 #include <QApplication>
 #include <QPointer>
+#include <QImage>
 #include <string>
 #include <vector>
 #include <QGraphicsScene>
@@ -16,16 +19,16 @@ class QPixmap;
 class QGraphicsPixmapItem;
 class QPaintEvent;
 
-namespace Ui
-{
-	class HighwayViewer;
-}
+//namespace Ui
+//{
+//	class HighwayViewer;
+//}
 
 class HighwayViewer : public SimulatorViewer
 {	
-	Q_OBJECT
+	//Q_OBJECT
 	
-	Ui::HighwayViewer* ui;
+	//Ui::HighwayViewer* ui;
 	QGraphicsScene* scene;
 	//16:9 ratio
 	//Screen Width in pixel
@@ -88,7 +91,8 @@ class HighwayViewer : public SimulatorViewer
 	// Scale from meters to pixel, based on set visibleRoadLength
 	double spaceToPixScale;
 	
-	QVideoEncoder* enc;
+	//QVideoEncoder* enc;
+	openshot::FFmpegWriter ffmpegWriter;
 	
 	// Get x,y pixel of coordinate x,y
 	int GetPixelX(const double& x) const;
@@ -119,11 +123,8 @@ public:
 	void DrawDynamicEnvironment(const SimulAgentVector&) override;
 	void Encode() override;
 	//void paintEvent(QPaintEvent*) override;
-	
-signals:
-	void finished(const SimulAgentVector&);
-	
-private slots:
+		
+private:
 	void paint(const SimulAgentVector&);
 
 };

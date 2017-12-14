@@ -53,7 +53,9 @@ add_library(${HV_NAME} STATIC
 find_package(Qt5Core REQUIRED)
 target_link_libraries(${HV_NAME} Qt5::Widgets)
 target_link_libraries(${HV_NAME} SimulatorViewer)
-target_link_libraries(${HV_NAME} QTFFmpegWrapper)
+#target_link_libraries(${HV_NAME} QTFFmpegWrapper)
+target_link_libraries(${HV_NAME} openshot)
+target_include_directories(${HV_NAME} PUBLIC ${LOCAL_MONITOR_BASE_DIR}/Utility/libopenshot-0.1.8/include)	
 
 target_include_directories(${HV_NAME} PRIVATE ${MODULE_ABSOLUTE_PATH}/${MODULE_HEADERS_DIR})
 target_include_directories(${HV_NAME} PRIVATE ${PROJECT_INPUT_DIR}/Simulator/${HV_NAME})

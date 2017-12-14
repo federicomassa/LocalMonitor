@@ -1,5 +1,5 @@
 #include "Utility/QCustomPlot/qcustomplot.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 
 #include <QtWidgets>
 #include <QApplication>
@@ -15,7 +15,7 @@
 //VERY IMPORTANT - include this last
 #include <boost/test/unit_test.hpp>
 
-Logger logger(std::cout);
+MyLogger logger(std::cout);
 
 // ------------- Tests Follow --------------
 BOOST_AUTO_TEST_CASE(BasicPlot)

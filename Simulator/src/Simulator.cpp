@@ -1,7 +1,7 @@
 #include "SimulatorConfiguration.h"
 #include "SimulatorBuildParams.h"
 #include "Utility/LogFunctions.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 
 #ifdef USE_GRAPHICS
 #include "SimulatorViewer/SimulatorViewer.h"
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-Logger logger(cout);
+MyLogger logger(cout);
 SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FILE));
 
 

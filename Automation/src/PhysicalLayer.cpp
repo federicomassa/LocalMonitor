@@ -1,12 +1,12 @@
 #include "PhysicalLayer.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Utility/LogFunctions.h"
 
 #include <map>
 #include <cstdlib>
 #include <string>
 
-extern Logger logger;
+extern MyLogger logger;
 using namespace LogFunctions;
 using namespace std;
 

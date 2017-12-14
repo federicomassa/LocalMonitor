@@ -30,7 +30,20 @@ void Automaton::ReceiveSensorOutput(const SensorOutput& sensorOutput, const doub
 	environmentTrajectory.insert(currentTime, currentEnv);
 }
 
+const TimedContainer<Agent>& Automaton::GetSelfTrajectory() const
+{
+	return selfTrajectory;
+}
 
+const TimedContainer<AgentVector>& Automaton::GetOtherAgentsTrajectory() const
+{
+	return othersTrajectory;
+}
+
+const TimedContainer<EnvironmentParameters>& Automaton::GetEnvironmentTrajectory() const
+{
+	return environmentTrajectory;
+}
 
 const std::string & Automaton::GetName() const
 {
@@ -62,7 +75,7 @@ void Automaton::Evolve(const bool& optimize)
 		const Maneuver& finalDiscrState = transition->first.second;
 		
 		// Evaluate transition
-		bool currentResult = transition->second.Evaluate(selfTrajectory, othersTrajectory, environmentTrajectory);
+		bool currentResult = transition->second.Evaluate(selfTrajectory, othersTrajectory, environmentTrajectory, properties);
 		
 		// A possible transition was already found
 		if (currentResult && hasFoundTransition)
@@ -80,11 +93,14 @@ void Automaton::Evolve(const bool& optimize)
 		else if (currentResult && !optimize)
 		{
 			firstFoundTransition = finalDiscrState;
-			maneuver = finalDiscrState;
 		}
 		
 	}
 	
+	if (firstFoundTransition != "UNKNOWN")
+		maneuver = Maneuver(firstFoundTransition);
+	// else no transitions found, maneuver doesn't change
+
 }
 
 const Maneuver& Automaton::GetManeuver() const
@@ -175,4 +191,48 @@ void Automaton::AddTransition(const std::string& initDiscrState, const std::stri
 		 }
 	
 	transitions[make_pair(initDiscrState, finalDiscrState)] = Transition(initDiscrState, finalDiscrState, listOfEvents);	
+}
+
+void Automaton::PreEvolve()
+{
+}
+
+void Automaton::PostEvolve()
+{
+}
+
+std::string Automaton::GetProperty(const std::string& propertyName) const
+{
+	try
+	{
+		return properties.at(propertyName);
+	}
+	catch (out_of_range&)
+	{
+		Error("Automaton::GetProperty", string("Property \'") + propertyName + "\' not set");
+	}
+}
+
+void Automaton::SetProperty(const std::string& propertyName, const std::string& propertyValue)
+{
+	properties.AddEntry(propertyName, propertyValue);
+}
+
+void Automaton::UnsetProperty(const std::string& propertyName)
+{
+	properties.RemoveEntry(propertyName);
+}
+
+bool Automaton::IsPropertyAvailable(const std::string& propertyName) const
+{	
+	try
+	{
+		properties.at(propertyName);
+	}
+	catch (out_of_range&)
+	{
+		return false;
+	}
+	
+	return true;
 }

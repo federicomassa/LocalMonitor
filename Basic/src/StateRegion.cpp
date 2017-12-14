@@ -1,12 +1,12 @@
 #include "StateRegion.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Utility/LogFunctions.h"
 #include <vector>
 #include <utility>
 
 using namespace LogFunctions;
 
-extern Logger logger;
+extern MyLogger logger;
 
 StateRegion::StateRegion() : region()
 {}
@@ -261,15 +261,15 @@ Region::iterator StateRegion::end()
 	return region.end();
 }
 
-Logger & operator<<(Logger& os, const StateRegion& r)
+MyLogger & operator<<(MyLogger& os, const StateRegion& r)
 {
-	os << "StateRegion: " << os.EndL(Logger::INC);
+	os << "StateRegion: " << os.EndL(MyLogger::INC);
 	for (Region::const_iterator itr = r.begin(); itr != r.end(); itr++)
 	{
 		os << *itr;
 	}
 	
-	os << os.EndL(Logger::DEC);
+	os << os.EndL(MyLogger::DEC);
 }
 
 

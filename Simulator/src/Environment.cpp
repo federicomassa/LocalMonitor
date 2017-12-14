@@ -1,5 +1,5 @@
 #include "Environment.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Utility/LogFunctions.h"
 #include "Utility/SystemTypes.h"
 
@@ -10,7 +10,7 @@
 using namespace std;
 using namespace LogFunctions;
 
-extern Logger logger;
+extern MyLogger logger;
 
 Environment::Environment()
 {

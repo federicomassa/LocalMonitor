@@ -1,6 +1,6 @@
 #include "Agent.h"
 #include "Utility/LogFunctions.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 
 #include <iostream>
 
@@ -79,13 +79,13 @@ const AgentParameters & Agent::GetParameters() const
 }
 
 
-Logger &operator<<(Logger &os, const Agent &a)
+MyLogger &operator<<(MyLogger &os, const Agent &a)
 {
-    os << "Agent " << a.ID << os.EndL(Logger::INC);
-    os << "{" << os.EndL(Logger::INC);
+    os << "Agent " << a.ID << os.EndL(MyLogger::INC);
+    os << "{" << os.EndL(MyLogger::INC);
     os << a.state << os.EndL();
-	os << a.parameters << os.EndL(Logger::DEC);
-	os << "}" << os.EndL(Logger::DEC);
+	os << a.parameters << os.EndL(MyLogger::DEC);
+	os << "}" << os.EndL(MyLogger::DEC);
 
     return os;
 }

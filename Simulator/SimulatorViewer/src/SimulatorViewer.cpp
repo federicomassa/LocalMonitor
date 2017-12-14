@@ -45,3 +45,17 @@ std::string SimulatorViewer::GetProperty(const std::string& propertyName) const
 		
 	return returnValue;	
 }
+
+void SimulatorViewer::DrawStaticEnvironment()
+{
+}
+
+void SimulatorViewer::DrawDynamicEnvironment(const SimulAgentVector&)
+{
+}
+
+void SimulatorViewer::Encode()
+{
+}
+
+

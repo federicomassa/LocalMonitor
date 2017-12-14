@@ -1,6 +1,6 @@
 #include "AccOmegaControl.h"
 #include "Utility/LogFunctions.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include <math.h>
 #include <string>
 #include <iostream>
@@ -8,7 +8,7 @@
 using namespace LogFunctions;
 using namespace std;
 
-extern Logger logger;
+extern MyLogger logger;
 
 AccOmegaControl::AccOmegaControl(const std::string& className) : Controller(className)
 {
@@ -54,37 +54,39 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 		Error("AccOmegaControl::ComputeControl", "Environment lane width is needed");
 	
 	
-	double beginOfLaneY = floor(y/laneWidth);
+	double beginOfLaneY = floor(y/laneWidth)*laneWidth;
 	
 	
 	logger << "lw: " << laneWidth << " \t beginOfLaneY: " << beginOfLaneY << logger.EndL();
 	
 	if (maneuver == "FAST")
 	{
-		u("a") = 3;
+		u("a") = 10000000;
 		if (fabs(theta) > 1E-9)
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
 		else
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");
+		
+		
+		logger << "Current Lane!!!! " << beginOfLaneY << logger.EndL();
 	}
 	else if (maneuver == "SLOW")
 	{
-		u("a") = -3;
+		u("a") = -1000000;
 		if (fabs(theta) > 1E-9)
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
 		else
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");		
 	}
+	else if (maneuver == "LEFT")
+	{
+		u("a") = 0;
+		
+		// Max omega, saturation is given by the system in dynamics fcn
+		u("omega") = 10000;
+	}
 	else
 		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());
 	
-	
-	// Saturation
-	const double maxOmega = 2;
-	
-	if (u("omega") > maxOmega)
-		u("omega") = maxOmega;
-	else if (u("omega") < -maxOmega)
-		u("omega") = -maxOmega;
 	
 }

@@ -53,12 +53,12 @@ void Transition::AddEvent(const Event* e)
 		Error("Transition::AddEvent", string("Trying to add already present event named \'") + e->GetName() + "\'");
 }
 
-bool Transition::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env) const
+bool Transition::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<AgentVector>& others, const TimedContainer<EnvironmentParameters>& env, const Properties& automatonProperties) const
 {
 	// A transition happens when at least one event evaluates to true
 	for (auto event = events.begin(); event != events.end(); event++)
 	{
-		if ((*event)->Evaluate(self, others, env))
+		if ((*event)->Evaluate(self, others, env, automatonProperties))
 			return true;
 	}
 	

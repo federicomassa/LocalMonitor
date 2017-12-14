@@ -1,6 +1,6 @@
 #include "State.h"
 #include "Automation/DynamicModel.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Utility/LogFunctions.h"
 
 #include <string>
@@ -23,11 +23,11 @@ State::State(const State& q)
 	state = q.GetStateMap();
 }
 
-Logger &operator<<(Logger &os, const State &s)
+MyLogger &operator<<(MyLogger &os, const State &s)
 {
-    os << "state: " << os.EndL(Logger::INC);
+    os << "state: " << os.EndL(MyLogger::INC);
 
-    os << s.state << os.EndL(Logger::DEC);
+    os << s.state << os.EndL(MyLogger::DEC);
 
     return os;
 }

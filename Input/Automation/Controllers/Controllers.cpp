@@ -6,7 +6,6 @@ Controller* InstantiateController(const std::string& controllerClassName)
 {
 	if (controllerClassName == "AccOmegaControl")
 	{
-		std::cout << "AccOmegaaa" << std::endl;
 		return new AccOmegaControl(controllerClassName);
 	}
 	else 

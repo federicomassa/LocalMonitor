@@ -1,6 +1,6 @@
 #include "Control.h"
 
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Utility/LogFunctions.h"
 
 using namespace std;
@@ -20,11 +20,11 @@ Control::Control(const Control& u)
 	control = u.GetControlMap();
 }
 
-Logger &operator<<(Logger &os, const Control &u)
+MyLogger &operator<<(MyLogger &os, const Control &u)
 {
-    os << "control: " << os.EndL(Logger::INC);
+    os << "control: " << os.EndL(MyLogger::INC);
 
-    os << u.control << os.EndL(Logger::DEC);
+    os << u.control << os.EndL(MyLogger::DEC);
 
     return os;
 }

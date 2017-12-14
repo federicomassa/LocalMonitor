@@ -1,7 +1,7 @@
 #include "StateCell.h"
 #include "StateRegion.h"
 #include "Utility/LogFunctions.h"
-#include "Utility/Logger.h"
+#include "Utility/MyLogger.h"
 #include "Utility/Interval.h"
 
 #include <string>
@@ -11,7 +11,7 @@
 using namespace LogFunctions;
 using namespace std;
 
-extern Logger logger;
+extern MyLogger logger;
 
 StateCell::StateCell() : minState(), maxState()
 {
@@ -306,11 +306,11 @@ bool StateCell::operator==(const StateCell &cell) const
     return (minState == cell.minState && maxState == cell.maxState);
 }
 
-Logger &operator<<(Logger &os, const StateCell &cell)
+MyLogger &operator<<(MyLogger &os, const StateCell &cell)
 {
-    os << "Cell: " << os.EndL(Logger::INC);
+    os << "Cell: " << os.EndL(MyLogger::INC);
     os << cell.minState << os.EndL();
     os << "--->" << os.EndL();
-    os << cell.maxState << os.EndL(Logger::DEC);
+    os << cell.maxState << os.EndL(MyLogger::DEC);
     return os;
 }
