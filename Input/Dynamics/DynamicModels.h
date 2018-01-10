@@ -6,8 +6,7 @@
 #include <iostream>
 #include "Basic/Agent.h"
 #include "Automation/Control.h"
-
-typedef void (*DynamicsFcn) (State&, const Agent&, const Control&, const double&);
+#include "Automation/DynamicModel.h"
 
 DynamicsFcn GetDynamicsFunction(const std::string& fcnName);
 

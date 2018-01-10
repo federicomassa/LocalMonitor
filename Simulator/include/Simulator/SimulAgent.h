@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <memory>
 
 class MyLogger;
 
@@ -29,11 +30,9 @@ class SimulAgent
 	// converted state to world coordinates. Set by GenerateWorldState
 	State worldState;
 	
-	// NB now we use Sensor*, not SensorPointer, because we want only
-	// one real instance of a sensor (instantiated in SensorPointer), and
-	// here we use references to the sensor inside SensorPointer
-	std::set<const ExternalSensor *> extSensors;
-	std::set<const InternalSensor *> intSensors;
+	// Sensors
+	std::vector<std::shared_ptr<ExternalSensor> > extSensors;
+	std::vector<std::shared_ptr<InternalSensor> > intSensors;
 	
 	ExternalSensorOutput RetrieveExternalSensorOutput(const std::string& sensorName,
 		const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, 
@@ -64,7 +63,7 @@ public:
 	State GenerateWorldState(const State&);
 	const State& GetWorldState() const;
 	const Agent& GetAgent() const;
-    void EvolveState(const SensorOutput&, const double& currentTime);
+    void Run(const SensorOutput&, const double& currentTime);
 	
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);
 	

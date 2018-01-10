@@ -1,5 +1,4 @@
 #include "InternalSensor.h"
-#include "Input/Automation/Sensors/Sensors.h"
 #include "Utility/LogFunctions.h"
 
 #include <string>
@@ -21,6 +20,7 @@ const std::string& InternalSensor::GetName() const
 	return name;
 }
 
+/*
 InternalSensorPointer::InternalSensorPointer(const std::string& name) : s(nullptr)
 {
 	s = InstantiateInternalSensor(name);
@@ -86,6 +86,7 @@ bool InternalSensorPointer::operator==(const InternalSensorPointer& p) const
 {
 	return (GetName() == p.GetName());
 }
+*/
 
 double & InternalSensorOutput::operator()(const std::string& varName)
 {

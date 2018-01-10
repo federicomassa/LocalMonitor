@@ -29,7 +29,6 @@ class TimedContainer
 		
 		const double& time() const {return timePair.first;}
 		const T& value() const {return timePair.second;}
-		
 	};
 
 	
@@ -70,9 +69,9 @@ class TimedContainer
 	
 public:
 	TimedContainer() {}
-	void insert(const double& time, const T& element);
+	inline void insert(const double& time, const T& element);
 	void erase(iterator itr) {obj.erase(itr.itr);}
-	void clear();
+	void clear() {obj.clear();}
 	iterator begin() {return iterator(obj.begin());}
 	const_iterator begin() const {return const_iterator(obj.cbegin());}
 	iterator latest() {return iterator(--(obj.end()));}
@@ -97,12 +96,5 @@ void TimedContainer<T>::insert(const double& time, const T& element)
 	if (needsSorting)
 		std::sort(obj.begin(), obj.end());
 }
-
-template<class T>
-void TimedContainer<T>::clear()
-{
-	obj.clear();
-}
-
 
 #endif

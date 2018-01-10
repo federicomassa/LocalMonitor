@@ -5,10 +5,9 @@
 #include <vector>
 #include "Basic/StateRegion.h"
 #include "Basic/Agent.h"
-
+#include "Utility/EnvironmentParameters.h"
 
 class SensorOutput;
-class EnvironmentParameters;
 
 class ExternalSensorOutput;
 
@@ -17,7 +16,6 @@ class ExternalSensor
 public:
 	typedef std::set<std::string> SensorVars;
 private:
-	friend class ExternalSensorPointer;
 	std::string name;
  
 
@@ -36,6 +34,22 @@ public:
 	ExternalSensor();
 	virtual ~ExternalSensor();
 	
+	/*class Pointer
+	{
+		ExternalSensor* s;
+	
+	public:
+		Pointer (ExternalSensor*);
+		Pointer (const Pointer&);
+		Pointer& operator=(const Pointer&);
+		bool operator==(const Pointer &) const;
+		bool operator<(const Pointer &) const;
+		~Pointer();
+		ExternalSensor* GetSensor();
+		const ExternalSensor* GetSensor() const;
+		const std::string& GetName() const;
+	};*/
+	
 	// Agents are the same as the real agents but they are expressed in world variables (world_agent_features), via the StateConversion function declared in dynamic model 
 	virtual void SimulateVisibility(StateRegion& visibleRegion, std::set<std::string>& visibleIDs, const Agent& selfInWorld, const AgentVector& othersInWorld) const = 0;
 	
@@ -49,21 +63,8 @@ public:
 };
 
 
-class ExternalSensorPointer
-{
-	ExternalSensor* s;
-	
-public:
-	ExternalSensorPointer (const std::string& name);
-	ExternalSensorPointer (const ExternalSensorPointer&);
-	ExternalSensorPointer& operator=(const ExternalSensorPointer&);
-	bool operator==(const ExternalSensorPointer &) const;
-	bool operator<(const ExternalSensorPointer &) const;
-	~ExternalSensorPointer();
-	ExternalSensor* GetSensor();
-	const ExternalSensor* GetSensor() const;
-	const std::string& GetName() const;
-};
+/*
+*/
 
 class ExternalSensorOutput
 {

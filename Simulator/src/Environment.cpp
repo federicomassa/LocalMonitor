@@ -74,7 +74,7 @@ void Environment::Run(const double& currentTime)
 		
 		SensorOutput sensorOutput = selfAgent.SimulateSensors(selfWorld, othersInWorld, envParameters);
 			
-		selfAgent.EvolveState(sensorOutput, currentTime);
+		selfAgent.Run(sensorOutput, currentTime);
 	}
 }
 

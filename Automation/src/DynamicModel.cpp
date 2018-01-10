@@ -34,9 +34,11 @@ DynamicModel& DynamicModel::operator=(const DynamicModel& m)
 {
 	SetName(m.name);
 	SetStateVariables(m.stateVars);
-	SetDynamicsFunction(m.dynamicsName);
+	SetDynamicsFunction(m.dynamicsFcn);
+	SetDynamicsFunctionName(m.dynamicsName);
 	SetControlVariables(m.controlVars);
-	SetStateConversionFunction(m.conversionFcnName);
+	SetStateConversionFunction(m.conversionFcn);
+	SetStateConversionFunctionName(m.conversionFcnName);
 }
 
 void DynamicModel::SetName(const string& s)
@@ -51,20 +53,27 @@ void DynamicModel::SetStateVariables(const vector<string>& s)
 	stateVars = s;
 }
 
-void DynamicModel::SetDynamicsFunction(const string& s)
+void DynamicModel::SetDynamicsFunctionName(const string& s)
+{
+	dynamicsName = s;
+}
+
+void DynamicModel::SetStateConversionFunctionName(const std::string& s)
+{
+	conversionFcnName = s;
+}
+
+void DynamicModel::SetDynamicsFunction(DynamicsFcn fcn)
 {
 	isDynamicsFcnSet = true;
-	dynamicsName = s;
-	dynamicsFcn = GetDynamicsFunction(s);
+	dynamicsFcn = fcn;
 }
 
-void DynamicModel::SetStateConversionFunction(const std::string& s)
+void DynamicModel::SetStateConversionFunction(StateConversionFcn fcn)
 {
 	isConversionFcnSet = true;
-	conversionFcnName = s;
-	conversionFcn = GetStateConversionFunction(s);
+	conversionFcn = fcn;
 }
-
 
 State DynamicModel::GetWorldState(const Agent& a, const State& modelWorldState) const
 {

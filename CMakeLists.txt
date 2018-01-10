@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(LocalMonitor)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(PROJECT_INPUT_DIR ${PROJECT_SOURCE_DIR}/Input)
 set(PROJECT_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/Output)

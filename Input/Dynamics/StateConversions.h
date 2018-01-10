@@ -4,8 +4,7 @@
 #include <string>
 #include <iostream>
 #include "Basic/Agent.h"
-
-typedef void (*StateConversionFcn) (State&, const Agent&);
+#include "Automation/DynamicModel.h"
 
 StateConversionFcn GetStateConversionFunction(const std::string& fcnName);
 

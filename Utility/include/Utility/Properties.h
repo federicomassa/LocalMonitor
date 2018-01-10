@@ -1,8 +1,8 @@
 #ifndef PROPERTIES_H
 #define PROPERTIES_H
 
-#include "SimulationParameters.h"
+#include "IMap.h"
 
-typedef SimulationParameters Properties;
+typedef IMap<std::string> Properties;
 
 #endif

@@ -30,6 +30,7 @@ SimulAgent::~SimulAgent()
 	
 	if (automaton)
 		delete automaton;
+	
 }
 
 SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
@@ -69,8 +70,12 @@ SimulAgent& SimulAgent::operator=(const SimulAgent& a)
 	pLayer = a.pLayer;
 	
 	worldState = a.worldState;
-	extSensors = a.extSensors;
-	intSensors = a.intSensors;
+	
+	for (auto itr = a.extSensors.begin(); itr != a.extSensors.end(); itr++)
+		extSensors.push_back(*itr);
+
+	for (auto itr = a.intSensors.begin(); itr != a.intSensors.end(); itr++)
+		intSensors.push_back(*itr);
 	
 	return *this;
 }
@@ -135,7 +140,7 @@ MyLogger &operator<<(MyLogger &os, const SimulAgent &a)
 }
 
 
-void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& currentTime)
+void SimulAgent::Run(const SensorOutput& sensorOutput, const double& currentTime)
 {
 	SendToController(sensorOutput, currentTime);
 	SendToAutomaton(sensorOutput, currentTime);
@@ -147,6 +152,9 @@ void SimulAgent::EvolveState(const SensorOutput& sensorOutput, const double& cur
 	automaton->PreEvolve();
 	automaton->Evolve();
 	automaton->PostEvolve();
+	
+	
+	
 }
 
 void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)
@@ -183,11 +191,11 @@ const AgentParameters & SimulAgent::GetParameters() const
 
 ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string& sensorName, const Agent& selfInWorld, const AgentVector& othersInWorld, const EnvironmentParameters& envParams)
 {
-	const ExternalSensor* sensor = nullptr;
+	ExternalSensor* sensor = nullptr;
 	for (auto itr = extSensors.begin(); itr != extSensors.end(); itr++)
 	{
 		if ((*itr)->GetName() == sensorName)
-			sensor = *itr;
+			sensor = itr->get();
 	}
 	
 	if (sensor == nullptr)
@@ -252,7 +260,7 @@ InternalSensorOutput SimulAgent::RetrieveInternalSensorOutput(const std::string&
 	for (auto itr = intSensors.begin(); itr != intSensors.end(); itr++)
 	{
 		if ((*itr)->GetName() == sensorName)
-			sensor = *itr;
+			sensor = itr->get();
 	}
 	
 	if (sensor == nullptr)

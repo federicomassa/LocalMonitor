@@ -7,6 +7,9 @@
 
 #include "Input/Automation/Controllers/Controllers.h"
 #include "Input/Automation/Automatons/Automatons.h"
+#include "Input/Dynamics/DynamicModels.h"
+#include "Input/Dynamics/StateConversions.h"
+#include "Input/Automation/Sensors/Sensors.h"
 
 #include <iostream>
 #include <math.h>
@@ -294,7 +297,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 	}
 
 	
-	// Add sensors to agent (optional)
+	// Add sensors to agent (optional). NB Instantiate functions allocate new memory, ownership is of agent
 	try
 	{
 		json sensorsJson = GetEntry("sensors", agent);
@@ -305,22 +308,22 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 			// Look for registered sensor
 			
 			if (!found)
-				for (std::set<ExternalSensorPointer>::iterator itr = extSensors.begin(); itr != extSensors.end(); itr++)
+				for (std::set<std::string>::iterator itr = extSensors.begin(); itr != extSensors.end(); itr++)
 				{
-					if (sensorName == itr->GetName())
+					if (sensorName == *itr)
 					{
-						a.extSensors.insert(itr->GetSensor());
+						a.extSensors.push_back(shared_ptr<ExternalSensor>(InstantiateExternalSensor(*itr)));
 						found = true;
 						break;
 					}
 				}
 			
 			if (!found)
-				for (std::set<InternalSensorPointer>::iterator itr = intSensors.begin(); itr != intSensors.end(); itr++)
+				for (std::set<std::string>::iterator itr = intSensors.begin(); itr != intSensors.end(); itr++)
 				{
-					if (sensorName == itr->GetName())
+					if (sensorName == *itr)
 					{
-						a.intSensors.insert(itr->GetSensor());
+						a.intSensors.push_back(shared_ptr<InternalSensor>(InstantiateInternalSensor(*itr)));
 						found = true;
 						break;
 					}
@@ -404,9 +407,9 @@ void SimulatorConfiguration::ReadSensor(const nlohmann::json& sensorJson)
 		
 		
 		if (type == "internal" || type == "Internal" || type == "INTERNAL")
-			intSensors.insert(InternalSensorPointer(name));
+			intSensors.insert(name);
 		else if (type == "external" || type == "External" || type == "EXTERNAL")
-			extSensors.insert(ExternalSensorPointer(name));
+			extSensors.insert(name);
 		else
 			Error("SimulatorConfiguration::ReadSensor", string("Unknown sensor type: ") + type + " --- please define sensors as either \'internal\' or \'external\'");
 		
@@ -516,7 +519,8 @@ void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)
 		}
 		else if (itr.key() == "dynamics")
 		{
-			m.SetDynamicsFunction(itr.value().get<string>());
+			m.SetDynamicsFunctionName(itr.value().get<string>());
+			m.SetDynamicsFunction(GetDynamicsFunction(itr.value().get<string>()));
 			isDynamicsFunctionSet = true;
 		}
 		else if (itr.key() == "control_variables")
@@ -535,7 +539,8 @@ void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)
 		}
 		else if (itr.key() == "world_conversion_function")
 		{
-			m.SetStateConversionFunction(itr.value().get<string>());
+			m.SetStateConversionFunctionName(itr.value().get<string>());
+			m.SetStateConversionFunction(GetStateConversionFunction(itr.value().get<string>()));
 			isStateConversionFunctionSet = true;
 		}
 		else

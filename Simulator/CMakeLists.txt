@@ -18,12 +18,13 @@ set(MODULE_SOURCE_DIR
     src
 )
 
-set(MODULE_SOURCES
-	Simulator.cpp
+set(MODULE_SOURCES_NOEXEC
 	SimulatorConfiguration.cpp
 	Environment.cpp
 	SimulAgent.cpp
 	)
+
+set(MODULE_SOURCES ${MODULE_SOURCES_NOEXEC} Simulator.cpp)
 	
 if (USE_GRAPHICS)
 add_definitions(-DUSE_GRAPHICS)
@@ -32,8 +33,13 @@ endif(USE_GRAPHICS)
 find_package(Qt5Widgets REQUIRED)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
-	set(MODULE_SOURCE ${MODULE_SOURCE} ${MODULE_SOURCE_DIR}/${SOURCE})
-	set(MODULE_ABSOLUTE_SOURCE ${MODULE_ABSOLUTE_SOURCE} ${MODULE_ABSOLUTE_PATH}/${MODULE_SOURCE_DIR}/${SOURCE})
+  set(MODULE_SOURCE ${MODULE_SOURCE} ${MODULE_SOURCE_DIR}/${SOURCE})
+  set(MODULE_ABSOLUTE_SOURCE ${MODULE_ABSOLUTE_SOURCE} ${MODULE_ABSOLUTE_PATH}/${MODULE_SOURCE_DIR}/${SOURCE})
+endforeach(SOURCE)
+
+foreach(SOURCE IN ITEMS ${MODULE_SOURCES_NOEXEC})
+  set(MODULE_SOURCE_NOEXEC ${MODULE_SOURCE_NOEXEC} ${MODULE_SOURCE_DIR}/${SOURCE})
+  set(MODULE_ABSOLUTE_SOURCE_NOEXEC ${MODULE_ABSOLUTE_SOURCE_NOEXEC} ${MODULE_ABSOLUTE_PATH}/${MODULE_SOURCE_DIR}/${SOURCE})
 endforeach(SOURCE)
 
 set(SIMULATOR_BUILD_FILE SimulatorBuildParams.h)
@@ -46,9 +52,15 @@ set(SIMULATOR_VIEWER_LIST ${INPUT_VIEWER_DIR}/SimulatorViewers.h)
 include (SET_SIMULATOR_VARIABLES.in OPTIONAL RESULT_VARIABLE CONFIGURATOR_FOUND)
 
 add_executable(${MODULE_NAME}
-  ${MODULE_SOURCE}
+  Simulator.cpp
   )
-  
+
+
+add_library(SimulatorLibrary STATIC
+  ${MODULE_SOURCE_NOEXEC})
+
+
+
 set_target_properties("${MODULE_NAME}" PROPERTIES SOURCES "${MODULE_ABSOLUTE_SOURCE}")
   
 configure_file(${MODULE_SOURCE_DIR}/${SIMULATOR_BUILD_FILE}.in ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_HEADERS_DIR}/${SIMULATOR_BUILD_FILE})
@@ -60,6 +72,14 @@ target_link_libraries(${MODULE_NAME} nlohmann_json)
 target_link_libraries(${MODULE_NAME} Input)
 
 target_link_libraries(${MODULE_NAME} Qt5::Widgets Qt5::Core)
+
+target_link_libraries(SimulatorLibrary Utility)
+target_link_libraries(SimulatorLibrary Basic)
+target_link_libraries(SimulatorLibrary Automation)
+target_link_libraries(SimulatorLibrary nlohmann_json)
+target_link_libraries(SimulatorLibrary Input)
+
+
 
 if (NOT(${CONFIGURATOR_FOUND} STREQUAL NOTFOUND))
 target_link_libraries(${MODULE_NAME} ${CHOSEN_SIMULATOR_VIEWER})
@@ -76,6 +96,17 @@ target_include_directories(${MODULE_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+
+target_include_directories(SimulatorLibrary PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${MODULE_NAME}>
+    $<INSTALL_INTERFACE:include/${MODULE_NAME}>
+)
+
+target_include_directories(SimulatorLibrary PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 
 #############################
 set (CONFIGURE_MODULE_NAME configure)

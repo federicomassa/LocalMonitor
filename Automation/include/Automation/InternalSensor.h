@@ -31,7 +31,7 @@ public:
 	
 };
 
-
+/*
 class InternalSensorPointer
 {
 	InternalSensor * s;
@@ -47,7 +47,7 @@ public:
 	const InternalSensor * GetSensor() const;
 	const std::string& GetName() const;
 };
-
+*/
 class InternalSensorOutput
 {
 	Agent selfMeasure;

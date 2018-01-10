@@ -49,8 +49,8 @@ class SimulatorConfiguration
 	
 	std::set<DynamicModel> dynamicModels;
 	std::set<ControlModel> controlModels;
-	std::set<ExternalSensorPointer> extSensors;
-	std::set<InternalSensorPointer> intSensors;
+	std::set<std::string> extSensors;
+	std::set<std::string> intSensors;
 	
 	WorldEnvironmentFeatures envFeatures;
 	WorldAgentFeatures agentFeatures;

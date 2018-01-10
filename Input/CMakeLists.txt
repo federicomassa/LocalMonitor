@@ -32,10 +32,10 @@ endforeach(SOURCE)
 
 project(${MODULE_NAME})
 
-add_library(${MODULE_NAME} STATIC
+add_library(${MODULE_NAME} SHARED
   ${MODULE_SOURCE}
   )
-
+  
 target_include_directories(${MODULE_NAME} PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${MODULE_NAME}>

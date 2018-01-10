@@ -38,7 +38,7 @@ add_library(${MODULE_NAME} STATIC
   )
   
 target_link_libraries(${MODULE_NAME} Basic)
-target_link_libraries(${MODULE_NAME} Input)
+#target_link_libraries(${MODULE_NAME} Input)
 
 target_include_directories(${MODULE_NAME} PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${MODULE_NAME}>

@@ -1,5 +1,5 @@
 #include "ExternalSensor.h"
-#include "Input/Automation/Sensors/Sensors.h"
+//#include "Input/Automation/Sensors/Sensors.h"
 #include "Utility/LogFunctions.h"
 
 #include <string>
@@ -44,68 +44,70 @@ const ExternalSensor::SensorVars & ExternalSensor::GetMeasuredEnvironmentVariabl
 	return envVars;
 }
 
-
-ExternalSensorPointer::ExternalSensorPointer(const std::string& name) : s(nullptr) 
+/*
+ExternalSensor::Pointer(const std::string& name) : s(nullptr) 
 {
 	s = InstantiateExternalSensor(name);
 	
-	LogFunctions::Require(s != nullptr, "ExternalSensorPointer::ExternalSensorPointer", string("Sensor ") + name + " was not correctly instantiated.");
+	LogFunctions::Require(s != nullptr, "ExternalSensor::Pointer::ExternalSensor::Pointer", string("Sensor ") + name + " was not correctly instantiated.");
 	
 	s->name = name;
 }
 
-ExternalSensorPointer::ExternalSensorPointer(const ExternalSensorPointer& ep) : s(nullptr) 
+ExternalSensor::Pointer(const ExternalSensor::Pointer& ep) : s(nullptr) 
 {
 	s = InstantiateExternalSensor(ep.s->GetName());
 	
-	LogFunctions::Require(s != nullptr, "ExternalSensorPointer::ExternalSensorPointer", string("Sensor ") + ep.s->GetName() + " was not correctly instantiated.");
+	LogFunctions::Require(s != nullptr, "ExternalSensor::Pointer::ExternalSensor::Pointer", string("Sensor ") + ep.s->GetName() + " was not correctly instantiated.");
 	
 	s->name = ep.s->GetName();
 }
 
-ExternalSensorPointer& ExternalSensorPointer::operator=(const ExternalSensorPointer& ep)
+ExternalSensor::Pointer& ExternalSensor::Pointer::operator=(const ExternalSensor::Pointer& ep)
 {
 	if (s)
 		delete s;
 	
 	s = InstantiateExternalSensor(ep.s->GetName());
 	
-	LogFunctions::Require(s != nullptr, "ExternalSensorPointer::ExternalSensorPointer", string("Sensor ") + ep.s->GetName() + " was not correctly instantiated.");
+	LogFunctions::Require(s != nullptr, "ExternalSensor::Pointer::ExternalSensor::Pointer", string("Sensor ") + ep.s->GetName() + " was not correctly instantiated.");
 	
 	s->name = ep.s->GetName();
 }
 
 
-ExternalSensor * ExternalSensorPointer::GetSensor()
+ExternalSensor * ExternalSensor::Pointer::GetSensor()
 {
 	return s;
 }
 
-const ExternalSensor * ExternalSensorPointer::GetSensor() const
+const ExternalSensor * ExternalSensor::Pointer::GetSensor() const
 {
 	return s;
 }
 
-const std::string& ExternalSensorPointer::GetName() const
+const std::string& ExternalSensor::Pointer::GetName() const
 {
 	return s->name;
 }
 
-ExternalSensorPointer::~ExternalSensorPointer() 
+ExternalSensor::Pointer::~Pointer() 
 {
 	if (s)
 		delete s;
 }
 
-bool ExternalSensorPointer::operator==(const ExternalSensorPointer & sp) const
+bool ExternalSensor::Pointer::operator==(const ExternalSensor::Pointer & sp) const
 {
 	return (s->name == sp.s->name);
 }
 
-bool ExternalSensorPointer::operator<(const ExternalSensorPointer & sp) const
+bool ExternalSensor::Pointer::operator<(const ExternalSensor::Pointer & sp) const
 {
 	return (s->name < sp.s->name);
 }
+*/
+
 
 void ExternalSensorOutput::SetMeasuredEnvironment(const EnvironmentParameters& e)
 {
