@@ -109,7 +109,7 @@ void TestAutomaton::PostEvolve()
 	
 	if (oldManeuver == "LEFT" && GetManeuver() != "LEFT")
 	{
-		cout << "UNSetting property" << endl;
+		cout << "Unsetting property" << endl;
 		UnsetProperty("targetLaneBegin");
 	}
 }

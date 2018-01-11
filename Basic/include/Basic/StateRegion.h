@@ -9,7 +9,7 @@ class MyLogger;
 class StateRegion
 {
     Region region;
-	
+	MyLogger* logger;
 	//temporarily public
 public:
 	void DeleteNullCells();
@@ -17,9 +17,9 @@ public:
 	void SimplifyByContain();
 	void ExpandByIntersect();
 public:
-	StateRegion();
+	StateRegion(MyLogger* log = nullptr);
 	StateRegion(const StateRegion&);
-	StateRegion(const Region&);
+	StateRegion(const Region&, MyLogger* log);
 	Region::const_iterator begin() const;
 	Region::const_iterator end() const;
 	Region::iterator begin();

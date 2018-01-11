@@ -8,8 +8,6 @@
 
 using namespace std;
 
-extern MyLogger logger;
-
 string LogFunctions::ClassInfo(const string &className)
 {
     return ("In " + className + ": ");
@@ -17,18 +15,18 @@ string LogFunctions::ClassInfo(const string &className)
 
 void LogFunctions::Error(const string className, const string msg)
 {
-    logger << "ERROR - " << className << " : " << msg << logger.EndL();
+    cout << "ERROR - " << className << " : " << msg << endl;
     exit(1);
 }
 
 void LogFunctions::Warning(const string className, const string msg)
 {
-    logger << "WARNING - " << className << " : " << msg << logger.EndL();
+    cout << "WARNING - " << className << " : " << msg << endl;
 }
 
 void LogFunctions::Info(const string className, const string msg)
 {
-    logger << "INFO - " << className << " : " << msg << logger.EndL();
+    cout << "INFO - " << className << " : " << msg << endl;
 }
 
 

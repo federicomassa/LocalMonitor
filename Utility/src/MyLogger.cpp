@@ -3,6 +3,7 @@
 
 MyLogger::MyLogger(std::ostream &os) : out(&os)
 {
+	currentIndentation = 0;
 }
 
 MyLogger::EndLine MyLogger::EndL(const Indent &ind)

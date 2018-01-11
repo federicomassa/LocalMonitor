@@ -6,22 +6,32 @@
 #include <cstdlib>
 #include <string>
 
-extern MyLogger logger;
 using namespace LogFunctions;
 using namespace std;
 
-PhysicalLayer::PhysicalLayer(const double& simulDeltaT) : simulTimeStep(simulDeltaT)
+PhysicalLayer::PhysicalLayer()
 {
+	logger = nullptr;
+	simulTimeStep = -1;
+}
+
+
+PhysicalLayer::PhysicalLayer(const double& simulDeltaT, MyLogger* log) : simulTimeStep(simulDeltaT)
+{
+	logger = log;
 }
 
 PhysicalLayer::PhysicalLayer(const PhysicalLayer& pL) : simulTimeStep(pL.simulTimeStep)
 {
 	dynamicModel = pL.dynamicModel;
+	logger = pL.logger;
 }
 
 PhysicalLayer& PhysicalLayer::operator=(const PhysicalLayer& pL)
 {
 	dynamicModel = pL.dynamicModel;
+	simulTimeStep = pL.simulTimeStep;
+	logger = pL.logger;
 }
 
 
@@ -30,8 +40,16 @@ const double & PhysicalLayer::GetSimulationTimeStep() const
 	return simulTimeStep;
 }
 
+void PhysicalLayer::SetSimulationTimeStep(const double& deltaT)
+{
+	simulTimeStep = deltaT;
+}
+
 State PhysicalLayer::GetNextState(const Agent & currentAgent, const Control& control) const
 {
+	if (simulTimeStep < 0)
+		Error("PhysicalLayer::GetNextState", "Simulation time step should be > 0");
+	
 	State dCurrentState = State::GenerateStateOfType(currentAgent.GetState());
 	
 	if (dynamicModel.IsSet())

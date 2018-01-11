@@ -11,14 +11,15 @@
 using namespace LogFunctions;
 using namespace std;
 
-extern MyLogger logger;
-
-StateCell::StateCell() : minState(), maxState()
+StateCell::StateCell(MyLogger* log) : minState(), maxState()
 {
+	logger = log;
 }
 
-StateCell::StateCell(const State &min, const State &max)
+StateCell::StateCell(const State &min, const State &max, MyLogger* log)
 {
+	logger = log;
+	
     CheckConsistency("State::State", min, max);
 
     for (StateMap::const_iterator minItr = min.begin(); minItr != min.end(); minItr++) {

@@ -16,9 +16,6 @@
 
 using namespace std;
 
-MyLogger logger(cout);
-SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FILE));
-
 
 /**
  * @brief This is the simulator of the LocalMonitor
@@ -41,6 +38,9 @@ int main(int argc, char **argv)
     }
 	
 	int currentTimeStep = 0;
+	
+	MyLogger logger(cout);
+	SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FILE), &logger);
 	
     // Parse config file
     conf.Parse();

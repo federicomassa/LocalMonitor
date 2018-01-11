@@ -6,16 +6,18 @@
 
 using namespace LogFunctions;
 
-extern MyLogger logger;
-
-StateRegion::StateRegion() : region()
-{}
+StateRegion::StateRegion(MyLogger* log) : region()
+{
+	logger = log;
+}
 
 StateRegion::StateRegion(const StateRegion& reg) : region(reg.region)
 {}
 
-StateRegion::StateRegion(const Region& reg) : region(reg)
-{}
+StateRegion::StateRegion(const Region& reg, MyLogger* log) : region(reg)
+{
+	logger = log;
+}
 
 bool StateRegion::AddCell(const StateCell &cell)
 {	
@@ -146,11 +148,7 @@ void StateRegion::SimplifyByAlign()
                     alogn the i-th dimension */
                 if (c1.IsAligned(c2, *var) && c1.HasIntersection(c2)) 
 				{
-					logger << "WELDING" << logger.EndL();
-					logger << c1;
-					logger << "WITH" << logger.EndL();
-					logger << c2;
-                    /* merge r1 with r2 among i-th dimension */
+					/* merge r1 with r2 among i-th dimension */
                     c1.Weld(c2, *var);
                     /* remove c2 and insert c1 */
                     newRegion.erase(newCell);

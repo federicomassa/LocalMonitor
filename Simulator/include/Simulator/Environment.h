@@ -10,18 +10,22 @@
 #include "Basic/Agent.h"
 #include "Basic/StateRegion.h"
 
+class MyLogger;
+
 class Environment
 {
     SimulAgentVector agents;
 	WorldAgentFeatures agentFeatures;
 	WorldEnvironmentFeatures envFeatures;
 	EnvironmentParameters envParameters;
+
+	MyLogger* logger;
 	
 	State GenerateWorldAgentState() const;
 	State GenerateWorldEnvironmentState() const;
 	
 public:
-    Environment ();
+    Environment (MyLogger* log = nullptr);
 
     const SimulAgentVector &GetAgents() const;
     /**

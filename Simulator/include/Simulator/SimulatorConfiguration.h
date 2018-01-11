@@ -25,7 +25,8 @@ class SimulatorViewer;
  */
 class SimulatorConfiguration
 {
-
+	MyLogger* logger;
+	
 	nlohmann::json j;
 	std::set<std::string> mandatoryEntries;
 	
@@ -84,7 +85,7 @@ public:
      * @brief Constructor with configuration file path
      *
      */
-    SimulatorConfiguration ( const std::string & );
+    SimulatorConfiguration ( const std::string & , MyLogger* log = nullptr);
 
     /**
      * @brief Extract information from configuration file

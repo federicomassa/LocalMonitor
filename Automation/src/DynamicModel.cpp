@@ -18,7 +18,6 @@ void DynamicModel::Run(State& qdot, const Agent& self, const Control& u, const d
 }
 
 
-
 // Used to order elements in a std::set
 bool DynamicModel::operator<(const DynamicModel& m) const
 {
@@ -30,6 +29,11 @@ bool DynamicModel::operator==(const DynamicModel& m) const
 	return (name == m.name);
 }
 
+DynamicModel::DynamicModel(const DynamicModel& m)
+{
+	*this = m;
+}
+
 DynamicModel& DynamicModel::operator=(const DynamicModel& m)
 {
 	SetName(m.name);
@@ -39,6 +43,8 @@ DynamicModel& DynamicModel::operator=(const DynamicModel& m)
 	SetControlVariables(m.controlVars);
 	SetStateConversionFunction(m.conversionFcn);
 	SetStateConversionFunctionName(m.conversionFcnName);
+	
+	return *this;
 }
 
 void DynamicModel::SetName(const string& s)

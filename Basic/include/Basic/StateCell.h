@@ -10,9 +10,10 @@ class StateCell
 {
     State minState;
     State maxState;
-	StateCell();
+	StateCell(MyLogger* log = nullptr);
+	MyLogger* logger;
 public:
-    StateCell ( const State &, const State & );
+    StateCell ( const State &, const State &, MyLogger* log = nullptr );
     const State &GetMin() const;
     const State &GetMax() const;
 	bool IsEmpty() const;

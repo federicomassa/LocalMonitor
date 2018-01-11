@@ -29,6 +29,8 @@ class DynamicModel
 	
 public:
 	DynamicModel();
+	DynamicModel(const DynamicModel&);
+
 	bool operator<(const DynamicModel&) const;
 	bool operator==(const DynamicModel&) const;
 	DynamicModel& operator=(const DynamicModel&);

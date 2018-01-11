@@ -16,11 +16,12 @@
 using namespace std;
 using namespace LogFunctions;
 
-extern MyLogger logger;
-extern SimulatorConfiguration conf;
-
-SimulAgent::SimulAgent() : pLayer(conf.GetSimulationTimeStep()), controller(nullptr), automaton(nullptr)
-{
+SimulAgent::SimulAgent(SimulatorConfiguration* config) : controller(nullptr), automaton(nullptr)
+{	
+	conf = config;
+	
+	if (config)
+		pLayer.SetSimulationTimeStep(config->GetSimulationTimeStep());
 }
 
 SimulAgent::~SimulAgent()
@@ -34,9 +35,7 @@ SimulAgent::~SimulAgent()
 }
 
 SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
-{
-	cout << "Copy" << endl;
-	
+{	
 	agent = a.agent;
 	controller = InstantiateController(a.controller->GetName());
 	
@@ -44,6 +43,7 @@ SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 	automaton->DefineRules();
 	automaton->SetManeuver(a.automaton->GetManeuver());
 
+	conf = a.conf;
 	
 	worldState = a.worldState;
 	extSensors = a.extSensors;
@@ -51,9 +51,7 @@ SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 }
 
 SimulAgent& SimulAgent::operator=(const SimulAgent& a)
-{
-	cout << "simulagent operator=" << endl;
-	
+{		
 	if (controller)
 		delete controller;
 	
@@ -67,6 +65,7 @@ SimulAgent& SimulAgent::operator=(const SimulAgent& a)
 	automaton->DefineRules();
 	automaton->SetManeuver(a.automaton->GetManeuver());
 	
+	conf = a.conf;
 	pLayer = a.pLayer;
 	
 	worldState = a.worldState;
@@ -151,25 +150,12 @@ void SimulAgent::Run(const SensorOutput& sensorOutput, const double& currentTime
 	
 	automaton->PreEvolve();
 	automaton->Evolve();
-	automaton->PostEvolve();
-	
-	
-	
+	automaton->PostEvolve();	
 }
 
 void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)
 {
-	std::cout << "Here0?" << std::endl;
-	
-	if (controller == nullptr)
-		logger << "SendToController, WTF?" << logger.EndL();
-	
-	std::cout << "Here00?" << std::endl;
-	
 	controller->ReceiveSensorOutput(sensorOutput, currentTime);
-	
-	
-	std::cout << "Here000?" << std::endl;
 }
 
 void SimulAgent::SendToAutomaton(const SensorOutput& sensorOutput, const double& currentTime)

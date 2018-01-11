@@ -1,6 +1,5 @@
 #include "AccOmegaControl.h"
 #include "Utility/LogFunctions.h"
-#include "Utility/MyLogger.h"
 #include <math.h>
 #include <string>
 #include <iostream>
@@ -8,7 +7,6 @@
 using namespace LogFunctions;
 using namespace std;
 
-extern MyLogger logger;
 
 AccOmegaControl::AccOmegaControl(const std::string& className) : Controller(className)
 {
@@ -30,15 +28,8 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 		otherID = "0";
 	
 	const AgentVector& others = GetOtherAgentsTrajectory().latest().value();
-	for (auto itr = others.begin(); itr != others.end(); itr++)
-	{
-		logger <<  myID << " sees: " << itr->first << logger.EndL();
-	}
 	
 	Agent otherAgent = others.at(otherID);
-	
-	logger << "Other agent: " << otherAgent << logger.EndL();
-	
 	
 	const EnvironmentParameters& env = GetEnvironmentTrajectory().latest().value();
 	
@@ -56,9 +47,6 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	
 	double beginOfLaneY = floor(y/laneWidth)*laneWidth;
 	
-	
-	logger << "lw: " << laneWidth << " \t beginOfLaneY: " << beginOfLaneY << logger.EndL();
-	
 	if (maneuver == "FAST")
 	{
 		u("a") = 10000000;
@@ -67,8 +55,6 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 		else
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");
 		
-		
-		logger << "Current Lane!!!! " << beginOfLaneY << logger.EndL();
 	}
 	else if (maneuver == "SLOW")
 	{

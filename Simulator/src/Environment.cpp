@@ -10,10 +10,9 @@
 using namespace std;
 using namespace LogFunctions;
 
-extern MyLogger logger;
-
-Environment::Environment()
+Environment::Environment(MyLogger* log)
 {
+	logger = log;
 }
 
 void Environment::Configure(const SimulatorConfiguration &conf)

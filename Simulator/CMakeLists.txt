@@ -65,12 +65,7 @@ set_target_properties("${MODULE_NAME}" PROPERTIES SOURCES "${MODULE_ABSOLUTE_SOU
   
 configure_file(${MODULE_SOURCE_DIR}/${SIMULATOR_BUILD_FILE}.in ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_HEADERS_DIR}/${SIMULATOR_BUILD_FILE})
 
-target_link_libraries(${MODULE_NAME} Utility)
-target_link_libraries(${MODULE_NAME} Basic)
-target_link_libraries(${MODULE_NAME} Automation)
-target_link_libraries(${MODULE_NAME} nlohmann_json)
-target_link_libraries(${MODULE_NAME} Input)
-
+target_link_libraries(${MODULE_NAME} SimulatorLibrary)
 target_link_libraries(${MODULE_NAME} Qt5::Widgets Qt5::Core)
 
 target_link_libraries(SimulatorLibrary Utility)

@@ -17,7 +17,7 @@
 #include <memory>
 
 class MyLogger;
-
+class SimulatorConfiguration;
 
 class SimulAgent
 {
@@ -30,6 +30,7 @@ class SimulAgent
 	// converted state to world coordinates. Set by GenerateWorldState
 	State worldState;
 	
+	SimulatorConfiguration* conf;
 	// Sensors
 	std::vector<std::shared_ptr<ExternalSensor> > extSensors;
 	std::vector<std::shared_ptr<InternalSensor> > intSensors;
@@ -47,7 +48,7 @@ class SimulAgent
 
 	
 public:
-    SimulAgent();
+    SimulAgent(SimulatorConfiguration* conf = nullptr);
 	SimulAgent(const SimulAgent&);
 	~SimulAgent();
 	SimulAgent& operator=(const SimulAgent&);

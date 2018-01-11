@@ -20,16 +20,16 @@ using json = nlohmann::json;
 using namespace LogFunctions;
 using namespace Utility;
 
-extern MyLogger logger;
-
 //FIXME Maybe it's better to only define mandatory entries, via RegisterMandatoryEntry,
 // and make GetEntry iterate on the whole json, so that user defined properties are
 // more easily found by other modules (such as Viewer). 
 // Example: HighwayViewer needs a subject_id. The user writes in the config file
 // "subject_id" : "1" 
 
-SimulatorConfiguration::SimulatorConfiguration(const string &fileName)
+SimulatorConfiguration::SimulatorConfiguration(const string &fileName, MyLogger* log)
 {
+	logger = log;
+	
     ifstream file(fileName.c_str());
     file >> j;
 	
@@ -205,7 +205,7 @@ void SimulatorConfiguration::Parse()
 // TODO Manage mandatory agents entries
 SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 {
-    SimulAgent a;
+    SimulAgent a(this);
 	AgentCustomEntries aCustomEntries;
 
     try {
@@ -233,7 +233,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 		
 		auto dynItr = dynamicModels.find(tmpModel);
 		if (dynItr == dynamicModels.end())
-			Error("SimulatorConfiguration::ReadAgent", string("Dynamic model ") + dynamicModelName + " of agent " + a.GetID());
+			Error("SimulatorConfiguration::ReadAgent", string("Dynamic model ") + dynamicModelName + " of agent " + a.GetID() + " was not found.");
 		
 		// If model was found, set it for current agent
 		a.SetDynamicModel(*dynItr);
@@ -292,7 +292,8 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
     }
     
     catch (out_of_range &e) {
-        logger << "In SimulatorConfiguration::ReadAgent, mandatory entry not found --- " << e.what() << logger.EndL();
+		if (logger)
+			(*logger) << "In SimulatorConfiguration::ReadAgent, mandatory entry not found --- " << e.what() << logger->EndL();
         exit(1);
 	}
 
@@ -358,7 +359,6 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 						Error("SimulatorConfiguration::ReadAgent", "BUG FIXME! Why is agent's controller or automaton already filled?");
 					
 					a.controller = InstantiateController(model->GetControllerName());
-					cout << "Print in sim: " << a.controller->GetName() << endl;
 					a.automaton = InstantiateAutomaton(model->GetAutomatonName());
 					a.automaton->DefineRules();
 					break;
