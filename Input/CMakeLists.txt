@@ -24,6 +24,8 @@ set(MODULE_SOURCES
     Automation/Sensors/Sensors.cpp
     Automation/Automatons/Automatons.cpp
     Automation/Automatons/TestAutomaton.cpp
+    Observers/Observers.cpp
+    Observers/NaiveObserver.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
@@ -48,3 +50,6 @@ target_include_directories(${MODULE_NAME} PUBLIC
 )
 
 target_link_libraries(${MODULE_NAME} Basic)
+target_link_libraries(${MODULE_NAME} Automation)
+target_link_libraries(${MODULE_NAME} Observer)
+

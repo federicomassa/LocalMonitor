@@ -69,7 +69,6 @@ MyLogger &MyLogger::operator<< ( const std::vector<T> &v )
 template <class Key, class T>
 MyLogger &MyLogger::operator<< ( const std::map<Key, T> & m )
 {
-	std::cout << "WOO MAPPP!!!!" << std::endl;
     ( *this ) << "{ " << EndL();
 
     for (typename std::map<Key, T>::const_iterator itr = m.begin(); itr != m.end(); itr++)

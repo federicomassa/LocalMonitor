@@ -73,6 +73,7 @@ target_link_libraries(SimulatorLibrary Basic)
 target_link_libraries(SimulatorLibrary Automation)
 target_link_libraries(SimulatorLibrary nlohmann_json)
 target_link_libraries(SimulatorLibrary Input)
+target_link_libraries(SimulatorLibrary Observer)
 
 
 

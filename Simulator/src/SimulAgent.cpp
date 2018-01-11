@@ -3,12 +3,14 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/MyLogger.h"
 #include "Automation/DynamicModel.h"
+#include "Observer/Observer.h"
 
 // Automatically created header during configure
 // It contains all the dynamic models declared in the config file
 #include "Input/Dynamics/DynamicModels.h"
 #include "Input/Automation/Controllers/Controllers.h"
 #include "Input/Automation/Automatons/Automatons.h"
+#include "Input/Observers/Observers.h"
 
 
 #include <iostream>
@@ -16,7 +18,7 @@
 using namespace std;
 using namespace LogFunctions;
 
-SimulAgent::SimulAgent(SimulatorConfiguration* config) : controller(nullptr), automaton(nullptr)
+SimulAgent::SimulAgent(SimulatorConfiguration* config) : controller(nullptr), automaton(nullptr), observer(nullptr)
 {	
 	conf = config;
 	
@@ -32,17 +34,29 @@ SimulAgent::~SimulAgent()
 	if (automaton)
 		delete automaton;
 	
+	if (observer)
+		delete observer;
+	
 }
 
 SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 {	
 	agent = a.agent;
+	
+	// SimulAgent has ownership --> Pointers are reinstantiated, not copied
 	controller = InstantiateController(a.controller->GetName());
 	
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();
 	automaton->SetManeuver(a.automaton->GetManeuver());
 
+	if (a.observer)
+	{
+		observer = InstantiateObserver(a.observer->GetName());
+	}
+	else
+		observer = nullptr;
+	
 	conf = a.conf;
 	
 	worldState = a.worldState;

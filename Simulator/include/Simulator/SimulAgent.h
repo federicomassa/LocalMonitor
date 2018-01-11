@@ -17,6 +17,7 @@
 #include <memory>
 
 class MyLogger;
+class Observer;
 class SimulatorConfiguration;
 
 class SimulAgent
@@ -27,6 +28,7 @@ class SimulAgent
     PhysicalLayer pLayer;
 	Controller* controller;
 	Automaton* automaton;
+	Observer* observer;
 	// converted state to world coordinates. Set by GenerateWorldState
 	State worldState;
 	
