@@ -51,6 +51,7 @@ target_link_libraries(${SV_NAME} Utility)
 # TODO: this could be unnecessary (only use necessary sources?)
 target_link_libraries(${SV_NAME} Basic)
 target_link_libraries(${SV_NAME} Automation)
+target_link_libraries(${SV_NAME} SimulatorLibrary)
 target_link_libraries(${SV_NAME} Qt5::Widgets)
 target_include_directories(${SV_NAME} PRIVATE ${nlohmann_json_INCLUDE_DIRS})
 

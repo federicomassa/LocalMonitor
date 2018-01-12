@@ -15,6 +15,7 @@ set(MODULE_SOURCE_DIR
 
 set(MODULE_SOURCES
 	Observer.cpp
+	LocalMonitor.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})
@@ -29,6 +30,8 @@ add_library(${MODULE_NAME} STATIC
 
 target_link_libraries(${MODULE_NAME} Automation)
 target_link_libraries(${MODULE_NAME} Utility)
+target_include_directories(${MODULE_NAME} PUBLIC ${LOCAL_MONITOR_BASE_DIR}/Utility/json-2.1.1/src)
+target_include_directories(${MODULE_NAME} PUBLIC ${LOCAL_MONITOR_BASE_DIR})
   
 target_include_directories(${MODULE_NAME} PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${MODULE_NAME}>

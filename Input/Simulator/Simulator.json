@@ -7,8 +7,6 @@
 			"control_model" : "SimpleEuropean",
 			"init_maneuver" : "FAST",
 			"sensors" : ["VisionSensor", "SelfSensor"],
-			"observer" : "NaiveObserver",
-			"observed_ids" : ["1"],
 			"communication" : "ON",
 			"image" : "Vehicles/Acura_NSX_red.png",
 			"length" : "4.47",
@@ -53,6 +51,7 @@
 		"name" : "VisionSensor", 
 		"type" : "external"
 		},
+		
 		{
 		"name" : "SelfSensor",
 		"type" : "internal"
@@ -78,13 +77,6 @@
 			"controller" : "AccOmegaControl",
 			"control_variables" : ["a", "omega"],
 			"automaton" : "TestAutomaton"
-		}
-	],
-	
-	"observers" : 
-	[
-		{
-			"name" : "NaiveObserver"
 		}
 	]
 }

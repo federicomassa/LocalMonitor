@@ -1,0 +1,28 @@
+{
+	"observing" : 
+	[
+		{
+			"id" : "1",
+			"type" : "NaiveObserver",
+			"dynamic_model" : 
+			{ 	
+				"name" : "Unicycle1",
+				"state_variables" : ["x", "y", "theta", "v"],
+				"dynamics" : "TestKinematics",
+				"control_variables" : ["a", "omega"],
+				"world_conversion_function" : "TestKinematicsConversion"
+			},
+			
+			"control_model" :
+			{
+				"name" : "SimpleEuropean",
+				"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+				"controller" : "AccOmegaControl",
+				"control_variables" : ["a", "omega"],
+				"automaton" : "TestAutomaton"
+			},
+			
+			"sensors" : ["VisionSensor", "SelfSensor"]
+		}
+	]
+}

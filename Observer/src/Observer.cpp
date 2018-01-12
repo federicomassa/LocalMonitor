@@ -39,8 +39,12 @@ const std::string & Observer::GetName() const
 	return name;
 }
 
+const std::string & Observer::GetObservedID() const
+{
+	return observedID;
+}
 
-// Default behaviour, store only last measure
+// Default behaviour, store only latest measure
 void Observer::ReceiveSensorOutput(const SensorOutput& sensorOutput, const double& currentTime)
 {	
 	const Agent& currentSelf = sensorOutput.RetrieveSelfData();
@@ -56,3 +60,16 @@ void Observer::ReceiveSensorOutput(const SensorOutput& sensorOutput, const doubl
 	environmentTrajectory.insert(currentTime, currentEnv);
 }
 
+void Observer::SetClassName(const std::string& className)
+{
+	name = className;
+}
+
+void Observer::SetObservedID(const std::string& id)
+{
+	observedID = id;
+}
+
+// By default, it does not do anything
+void Observer::Configure(const nlohmann::json& observingJson)
+{}

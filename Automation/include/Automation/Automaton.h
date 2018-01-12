@@ -20,6 +20,8 @@
 
 class SensorOutput;
 
+
+// TODO there is no check that automaton works on the maneuvers defined by control model
 class Automaton
 {
 	friend class SimulatorConfiguration;

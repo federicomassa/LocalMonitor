@@ -48,7 +48,6 @@ public:
 	const std::vector<std::string>& GetStateVariables() const;
 	const std::vector<std::string>& GetControlVariables() const;
 	const std::string& GetDynamicsFunctionName() const;
-	
 };
 
 #endif

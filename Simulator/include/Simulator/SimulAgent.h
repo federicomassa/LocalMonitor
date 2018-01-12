@@ -10,6 +10,7 @@
 #include "Automation/ExternalSensor.h"
 #include "Automation/SensorOutput.h"
 #include "Utility/AgentParameters.h"
+#include "Observer/LocalMonitor.h"
 
 #include <string>
 #include <map>
@@ -17,7 +18,6 @@
 #include <memory>
 
 class MyLogger;
-class Observer;
 class SimulatorConfiguration;
 
 class SimulAgent
@@ -28,7 +28,7 @@ class SimulAgent
     PhysicalLayer pLayer;
 	Controller* controller;
 	Automaton* automaton;
-	Observer* observer;
+	LocalMonitor localMonitor;
 	// converted state to world coordinates. Set by GenerateWorldState
 	State worldState;
 	
@@ -47,7 +47,7 @@ class SimulAgent
 	
 	void SendToController(const SensorOutput&, const double& currentTime);
 	void SendToAutomaton(const SensorOutput&, const double& currentTime);
-
+	void SendToLocalMonitor(const SensorOutput&, const double& currentTime);
 	
 public:
     SimulAgent(SimulatorConfiguration* conf = nullptr);
@@ -67,6 +67,7 @@ public:
 	const State& GetWorldState() const;
 	const Agent& GetAgent() const;
     void Run(const SensorOutput&, const double& currentTime);
+	void InitializeLocalMonitor(const std::string& configFilePath);
 	
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);
 	

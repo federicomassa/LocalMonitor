@@ -3,7 +3,6 @@
 #include "Utility/LogFunctions.h"
 #include "Utility/MyLogger.h"
 #include "Automation/DynamicModel.h"
-#include "Observer/Observer.h"
 
 // Automatically created header during configure
 // It contains all the dynamic models declared in the config file
@@ -12,13 +11,12 @@
 #include "Input/Automation/Automatons/Automatons.h"
 #include "Input/Observers/Observers.h"
 
-
 #include <iostream>
 
 using namespace std;
 using namespace LogFunctions;
 
-SimulAgent::SimulAgent(SimulatorConfiguration* config) : controller(nullptr), automaton(nullptr), observer(nullptr)
+SimulAgent::SimulAgent(SimulatorConfiguration* config) : controller(nullptr), automaton(nullptr)
 {	
 	conf = config;
 	
@@ -33,10 +31,6 @@ SimulAgent::~SimulAgent()
 	
 	if (automaton)
 		delete automaton;
-	
-	if (observer)
-		delete observer;
-	
 }
 
 SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
@@ -49,13 +43,6 @@ SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();
 	automaton->SetManeuver(a.automaton->GetManeuver());
-
-	if (a.observer)
-	{
-		observer = InstantiateObserver(a.observer->GetName());
-	}
-	else
-		observer = nullptr;
 	
 	conf = a.conf;
 	
@@ -165,6 +152,9 @@ void SimulAgent::Run(const SensorOutput& sensorOutput, const double& currentTime
 	automaton->PreEvolve();
 	automaton->Evolve();
 	automaton->PostEvolve();	
+	
+	SendToLocalMonitor(sensorOutput, currentTime);
+	localMonitor.Run();
 }
 
 void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)
@@ -176,6 +166,12 @@ void SimulAgent::SendToAutomaton(const SensorOutput& sensorOutput, const double&
 {
 	automaton->ReceiveSensorOutput(sensorOutput, currentTime);
 }
+
+void SimulAgent::SendToLocalMonitor(const SensorOutput& sensorOutput, const double& currentTime)
+{
+	localMonitor.ReceiveSensorOutput(sensorOutput, currentTime);
+}
+
 
 
 void SimulAgent::SetParameters(const AgentParameters& pars)
@@ -306,5 +302,10 @@ SensorOutput SimulAgent::SimulateSensors(const Agent& trueSelfInWorld, const Age
 
 	return sensorOutput;
 	
+}
+
+void SimulAgent::InitializeLocalMonitor(const std::string& configFilePath)
+{
+	localMonitor.Configure(configFilePath);
 }
 

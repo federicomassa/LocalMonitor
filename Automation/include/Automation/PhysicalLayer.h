@@ -15,6 +15,7 @@ class PhysicalLayer
 {
 	double simulTimeStep;
 	DynamicModel dynamicModel;
+
 	MyLogger* logger;
 public:
 	PhysicalLayer();
