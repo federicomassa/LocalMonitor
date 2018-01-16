@@ -43,6 +43,8 @@ private:
 	// each transition correspond to a pair initDiscrState->finalDiscrState
 	std::map<std::pair<std::string, std::string>, Transition> transitions;
 		
+	std::vector<Maneuver> maneuvers;
+	
 	//Properties
 	Properties properties;
 	
@@ -93,6 +95,8 @@ public:
 	// This method is where the user defines its rules
 	virtual void DefineRules() = 0;
 	const Maneuver& GetManeuver() const;
+	const std::vector<Maneuver>& GetPossibleManeuvers() const;
+
 	void Evolve(const bool& optimize = false);
 	
 	// Functions called before and after evolution, might be of use for specific automatons
@@ -101,6 +105,7 @@ public:
 	
 	const std::string& GetName() const;
 	void SetManeuver(const Maneuver&);
+	void SetPossibleManeuvers(const std::vector<Maneuver>&);
 
 	// By default, stores only last sensor data. If a different behaviour
 	// is desired, please override this function in your controller

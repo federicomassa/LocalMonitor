@@ -7,7 +7,7 @@ void ControlModel::SetName(const string& n)
 	name = n;
 }
 
-void ControlModel::SetManeuvers(const std::vector<std::string>& man)
+void ControlModel::SetManeuvers(const std::vector<Maneuver>& man)
 {
 	maneuvers = man;
 }
@@ -48,6 +48,11 @@ const std::string& ControlModel::GetControllerName() const
 const std::string & ControlModel::GetName() const
 {
 	return name;
+}
+
+const std::vector<Maneuver> & ControlModel::GetManeuvers() const
+{
+	return maneuvers;
 }
 
 ControlModel::ControlModel()

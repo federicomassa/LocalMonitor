@@ -14,6 +14,8 @@ VisionSensor::VisionSensor()
 	AddAgentMeasuredVariable("yb");
 	AddAgentMeasuredVariable("yf");
 	AddAgentMeasuredVariable("length");
+	AddAgentMeasuredVariable("v");
+	AddAgentMeasuredVariable("desiredV");
 	
 	AddEnvironmentMeasuredVariable("lanes");
 	AddEnvironmentMeasuredVariable("lane_width");
@@ -22,10 +24,8 @@ VisionSensor::VisionSensor()
 void VisionSensor::SimulateVisibility(StateRegion& visible, std::set<std::string>& visibleIDs, const Agent& selfInWorld, const AgentVector& othersInWorld) const
 {
 	visible.Purge();
-	if (selfInWorld.GetID() == "0")
-		visibleIDs.insert("1");
-	else
-		visibleIDs.insert("0");
+	for (auto itr = othersInWorld.begin(); itr != othersInWorld.end(); itr++)
+		visibleIDs.insert(itr->first);
 }
 
 void VisionSensor::SimulateOutput(ExternalSensorOutput& outputInWorld, const Agent& selfInWorld, const AgentVector& othersInWorld, const EnvironmentParameters& envParam) const
@@ -37,6 +37,8 @@ void VisionSensor::SimulateOutput(ExternalSensorOutput& outputInWorld, const Age
 		outputInWorld.AgentID(itr->first)("xf") = neigh("xf");
 		outputInWorld.AgentID(itr->first)("yb") = neigh("yb");
 		outputInWorld.AgentID(itr->first)("yf") = neigh("yf");
+		outputInWorld.AgentID(itr->first)("v") = neigh("v");
+		outputInWorld.AgentID(itr->first)("desiredV") = neigh("desiredV");
 		
 		outputInWorld.AgentID(itr->first)("length") = itr->second.GetParameter("length");
 	}

@@ -5,24 +5,91 @@
 			"id" : "1",
 			"type" : "NaiveObserver",
 			"dynamic_model" : 
-			{ 	
-				"name" : "Unicycle1",
-				"state_variables" : ["x", "y", "theta", "v"],
-				"dynamics" : "TestKinematics",
-				"control_variables" : ["a", "omega"],
-				"world_conversion_function" : "TestKinematicsConversion"
-			},
+			[
+			
+				{
+					"id" : "1",
+					"name" : "Unicycle1",
+					"state_variables" : ["x", "y", "theta", "v"],
+					"dynamics" : "TestKinematics",
+				
+					"control_variables" : ["a", "omega"],
+					"world_conversion_function" : "TestKinematicsConversion"
+				},
+				{ 
+					"id" : "0",
+					"name" : "Unicycle1",
+					"state_variables" : ["x", "y", "theta", "v"],
+					"dynamics" : "TestKinematics",
+				
+					"control_variables" : ["a", "omega"],
+					"world_conversion_function" : "TestKinematicsConversion"
+				},
+				
+				{
+					"id" : "__default__",
+					"name" : "Unicycle1",
+					"state_variables" : ["x", "y", "theta", "v"],
+					"dynamics" : "TestKinematics",
+				
+					"control_variables" : ["a", "omega"],
+					"world_conversion_function" : "TestKinematicsConversion"
+				}
+			],
+				
 			
 			"control_model" :
+			[
+				{
+					"id" : "1",
+					"name" : "SimpleEuropean",
+					"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+					"controller" : "AccOmegaControl",
+					"control_variables" : ["a", "omega"],
+					"automaton" : "TestAutomaton"
+				},
+				
+				{
+					"id" : "0",
+					"name" : "SimpleEuropean",
+					"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+					"init_maneuver" : "FAST",
+					"controller" : "AccOmegaControl",
+					"control_variables" : ["a", "omega"],
+					"automaton" : "TestAutomaton"
+				},
+				
+				{
+					"id" : "__default__",
+					"name" : "SimpleEuropean",
+					"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+					"init_maneuver" : "FAST",
+					"controller" : "AccOmegaControl",
+					"control_variables" : ["a", "omega"],
+					"automaton" : "TestAutomaton"
+				}
+			],
+			
+			"external_sensors" : ["VisionSensor"],
+			"internal_sensors" : ["SelfSensor"],
+			"simulation_time_step" : 0.013,
+			"prediction_time_span" : 1,
+			
+			"range" : 
 			{
-				"name" : "SimpleEuropean",
-				"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-				"controller" : "AccOmegaControl",
-				"control_variables" : ["a", "omega"],
-				"automaton" : "TestAutomaton"
+				"x" : [0, 10],
+				"y" : [0, 12],
+				"theta" : [-3.14, 3.14],
+				"v" : [0, 20]
 			},
 			
-			"sensors" : ["VisionSensor", "SelfSensor"]
+			"resolution" :
+			{
+				"x" : 0.2,
+				"y" : 0.2,
+				"theta" : 0.5,
+				"v" : 2
+			}
 		}
 	]
 }

@@ -23,6 +23,7 @@ public:
 	inline T& operator()(const std::string&);
 	
 	inline void AddEntry(const std::string& key, const T& value);
+	inline T& operator[](const std::string& key);
 	inline void RemoveEntry(const std::string& key);
 	
 	inline bool IsAvailable(const std::string&) const;
@@ -59,6 +60,12 @@ template <class T>
 T & IMap<T>::operator()(const std::string& key)
 {
 	return obj.at(key);
+}
+
+template<class T> 
+T& IMap<T>::operator[](const std::string& key)
+{
+	return obj[key];
 }
 
 template<class T> 

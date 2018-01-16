@@ -113,6 +113,16 @@ void Automaton::SetManeuver(const Maneuver& man)
 	maneuver = man;
 }
 
+const std::vector<Maneuver>& Automaton::GetPossibleManeuvers() const
+{
+	return maneuvers;
+}
+
+void Automaton::SetPossibleManeuvers(const std::vector<Maneuver> & mans)
+{
+	maneuvers = mans;
+}
+
 void Automaton::RegisterSubEvent(const std::string& name, SubEvent::InteractionFcn subEventFcn, SubEvent::AreaFcn areaFcn, const SubEvent::EvalMode& mode, const std::string& description)
 {		
 	subEvents.insert(SubEvent(name, subEventFcn, areaFcn, mode, description));

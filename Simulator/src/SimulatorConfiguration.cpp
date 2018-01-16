@@ -360,6 +360,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 					
 					a.controller = InstantiateController(model->GetControllerName());
 					a.automaton = InstantiateAutomaton(model->GetAutomatonName());
+					a.automaton->SetPossibleManeuvers(model->GetManeuvers());
 					a.automaton->DefineRules();
 					break;
 				}
@@ -574,10 +575,10 @@ void SimulatorConfiguration::AddControlModel ( const nlohmann::json & modelJ)
 			if (!maneuversJson.is_array())
 				Error("SimulatorConfiguration::AddControlModel", "\'maneuvers\' entry in control_models must contain an array [] of state variable names");
 			
-			vector<string> maneuvers;
+			vector<Maneuver> maneuvers;
 			for (auto index = maneuversJson.begin(); 
 				 index != maneuversJson.end(); index++)
-					maneuvers.push_back(index->get<string>());
+					maneuvers.push_back(Maneuver(index->get<string>()));
 			
 			m.SetManeuvers(maneuvers);
 			isManeuversSet = true;

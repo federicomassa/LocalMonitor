@@ -15,6 +15,8 @@ class Observer
 {
 	std::string name;
 	std::string observedID;
+	
+protected:
 	// The observer can store trajectories in memory
 	// and use them to determine next maneuver
 	TimedContainer<Agent> selfTrajectory;
