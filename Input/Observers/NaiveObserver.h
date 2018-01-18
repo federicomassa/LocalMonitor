@@ -29,6 +29,12 @@ class NaiveObserver : public Observer
 	// This is the total prediction time span, that is, the time interval from prediction to update 
 	int predictionTimeSpan;
 	
+	// Last time you begun a prediction
+	double lastPredictionTime;
+	
+	// Last time you updated the prediction
+	double lastUpdateTime;
+	
 	// This is the mapping range FIXME right now the mapping
 	// is done in this range, without considering visibility
 	IMap<std::pair<double, double> > varRange;
@@ -58,9 +64,18 @@ class NaiveObserver : public Observer
 	void ReadControlModel(const nlohmann::json&);
 	void ReadRange(const nlohmann::json&);
 	void ReadResolution(const nlohmann::json&);
+	
+	// Takes decimal integer and, by converting it to a number in base given by the number of predictions for each variable, produces a different initial state
+	State GenerateHiddenState(const int&);
+	
 	SensorOutput SimulateSensors(const Agent&, const AgentVector&, const EnvironmentParameters&);
 
 	void InitializeHiddenState();
+	
+	// Core of NaiveObserver: Prediction Phase
+	void PredictPhase();
+	// Core of NaiveObserver: Update phase with interpolated measurement to compare with prediction
+	void UpdatePhase(const Agent&, const AgentVector&, const EnvironmentParameters&);
 
 public:
 	NaiveObserver(const std::string& name);

@@ -31,8 +31,15 @@ public:
 	inline typename MapObj::const_iterator begin() const;
 	inline typename MapObj::iterator begin();
 	
+	inline typename MapObj::const_reverse_iterator rbegin() const;
+	inline typename MapObj::reverse_iterator rbegin();
+	
+	
 	inline typename MapObj::const_iterator end() const;
 	inline typename MapObj::iterator end();
+	
+	inline typename MapObj::const_reverse_iterator rend() const;
+	inline typename MapObj::reverse_iterator rend();
 	
 	template <class U>
 	friend inline MyLogger& operator<<(MyLogger&, const U&);
@@ -97,6 +104,19 @@ typename IMap<T>::MapObj::iterator IMap<T>::begin()
 }
 
 template<class T> 
+typename IMap<T>::MapObj::const_reverse_iterator IMap<T>::rbegin() const
+{
+	return obj.rbegin();
+}
+
+template<class T> 
+typename IMap<T>::MapObj::reverse_iterator IMap<T>::rbegin()
+{
+	return obj.rbegin();
+}
+
+
+template<class T> 
 typename IMap<T>::MapObj::const_iterator IMap<T>::end() const
 {
 	return obj.end();
@@ -107,6 +127,19 @@ typename IMap<T>::MapObj::iterator IMap<T>::end()
 {
 	return obj.end();
 }
+
+template<class T> 
+typename IMap<T>::MapObj::const_reverse_iterator IMap<T>::rend() const
+{
+	return obj.rend();
+}
+
+template<class T> 
+typename IMap<T>::MapObj::reverse_iterator IMap<T>::rend()
+{
+	return obj.rend();
+}
+
 
 template<class T> 
 bool IMap<T>::IsAvailable(const std::string& key) const

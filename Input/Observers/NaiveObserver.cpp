@@ -20,20 +20,38 @@ using namespace nlohmann;
 
 NaiveObserver::NaiveObserver(const std::string& name) : Observer(name)
 {
+	observedID = "";
+	simulTimeStep = -1;
+	predictionTimeSpan = -1;
+	lastPredictionTime = -1;
+	lastUpdateTime = -1;
 }
 
 NaiveObserver::~NaiveObserver()
 {
-	if (automaton)
-		delete automaton;
+	for (auto itr = automaton.begin(); itr != automaton.end(); itr++)
+		delete itr->second;
 	
-	if (controller)
-		delete controller;
+	for (auto itr = controller.begin(); itr != controller.end(); itr++)
+		delete itr->second;
 }
 
-void NaiveObserver::Run()
+void NaiveObserver::Run(const double& currentTime)
 {
-	
+	if (lastPredictionTime < lastUpdateTime)
+	{
+		PredictPhase();
+		lastPredictionTime = currentTime;
+	}
+	else if (currentTime > (lastPredictionTime + predictionTimeSpan))
+	{
+		Agent interpolatedSelf = InterpolateSelf(--selfTrajectory.latest(), selfTrajectory.latest());
+		AgentVector interpolatedOthers = InterpolateOthers(--othersTrajectory.latest(), othersTrajectory.latest());
+		EnvironmentParameters interpolatedEnv = InterpolateEnv(--environmentTrajectory.latest(), environmentTrajectory.latest());
+		
+		UpdatePhase(interpolatedSelf, interpolatedOthers, interpolatedEnv);
+		lastUpdateTime = currentTime;
+	}
 }
 
 
@@ -70,15 +88,55 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 	
 	nlohmann::json dynJson = observingJson.at("dynamic_model");
 	if (!dynJson.is_array())
-		Error("NaiveObserver::Configure"; "\'dynamic_model\' entry must be a JSON array");
+		Error("NaiveObserver::Configure", "\'dynamic_model\' entry must be a JSON array");
 	
 	for (auto itr = dynJson.begin(); itr != dynJson.end(); itr++)
+	{
+		if (!itr->is_object())
+			Error("NaiveObserver::Configure", "Elements of \'dynamic_model\' must be JSON objects");
+		
 		ReadDynamicModel(*itr);
+	}
 	
+	// Ensure that a default dynamic model has been defined
+	try
+	{
+		pLayer("__default__");
+	}
+	catch(out_of_range&)
+	{
+		Error("NaiveObserver::Configure", "You must specified a dynamic model for ID \'__default__\'");
+	}
+	
+
 	nlohmann::json controlJson = observingJson.at("control_model");
-	ReadControlModel(controlJson);
+	if (!controlJson.is_array())
+		Error("NaiveObserver::Configure", "\'control_model\' entry must be a JSON array");
 	
-	pLayer.SetSimulationTimeStep(observingJson.at("simulation_time_step").get<double>());
+	for (auto itr = controlJson.begin(); itr != controlJson.end(); itr++)
+	{
+		if (!itr->is_object())
+			Error("NaiveObserver::Configure", "Elements of \'control_model\' must be JSON objects");
+		
+		ReadControlModel(*itr);
+	}
+
+	try
+	{
+		controller("__default__");
+		automaton("__default__");
+	}
+	catch(out_of_range&)
+	{
+		Error("NaiveObserver::Configure", "You must specified a control model for ID \'__default__\'");
+	}
+
+	simulTimeStep = observingJson.at("simulation_time_step").get<double>();
+	
+	for (auto itr = pLayer.begin(); itr != pLayer.end(); itr++)
+		itr->second.SetSimulationTimeStep(simulTimeStep);
+	
+	predictionTimeSpan = observingJson.at("prediction_time_span").get<double>();
 	
 	nlohmann::json rangeJson = observingJson.at("range");
 	if (!rangeJson.is_object())
@@ -132,12 +190,11 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 
 	
 	// FIXME Someday this will be computed for each run because it might depend on visibility
-	for (auto itr = pLayer.GetDynamicModel().GetStateVariables().begin(); 
-		 itr != pLayer.GetDynamicModel().GetStateVariables().end(); itr++)
-		 nPredictions[*itr] = ceil((varRange[*itr].second - varRange[*itr].first)/varResolution[*itr]);
+	for (auto itr = pLayer(observedID).GetDynamicModel().GetStateVariables().begin(); 
+		 itr != pLayer(observedID).GetDynamicModel().GetStateVariables().end(); itr++)
+		 nPredictions[*itr] = floor((varRange[*itr].second - varRange[*itr].first)/varResolution[*itr] + 1);
 
-	auto itr = nPredictions.begin();
-	InitializeHiddenState(itr);
+	InitializeHiddenState();
 }
 
 void NaiveObserver::ReadDynamicModel(const nlohmann::json& dynJ)
@@ -256,8 +313,8 @@ void NaiveObserver::ReadRange(const nlohmann::json& rangeJ)
 	
 	// There must be a range specified for each state variable of the model
 	vector<string> mandatoryEntries;
-	for (auto itr = pLayer.GetDynamicModel().GetStateVariables().begin();
-		 itr != pLayer.GetDynamicModel().GetStateVariables().end(); itr++)
+	for (auto itr = pLayer(observedID).GetDynamicModel().GetStateVariables().begin();
+		 itr != pLayer(observedID).GetDynamicModel().GetStateVariables().end(); itr++)
 		 mandatoryEntries.push_back(*itr);
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
@@ -289,8 +346,8 @@ void NaiveObserver::ReadResolution(const nlohmann::json& resJ)
 	
 	// There must be a range specified for each state variable of the model
 	vector<string> mandatoryEntries;
-	for (auto itr = pLayer.GetDynamicModel().GetStateVariables().begin();
-		 itr != pLayer.GetDynamicModel().GetStateVariables().end(); itr++)
+	for (auto itr = pLayer(observedID).GetDynamicModel().GetStateVariables().begin();
+		 itr != pLayer(observedID).GetDynamicModel().GetStateVariables().end(); itr++)
 		 mandatoryEntries.push_back(*itr);
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
@@ -312,6 +369,7 @@ void NaiveObserver::ReadResolution(const nlohmann::json& resJ)
 	// =============================================
 }
 
+// TODO When deploying this code, remember that this method is not thread safe (if run and receivesensoroutput are run in different threads, it might lead to data races)
 void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const double& currentTime)
 {
 	// !!! Sensor data has to be reorganized so that 'self' is observed agent and 'others' are its neighbors. NB Trajectories are stored in world coordinates, but for the prediction they have to be converted to state variables, which is the state estimation phase !!!
@@ -320,10 +378,14 @@ void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const 
 	const AgentVector& currentOthers = sensorOutput.RetrieveOtherAgentsData();
 	const EnvironmentParameters& currentEnv = sensorOutput.RetrieveEnvironmentData();
 	
+	// if last prediction time is smaller than update time it means that it has updated but not started a new prediction
+	if (lastPredictionTime < 0 || lastPredictionTime < lastUpdateTime)
+	{
+		selfTrajectory.clear();
+		othersTrajectory.clear();
+		environmentTrajectory.clear();
+	}
 	
-	selfTrajectory.clear();
-	othersTrajectory.clear();
-	environmentTrajectory.clear();
 	
 	// These are the 'truth' values of the trajectories that the observed agent sees. They will be filtered by observed agent's sensors.
 	Agent trueSelf;
@@ -339,15 +401,26 @@ void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const 
 			trueOthers[itr->first] = itr->second;
 	}
 	
-	// Now that we have the truth values, we have to filter them with the sensors
-	SensorOutput observedSensorOutput = SimulateSensors(trueSelf, trueOthers, trueEnv);
+	// Keep two more measurements (other than the one at prediction time) to
+	// interpolate during update phase
+	if (selfTrajectory.size() >= 3)
+	{
+		// Erase oldest measure (not at prediction time)
+		selfTrajectory.erase(++selfTrajectory.begin());
+		othersTrajectory.erase(++othersTrajectory.begin());
+		environmentTrajectory.erase(++environmentTrajectory.begin());
+	}
 	
+	// Now that we have the truth values, we have to filter them with the sensors
+	SensorOutput observedSensorOutput = SimulateSensors(trueSelf, trueOthers, trueEnv);	
 	
 	selfTrajectory.insert(currentTime, observedSensorOutput.RetrieveSelfData());
 	
 	othersTrajectory.insert(currentTime, observedSensorOutput.RetrieveOtherAgentsData());
 	
 	environmentTrajectory.insert(currentTime, observedSensorOutput.RetrieveEnvironmentData());
+	
+	
 }
 
 SensorOutput NaiveObserver::SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams)
@@ -470,7 +543,55 @@ InternalSensorOutput NaiveObserver::RetrieveInternalSensorOutput(const std::stri
 
 void NaiveObserver::InitializeHiddenState()
 {
+	int totPredictions = 1;
+	for (auto itr = nPredictions.begin(); itr != nPredictions.end(); itr++)
+		totPredictions *= itr->second;
+
+	for (int i = 0; i < totPredictions; i++)
+		hiddenInitState.push_back(GenerateHiddenState(i));
 	
 }
+
+State NaiveObserver::GenerateHiddenState(const int& i)
+{
+	// Convert to base nPredictions
+	IMap<int> iNewBase;
+	
+	int quotient = i;
+	for (auto itr = nPredictions.rbegin(); itr != nPredictions.rend(); itr++)
+	{
+		iNewBase.AddEntry(itr->first, quotient % itr->second);
+		quotient = floor(double(quotient)/double(itr->second));
+	}
+	
+	// Generate state
+	State generatedQ;
+	
+	// Use default model for hidden agent
+	for (auto itr = pLayer("__default__").GetDynamicModel().GetStateVariables().begin();
+		 itr != pLayer("__default__").GetDynamicModel().GetStateVariables().end(); itr++)
+		 {
+			generatedQ.AddStateVariable(*itr);
+			generatedQ(*itr) = varRange(*itr).first + varResolution(*itr)*iNewBase(*itr);
+		 }
+		
+	return generatedQ;
+
+}
+
+void NaiveObserver::PredictPhase()
+{
+	Agent initSelf = selfTrajectory.latest().value();
+	AgentVector initOthers = othersTrajectory.latest().value();
+	EnvironmentParameters initEnv = environmentTrajectory.latest().value();
+	
+	for (auto itr = hiddenInitState.begin(); itr != hiddenInitState.end(); itr++)
+	{
+		AgentVector totInitOthers = initOthers;
+		totInitOthers["__hidden__"] = *itr;
+	}
+}
+
+
 
 
