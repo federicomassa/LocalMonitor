@@ -14,7 +14,9 @@
 					"dynamics" : "TestKinematics",
 				
 					"control_variables" : ["a", "omega"],
-					"world_conversion_function" : "TestKinematicsConversion"
+					"world_conversion_function" : "TestKinematicsToWorld",
+					"state_estimation_function" : "TestKinematicsToState",
+					"parameters" : ["length", "desiredV"]
 				},
 				{ 
 					"id" : "0",
@@ -23,7 +25,9 @@
 					"dynamics" : "TestKinematics",
 				
 					"control_variables" : ["a", "omega"],
-					"world_conversion_function" : "TestKinematicsConversion"
+					"world_conversion_function" : "TestKinematicsToWorld",
+					"state_estimation_function" : "TestKinematicsToState",
+					"parameters" : ["length", "desiredV"]
 				},
 				
 				{
@@ -33,7 +37,9 @@
 					"dynamics" : "TestKinematics",
 				
 					"control_variables" : ["a", "omega"],
-					"world_conversion_function" : "TestKinematicsConversion"
+					"world_conversion_function" : "TestKinematicsToWorld",
+					"state_estimation_function" : "TestKinematicsToState",
+					"parameters" : ["length", "desiredV"]
 				}
 			],
 				
@@ -72,10 +78,10 @@
 			
 			"external_sensors" : ["VisionSensor"],
 			"internal_sensors" : ["SelfSensor"],
-			"simulation_time_step" : 0.013,
+			"simulation_time_step" : 0.5,
 			"prediction_time_span" : 1,
 			
-			"range" : 
+			"hidden_range" : 
 			{
 				"x" : [0, 10],
 				"y" : [0, 12],
@@ -83,13 +89,22 @@
 				"v" : [0, 20]
 			},
 			
-			"resolution" :
+			"hidden_resolution" :
 			{
-				"x" : 0.2,
-				"y" : 0.2,
-				"theta" : 0.5,
-				"v" : 2
+				"x" : 1,
+				"y" : 2,
+				"theta" : 1,
+				"v" : 5
+			},
+			
+			"hidden_parameters" : 
+			{
+				"length" : 4.47,
+				"desiredV" : 20
 			}
 		}
-	]
+	],
+	
+	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desiredV"], 
+	"world_environment_features" : ["lanes", "lane_width"]
 }

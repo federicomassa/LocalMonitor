@@ -21,6 +21,7 @@ class Agent
 	AgentParameters parameters;
 public:
     Agent();
+	Agent(const Agent&);
     const std::string &GetID() const;
     void SetID ( const std::string & );
     const State &GetState() const;

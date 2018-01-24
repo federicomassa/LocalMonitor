@@ -26,6 +26,7 @@ set(MODULE_SOURCES
     Automation/Automatons/TestAutomaton.cpp
     Observers/Observers.cpp
     Observers/NaiveObserver.cpp
+    Observers/NaiveEnvironment.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

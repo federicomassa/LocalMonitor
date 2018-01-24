@@ -8,7 +8,7 @@
 #include "Control.h"
 
 typedef void (*DynamicsFcn) (State&, const Agent&, const Control&, const double&);
-typedef void (*StateConversionFcn) (State&, const Agent&);
+typedef void (*StateConversionFcn) (Agent&, const Agent&);
 
 class DynamicModel
 {
@@ -17,15 +17,18 @@ class DynamicModel
     std::vector<std::string> stateVars;
 	std::vector<std::string> controlVars;
     std::string dynamicsName;
-	std::string conversionFcnName;
+	std::string conversionFcnToWorldName;
+	std::string conversionFcnToStateName;
 	DynamicsFcn dynamicsFcn;
-	StateConversionFcn conversionFcn;
+	StateConversionFcn conversionFcnToWorld;
+	StateConversionFcn conversionFcnToState;
 	
 	bool isNameSet;
 	bool isStateVarsSet;
 	bool isControlVarsSet;
 	bool isDynamicsFcnSet;
-	bool isConversionFcnSet;
+	bool isConversionFcnToWorldSet;
+	bool isConversionFcnToStateSet;
 	
 public:
 	DynamicModel();
@@ -38,9 +41,11 @@ public:
 	void SetName(const std::string&);
 	void SetStateVariables(const std::vector<std::string>&);
 	void SetDynamicsFunctionName(const std::string&);
-	void SetStateConversionFunctionName(const std::string&);
+	void SetStateConversionToWorldName(const std::string&);
+	void SetStateConversionToStateName(const std::string&);
 	void SetDynamicsFunction(DynamicsFcn);
-	void SetStateConversionFunction(StateConversionFcn);
+	void SetStateConversionToWorld(StateConversionFcn);
+	void SetStateConversionToState(StateConversionFcn);
 	void Run(State&, const Agent&, const Control&, const double&) const;
 	State GetWorldState(const Agent&, const State& modelWorldState) const;
 	void SetControlVariables(const std::vector<std::string>&);

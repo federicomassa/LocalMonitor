@@ -35,7 +35,7 @@ class TimedContainer
 	typedef typename std::vector<TimePair> timedObject;
 	timedObject obj;
 
-
+public:
 	class iterator
 	{
 		friend class TimedContainer<T>;
@@ -57,13 +57,14 @@ class TimedContainer
 		typename timedObject::const_iterator itr;
 	public:
 		const_iterator(typename timedObject::const_iterator i) : itr(i) {}
+		const_iterator(typename timedObject::iterator i) : itr(i) {}
 		const double& time() const {return itr->time();}
 		const T& value() const {return itr->value();}
-		iterator operator++() {return iterator(++itr);}
-		iterator operator--() {return iterator(--itr);}
-		iterator operator++(int) {return iterator(itr++);}
-		iterator operator--(int) {return iterator(itr--);}
-		bool operator !=(const iterator& i) {return (itr != i.itr);}
+		const_iterator operator++() {return const_iterator(++itr);}
+		const_iterator operator--() {return const_iterator(--itr);}
+		const_iterator operator++(int) {return const_iterator(itr++);}
+		const_iterator operator--(int) {return const_iterator(itr--);}
+		bool operator !=(const const_iterator& i) {return (itr != i.itr);}
 	};
 
 	
@@ -74,8 +75,8 @@ public:
 	void clear() {obj.clear();}
 	iterator begin() {return iterator(obj.begin());}
 	const_iterator begin() const {return const_iterator(obj.cbegin());}
-	iterator latest() {return iterator(--(obj.end()));}
-	const_iterator latest() const {return const_iterator(--(obj.cend()));}
+	iterator oldest() {return iterator(--obj.end());}
+	const_iterator oldest() const {return const_iterator(--obj.cend());}
 	iterator end() {return iterator(obj.end());}
 	const_iterator end() const {return const_iterator(obj.cend());}
 	int size() const {return obj.size();}

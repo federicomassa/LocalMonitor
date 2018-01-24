@@ -20,7 +20,7 @@ public:
 	~LocalMonitor();
 	void Configure(const std::string& configFilePath);
 	void ReceiveSensorOutput(const SensorOutput&, const double& currentTime);
-	void Run();
+	void Run(const double& currentTime);
 };
 
 #endif

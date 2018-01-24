@@ -6,6 +6,8 @@
 #include "Basic/Agent.h"
 #include "Automation/DynamicModel.h"
 
-StateConversionFcn GetStateConversionFunction(const std::string& fcnName);
+StateConversionFcn GetStateConversionToWorld(const std::string& fcnName);
+StateConversionFcn GetStateConversionToState(const std::string& fcnName);
+
 
 #endif

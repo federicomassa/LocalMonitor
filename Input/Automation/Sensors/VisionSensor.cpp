@@ -40,7 +40,22 @@ void VisionSensor::SimulateOutput(ExternalSensorOutput& outputInWorld, const Age
 		outputInWorld.AgentID(itr->first)("v") = neigh("v");
 		outputInWorld.AgentID(itr->first)("desiredV") = neigh("desiredV");
 		
-		outputInWorld.AgentID(itr->first)("length") = itr->second.GetParameter("length");
+		// Could be in parameters list or in state
+		try
+		{
+			outputInWorld.AgentID(itr->first)("length") = neigh("length");
+		}
+		catch(out_of_range&)
+		{
+			try
+			{
+				outputInWorld.AgentID(itr->first)("length") = itr->second.GetParameter("length");
+			}
+			catch(out_of_range&)
+			{
+				Error("VisionSensor::SimulateOutput", string("\'length\' not found in agent with ID: \'") + itr->first + "\'.");
+			}
+		}
 	}
 	
 	outputInWorld.Environment("lanes") = envParam("lanes");

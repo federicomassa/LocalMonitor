@@ -7,9 +7,10 @@ using namespace LogFunctions;
 DynamicModel::DynamicModel()
 {
 	dynamicsFcn = nullptr;
-	conversionFcn = nullptr;
+	conversionFcnToWorld = nullptr;
+	conversionFcnToState = nullptr;
 	
-	isNameSet = isStateVarsSet = isControlVarsSet = isDynamicsFcnSet = isConversionFcnSet = false;
+	isNameSet = isStateVarsSet = isControlVarsSet = isDynamicsFcnSet = isConversionFcnToWorldSet = false, isConversionFcnToStateSet = false;
 }
 
 void DynamicModel::Run(State& qdot, const Agent& self, const Control& u, const double& simulDeltaT) const
@@ -41,8 +42,10 @@ DynamicModel& DynamicModel::operator=(const DynamicModel& m)
 	SetDynamicsFunction(m.dynamicsFcn);
 	SetDynamicsFunctionName(m.dynamicsName);
 	SetControlVariables(m.controlVars);
-	SetStateConversionFunction(m.conversionFcn);
-	SetStateConversionFunctionName(m.conversionFcnName);
+	SetStateConversionToWorld(m.conversionFcnToWorld);
+	SetStateConversionToWorldName(m.conversionFcnToWorldName);
+	SetStateConversionToState(m.conversionFcnToState);
+	SetStateConversionToStateName(m.conversionFcnToStateName);
 	
 	return *this;
 }
@@ -64,10 +67,16 @@ void DynamicModel::SetDynamicsFunctionName(const string& s)
 	dynamicsName = s;
 }
 
-void DynamicModel::SetStateConversionFunctionName(const std::string& s)
+void DynamicModel::SetStateConversionToWorldName(const std::string& s)
 {
-	conversionFcnName = s;
+	conversionFcnToWorldName = s;
 }
+
+void DynamicModel::SetStateConversionToStateName(const std::string& s)
+{
+	conversionFcnToStateName = s;
+}
+
 
 void DynamicModel::SetDynamicsFunction(DynamicsFcn fcn)
 {
@@ -75,22 +84,33 @@ void DynamicModel::SetDynamicsFunction(DynamicsFcn fcn)
 	dynamicsFcn = fcn;
 }
 
-void DynamicModel::SetStateConversionFunction(StateConversionFcn fcn)
+void DynamicModel::SetStateConversionToWorld(StateConversionFcn fcn)
 {
-	isConversionFcnSet = true;
-	conversionFcn = fcn;
+	isConversionFcnToWorldSet = true;
+	conversionFcnToWorld = fcn;
 }
+
+void DynamicModel::SetStateConversionToState(StateConversionFcn fcn)
+{
+	isConversionFcnToStateSet = true;
+	conversionFcnToState = fcn;
+}
+
 
 State DynamicModel::GetWorldState(const Agent& a, const State& modelWorldState) const
 {
 	State convertedState = State::GenerateStateOfType(modelWorldState);
+	Agent worldAgent;
+	
+	worldAgent.SetID(a.GetID());
+	worldAgent.SetState(convertedState);
 	
 	if (IsSet())
-		conversionFcn(convertedState, a);
+		conversionFcnToWorld(worldAgent, a);
 	else
 		Error("DynamicModel::GetWorldState", "Cannot call GetWorldState without setting the dynamic model first");
 	
-	return convertedState;
+	return worldAgent.GetState();
 }
 
 void DynamicModel::SetControlVariables(const vector<string>& s)
@@ -121,5 +141,5 @@ const vector<string>& DynamicModel::GetControlVariables() const
 
 bool DynamicModel::IsSet() const
 {
-	return (isNameSet && isStateVarsSet && isControlVarsSet && isDynamicsFcnSet && isConversionFcnSet);
+	return (isNameSet && isStateVarsSet && isControlVarsSet && isDynamicsFcnSet && isConversionFcnToWorldSet && isConversionFcnToStateSet);
 }

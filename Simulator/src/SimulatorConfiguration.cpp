@@ -540,12 +540,17 @@ void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)
 		}
 		else if (itr.key() == "world_conversion_function")
 		{
-			m.SetStateConversionFunctionName(itr.value().get<string>());
-			m.SetStateConversionFunction(GetStateConversionFunction(itr.value().get<string>()));
+			m.SetStateConversionToWorldName(itr.value().get<string>());
+			m.SetStateConversionToWorld(GetStateConversionToWorld(itr.value().get<string>()));
 			isStateConversionFunctionSet = true;
 		}
+		else if (itr.key() == "state_estimation_function")
+		{
+			m.SetStateConversionToStateName(itr.value().get<string>());
+			m.SetStateConversionToState(GetStateConversionToState(itr.value().get<string>()));
+		}
 		else
-			Error("SimulatorConfiguration::AddDynamicModel", "Unknown entry. Dynamic models must each contain a name, a set of state variables, a dynamics function name, and a set of control variables");
+			Error("SimulatorConfiguration::AddDynamicModel", string("Unknown entry \'") + itr.key() + "\'. Dynamic models must each contain a name, a set of state variables, a dynamics function name, and a set of control variables");
 	}
 	
 	if (!isNameSet || !isStateVarSet || !isDynamicsFunctionSet || !isControlVarSet || !isStateConversionFunctionSet)

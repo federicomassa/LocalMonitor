@@ -96,9 +96,9 @@ void TestAutomaton::PostEvolve()
 	// Detected transition to left
 	if (oldManeuver != "LEFT" && GetManeuver() == "LEFT")
 	{
-		const double laneWidth = GetEnvironmentTrajectory().latest().value()("lane_width");
-		const double currentYf = GetSelfTrajectory().latest().value()("yf");
-		const double currentYb = GetSelfTrajectory().latest().value()("yb");
+		const double laneWidth = GetEnvironmentTrajectory().begin().value()("lane_width");
+		const double currentYf = GetSelfTrajectory().begin().value()("yf");
+		const double currentYb = GetSelfTrajectory().begin().value()("yb");
 		
 		const double currentY = 1.0/2.0*(currentYf + currentYb);
 		

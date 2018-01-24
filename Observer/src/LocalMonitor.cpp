@@ -103,10 +103,10 @@ void LocalMonitor::ReceiveSensorOutput(const SensorOutput& output, const double&
 		(*itr)->ReceiveSensorOutput(output, currentTime);
 }
 
-void LocalMonitor::Run()
+void LocalMonitor::Run(const double& currentTime)
 {
 	for (auto itr = observers.begin(); itr != observers.end(); itr++)
-		(*itr)->Run();
+		(*itr)->Run(currentTime);
 }
 
 

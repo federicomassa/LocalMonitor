@@ -2,6 +2,7 @@
 #define NAIVE_OBSERVER_H
 
 #include "Observer/Observer.h"
+#include "NaiveEnvironment.h"
 #include "Automation/PhysicalLayer.h"
 #include "Automation/Controller.h"
 #include "Automation/ExternalSensor.h"
@@ -30,7 +31,9 @@ class NaiveObserver : public Observer
 	int predictionTimeSpan;
 	
 	// Last time you begun a prediction
-	double lastPredictionTime;
+	double lastPredictionStartTime;
+	// When the prediction ends
+	double lastPredictedTime;
 	
 	// Last time you updated the prediction
 	double lastUpdateTime;
@@ -42,8 +45,14 @@ class NaiveObserver : public Observer
 	// This is the mapping resolution
 	IMap<double> varResolution;
 	
+	// This is the list of parameters of hidden agent
+	IMap<double> parameters;
+	
 	// Number of predictions per variable. Obtained from varRange and varResolution
 	IMap<int> nPredictions;
+	
+	// This contains the simulated environments
+	std::vector<NaiveEnvironment> environments;
 	
 	// These are the initial values of the hidden vehicle (their number depend on var range and resolution. They change at each new prediction
 	std::vector<State> hiddenInitState;
@@ -51,25 +60,19 @@ class NaiveObserver : public Observer
 	// Assumed sensors of observed agent, like in SimulAgent
 	std::vector<std::shared_ptr<ExternalSensor> > extSensors;
 	std::vector<std::shared_ptr<InternalSensor> > intSensors;
-
-	ExternalSensorOutput RetrieveExternalSensorOutput(const std::string& sensorName,
-		const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, 
-		const EnvironmentParameters& trueEnvParams);
-	
-	InternalSensorOutput RetrieveInternalSensorOutput(const std::string& sensorName,
-		const Agent& trueSelfInWorld);
 	
 	
 	void ReadDynamicModel(const nlohmann::json&);
 	void ReadControlModel(const nlohmann::json&);
 	void ReadRange(const nlohmann::json&);
 	void ReadResolution(const nlohmann::json&);
+	void ReadParameters(const nlohmann::json&);
+
 	
 	// Takes decimal integer and, by converting it to a number in base given by the number of predictions for each variable, produces a different initial state
 	State GenerateHiddenState(const int&);
 	
-	SensorOutput SimulateSensors(const Agent&, const AgentVector&, const EnvironmentParameters&);
-
+	// Generate hidden agent mapping
 	void InitializeHiddenState();
 	
 	// Core of NaiveObserver: Prediction Phase
@@ -77,10 +80,18 @@ class NaiveObserver : public Observer
 	// Core of NaiveObserver: Update phase with interpolated measurement to compare with prediction
 	void UpdatePhase(const Agent&, const AgentVector&, const EnvironmentParameters&);
 
+	// Interpolating function to sync with received sensor data
+	Agent InterpolateSelf(const TimedContainer<Agent>::const_iterator& p1, const TimedContainer<Agent>::const_iterator& p2);
+	AgentVector InterpolateOthers(TimedContainer<AgentVector>::const_iterator p1, TimedContainer<AgentVector>::const_iterator p2);
+	EnvironmentParameters InterpolateEnvironment(TimedContainer<EnvironmentParameters>::const_iterator p1, TimedContainer<EnvironmentParameters>::const_iterator p2);
+	
+	
+	
+	
 public:
 	NaiveObserver(const std::string& name);
 	~NaiveObserver();
-	void Run() override;
+	void Run(const double& currentTime) override;
 	void Configure(const nlohmann::json&) override;
 	void ReceiveSensorOutput(const SensorOutput&, const double& currentTime) override;
 

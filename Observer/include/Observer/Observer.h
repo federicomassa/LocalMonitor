@@ -40,7 +40,7 @@ public:
 	virtual void ReceiveSensorOutput(const SensorOutput&, const double& currentTime);
 	
 	// This is the main method. It defines what happens each time the observer is run.
-	virtual void Run() = 0;
+	virtual void Run(const double& currentTime) = 0;
 	
 	// This is useful to customize observer configuration file for each type of observer. By default, only "observing" entry is mandatory and inside it only "id" and "type" entries are mandatory. With this, you can add more.
 	virtual void Configure(const nlohmann::json&);

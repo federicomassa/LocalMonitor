@@ -1,15 +1,30 @@
 #include "StateConversions.h"
 #include <string>
 #include <iostream>
-#include "TestKinematicsConversion.h"
+#include "TestKinematicsToWorld.h"
+#include "TestKinematicsToState.h"
 
-StateConversionFcn GetStateConversionFunction(const std::string& fcnName) 
+StateConversionFcn GetStateConversionToWorld(const std::string& fcnName) 
 {
-	if (fcnName == "TestKinematicsConversion")
-		return &TestKinematicsConversion;
+	if (fcnName == "TestKinematicsToWorld")
+		return &TestKinematicsToWorld;
 	else 
 		{
 			std::cerr << "Error in configure: " << fcnName << ".h not found";
 			exit(1);
 		} 
 }
+
+StateConversionFcn GetStateConversionToState(const std::string& fcnName) 
+{
+	if (fcnName == "TestKinematicsToState")
+		return &TestKinematicsToState;
+	else 
+		{
+			std::cerr << "Error in configure: " << fcnName << ".h not found";
+			exit(1);
+		} 
+}
+
+
+

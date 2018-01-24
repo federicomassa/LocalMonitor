@@ -1,4 +1,5 @@
 #include "AccOmegaControl.h"
+#include "Utility/MyLogger.h"
 #include "Utility/LogFunctions.h"
 #include <math.h>
 #include <string>
@@ -17,24 +18,14 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {
 	const double K = 0.5;
 	
-	const State& q0 = GetSelfTrajectory().latest().value().GetState();
+	const State& q0 = GetSelfTrajectory().begin().value().GetState();
 	
-	const string& myID = GetSelfTrajectory().latest().value().GetID();
+	const string myID = GetSelfTrajectory().begin().value().GetID();
 	
-	string otherID;
-	if (myID == "0")
-		otherID = "1";
-	else
-		otherID = "0";
+	const EnvironmentParameters& env = GetEnvironmentTrajectory().begin().value();
 	
-	const AgentVector& others = GetOtherAgentsTrajectory().latest().value();
-	
-	Agent otherAgent = others.at(otherID);
-	
-	const EnvironmentParameters& env = GetEnvironmentTrajectory().latest().value();
-	
-	const double& y = (q0("yb") + q0("yf"))/2.0;
-	const double& theta = atan2(q0("yf") - q0("yb"), q0("xf") - q0("xb"));
+	const double y = (q0("yb") + q0("yf"))/2.0;
+	const double theta = atan2(q0("yf") - q0("yb"), q0("xf") - q0("xb"));
 	
 	cout << "Theta? " << theta << endl;
 	

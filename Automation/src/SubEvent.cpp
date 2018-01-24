@@ -15,8 +15,6 @@ SubEvent::SubEvent(const string& n, SingleEvaluationFcn fcn, const EvalMode& m, 
 	areaFcn = nullptr;
 	interactionFcn = nullptr;
 	
-
-	
 	name = n;
 	singleEvaluationFcn = fcn;
 	mode = m;
@@ -76,8 +74,8 @@ bool SubEvent::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<
 	// mode == SINGLE/NSINGLE means that the logical condition (its negation in NSINGLE case) is evaluated on 
 	// the single agent (usually self during simulation, possibly an observed agent in Observer module) 
 	
-	EnvironmentParameters currEnv = env.latest().value();
-	Agent currSelf = self.latest().value();
+	EnvironmentParameters currEnv = env.begin().value();
+	Agent currSelf = self.begin().value();
 	
 	bool result;
 	
@@ -87,7 +85,7 @@ bool SubEvent::Evaluate(const TimedContainer<Agent>& self, const TimedContainer<
 		// TODO For now automaton can store in memory but sub-events can only
 		// evaluate based on latest measurement
 		
-		AgentVector currOthers = others.latest().value();
+		AgentVector currOthers = others.begin().value();
 		
 		
 		

@@ -11,6 +11,11 @@ Agent::Agent()
 {
 }
 
+Agent::Agent(const Agent& a)
+{
+	*this = a;
+}
+
 const string &Agent::GetID() const
 {
     return ID;

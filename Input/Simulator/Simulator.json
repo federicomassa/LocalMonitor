@@ -28,8 +28,8 @@
 			}		
 		],
 		
-	"simulation_time_span" : 10,
-	"simulation_time_step" : 1,
+	"simulation_time_span" : 3,
+	"simulation_time_step" : 0.6,
 	"visibility_function" : "VehicleVisibility",
 	"simulator_viewer" : "HighwayViewer",
 	"video_output" : "video-output.avi",
@@ -65,7 +65,8 @@
 			"state_variables" : ["x", "y", "theta", "v"],
 			"dynamics" : "TestKinematics",
 			"control_variables" : ["a", "omega"],
-			"world_conversion_function" : "TestKinematicsConversion"
+			"world_conversion_function" : "TestKinematicsToWorld",
+			"state_estimation_function" : "TestKinematicsToState"
 		}
 	],
 	

@@ -79,6 +79,20 @@ State State::operator*(const double& k) const
 	return result;
 }
 
+State State::operator/(const double& k) const
+{
+	Require(k != 0, "State::operator/", "Requested division for zero");
+	
+	State result = *this;
+	
+	for (StateMap::const_iterator var = result.state.begin(); var != result.state.end(); var++)
+	{
+		result.at(var->first) = var->second/k; 
+	}
+	
+	return result;
+}
+
 State State::operator+(const State& q) const
 {
 	CheckConsistency("State::operator+", *this, q);
@@ -93,6 +107,20 @@ State State::operator+(const State& q) const
 	return result;
 }
 
+State State::operator-(const State& q) const
+{
+	CheckConsistency("State::operator-", *this, q);
+	
+	State result = *this;
+	
+	for (StateMap::const_iterator var = result.state.begin(); var != result.state.end(); var++)
+	{
+		result.at(var->first) = var->second - q.at(var->first); 
+	}
+	
+	return result;
+}
+
 const State& State::operator+=(const State& q)
 {
 	CheckConsistency("State::operator+", *this, q);
@@ -100,6 +128,18 @@ const State& State::operator+=(const State& q)
 	for (StateMap::const_iterator var = state.begin(); var != state.end(); var++)
 	{
 		at(var->first) = var->second + q.at(var->first); 
+	}
+	
+	return *this;
+}
+
+const State& State::operator-=(const State& q)
+{
+	CheckConsistency("State::operator-=", *this, q);
+	
+	for (StateMap::const_iterator var = state.begin(); var != state.end(); var++)
+	{
+		at(var->first) = var->second - q.at(var->first); 
 	}
 	
 	return *this;

@@ -35,8 +35,12 @@ public:
     bool operator!= ( const State & ) const;
     State &operator= ( const State & );
 	State operator*(const double&) const;
+	State operator/(const double&) const;
 	State operator+(const State&) const;
+	State operator-(const State&) const;
 	const State& operator+=(const State&);
+	const State& operator-=(const State&);
+
 	StateMap::iterator begin();
 	StateMap::iterator end();
 	StateMap::const_iterator begin() const;

@@ -24,6 +24,13 @@ public:
 	
 	inline void AddEntry(const std::string& key, const T& value);
 	inline T& operator[](const std::string& key);
+	
+	inline const IMap<T>& operator=(const IMap<T>& imap)
+	{
+		obj = imap.obj;
+		return *this;
+	}
+	
 	inline void RemoveEntry(const std::string& key);
 	
 	inline bool IsAvailable(const std::string&) const;

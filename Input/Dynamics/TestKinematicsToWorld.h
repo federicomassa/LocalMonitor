@@ -1,13 +1,15 @@
-#ifndef TEST_KINEMATIC_CONVERSION_H
-#define TEST_KINEMATIC_CONVERSION_H
+#ifndef TEST_KINEMATIC_TO_WORLD_H
+#define TEST_KINEMATIC_TO_WORLD_H
 
 #include "Basic/Agent.h"
 #include <math.h>
 #include <iostream>
 
 
-void TestKinematicsConversion(State& worldState, const Agent& agent)
+void TestKinematicsToWorld(Agent& worldState, const Agent& agent)
 {
+	worldState.SetID(agent.GetID());
+	
 	double L = agent.GetParameter("length");
 	double costheta = cos(agent("theta"));
 	double sintheta = sin(agent("theta"));

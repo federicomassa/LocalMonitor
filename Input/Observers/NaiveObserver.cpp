@@ -23,7 +23,8 @@ NaiveObserver::NaiveObserver(const std::string& name) : Observer(name)
 	observedID = "";
 	simulTimeStep = -1;
 	predictionTimeSpan = -1;
-	lastPredictionTime = -1;
+	lastPredictionStartTime = -1;
+	lastPredictedTime = -1;
 	lastUpdateTime = -1;
 }
 
@@ -38,20 +39,41 @@ NaiveObserver::~NaiveObserver()
 
 void NaiveObserver::Run(const double& currentTime)
 {
-	if (lastPredictionTime < lastUpdateTime)
+	Require(currentTime >= 0, "NaiveObserver::Run", "currentTime must be > 0");
+	
+	std::cout << "Run: " << currentTime << '\t' << lastPredictionStartTime << '\t' << lastUpdateTime << std::endl;
+	
+	// Explicit const cast
+	const TimedContainer<Agent>& selfTraj = selfTrajectory;
+	const TimedContainer<AgentVector>& othersTraj = othersTrajectory;
+	const TimedContainer<EnvironmentParameters>& envTraj = environmentTrajectory;
+	
+	const double& mostRecentDataTime = selfTraj.begin().time();
+	
+	if (mostRecentDataTime >= (lastPredictedTime) && lastPredictedTime >= 0 && lastUpdateTime < lastPredictedTime)
 	{
-		PredictPhase();
-		lastPredictionTime = currentTime;
-	}
-	else if (currentTime > (lastPredictionTime + predictionTimeSpan))
-	{
-		Agent interpolatedSelf = InterpolateSelf(--selfTrajectory.latest(), selfTrajectory.latest());
-		AgentVector interpolatedOthers = InterpolateOthers(--othersTrajectory.latest(), othersTrajectory.latest());
-		EnvironmentParameters interpolatedEnv = InterpolateEnv(--environmentTrajectory.latest(), environmentTrajectory.latest());
+		std::cout << "UPDATE PHASE" << std::endl;
+		std::cout << "... " << lastPredictionStartTime << '\t' << lastPredictedTime << '\t' << lastUpdateTime << std::endl;
+		
+		
+		Require(selfTraj.size() == 3 && othersTraj.size() == 3 && envTraj.size() == 3,
+				"NaiveObserver::Run", string("Need 3 points, one for the beginning of prediction and two close to the end of prediction to interpolate, instead there is only ") + ToStringWithPrecision(selfTraj.size(), 1) + "! Maybe sensor frequency is too low compared to prediction span?");
+		
+		Agent interpolatedSelf = InterpolateSelf(++(selfTraj.begin()), selfTraj.begin());
+		AgentVector interpolatedOthers = InterpolateOthers(++othersTraj.begin(), othersTraj.begin());
+		EnvironmentParameters interpolatedEnv = InterpolateEnvironment(++envTraj.begin(), envTraj.begin());
 		
 		UpdatePhase(interpolatedSelf, interpolatedOthers, interpolatedEnv);
-		lastUpdateTime = currentTime;
+		lastUpdateTime = lastPredictedTime;
 	}
+	if (lastUpdateTime >= lastPredictedTime)
+	{
+		std::cout << "PREDICT PHASE" << std::endl;
+		PredictPhase();
+		lastPredictionStartTime = mostRecentDataTime;
+		lastPredictedTime = mostRecentDataTime + predictionTimeSpan;
+	}
+	
 }
 
 
@@ -65,8 +87,9 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 	mandatoryEntries.push_back("control_model");
 	mandatoryEntries.push_back("simulation_time_step");
 	mandatoryEntries.push_back("prediction_time_span");
-	mandatoryEntries.push_back("range");
-	mandatoryEntries.push_back("resolution");
+	mandatoryEntries.push_back("hidden_range");
+	mandatoryEntries.push_back("hidden_resolution");
+	mandatoryEntries.push_back("hidden_parameters");
 
 	if (!observingJson.at("id").is_string())
 		Error("NaiveObserver::Configure", "\'id\' entry should be a string");
@@ -138,18 +161,24 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 	
 	predictionTimeSpan = observingJson.at("prediction_time_span").get<double>();
 	
-	nlohmann::json rangeJson = observingJson.at("range");
+	nlohmann::json rangeJson = observingJson.at("hidden_range");
 	if (!rangeJson.is_object())
-		Error("NaiveObserver::Configure", "\'range\' entry must be a json object");
+		Error("NaiveObserver::Configure", "\'hidden_range\' entry must be a json object");
 	
 	ReadRange(rangeJson);
 	
 	
-	nlohmann::json resJson = observingJson.at("resolution");
+	nlohmann::json resJson = observingJson.at("hidden_resolution");
 	if (!rangeJson.is_object())
-		Error("NaiveObserver::Configure", "\'resolution\' entry must be a json object");
+		Error("NaiveObserver::Configure", "\'hidden_resolution\' entry must be a json object");
 	
 	ReadResolution(resJson);
+	
+	nlohmann::json parJson = observingJson.at("hidden_parameters");
+	if (!parJson.is_object())
+		Error("NaiveObserver::Configure", "\'hidden_parameters\' entry must be a json object");
+	
+	ReadParameters(parJson);
 	
 	// EXTERNAL SENSORS
 	try
@@ -207,6 +236,7 @@ void NaiveObserver::ReadDynamicModel(const nlohmann::json& dynJ)
 	mandatoryEntries.push_back("dynamics");
 	mandatoryEntries.push_back("control_variables");
 	mandatoryEntries.push_back("world_conversion_function");
+	mandatoryEntries.push_back("state_estimation_function");
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
 	{
@@ -248,7 +278,9 @@ void NaiveObserver::ReadDynamicModel(const nlohmann::json& dynJ)
 		controlVars.push_back(itr->get<string>());
 	
 	dynModel.SetControlVariables(controlVars);
-	dynModel.SetStateConversionFunctionName(dynJ.at("world_conversion_function").get<string>());	dynModel.SetStateConversionFunction(GetStateConversionFunction(dynJ.at("world_conversion_function").get<string>()));
+	dynModel.SetStateConversionToWorldName(dynJ.at("world_conversion_function").get<string>());	dynModel.SetStateConversionToWorld(GetStateConversionToWorld(dynJ.at("world_conversion_function").get<string>()));
+	dynModel.SetStateConversionToStateName(dynJ.at("state_estimation_function").get<string>());	dynModel.SetStateConversionToState(GetStateConversionToState(dynJ.at("state_estimation_function").get<string>()));
+	
 	
 	
 	pLayer[dynJ.at("id").get<string>()].SetDynamicModel(dynModel);
@@ -369,6 +401,16 @@ void NaiveObserver::ReadResolution(const nlohmann::json& resJ)
 	// =============================================
 }
 
+
+void NaiveObserver::ReadParameters(const nlohmann::json& parJ)
+{
+	for (auto itr = parJ.begin(); itr != parJ.end(); itr++)
+	{
+		Require(itr.value().is_number(), "NaiveObserver::ReadParameters", "\'parameters\' entry must contain parameters");
+		parameters[itr.key()] = itr.value().get<double>();
+	}
+}
+
 // TODO When deploying this code, remember that this method is not thread safe (if run and receivesensoroutput are run in different threads, it might lead to data races)
 void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const double& currentTime)
 {
@@ -379,7 +421,7 @@ void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const 
 	const EnvironmentParameters& currentEnv = sensorOutput.RetrieveEnvironmentData();
 	
 	// if last prediction time is smaller than update time it means that it has updated but not started a new prediction
-	if (lastPredictionTime < 0 || lastPredictionTime < lastUpdateTime)
+	if (lastPredictionStartTime <= lastUpdateTime)
 	{
 		selfTrajectory.clear();
 		othersTrajectory.clear();
@@ -401,6 +443,9 @@ void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const 
 			trueOthers[itr->first] = itr->second;
 	}
 	
+	// Add observer to the neighborhood of the observed
+	trueOthers[currentSelf.GetID()] = currentSelf;
+	
 	// Keep two more measurements (other than the one at prediction time) to
 	// interpolate during update phase
 	if (selfTrajectory.size() >= 3)
@@ -411,134 +456,12 @@ void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const 
 		environmentTrajectory.erase(++environmentTrajectory.begin());
 	}
 	
-	// Now that we have the truth values, we have to filter them with the sensors
-	SensorOutput observedSensorOutput = SimulateSensors(trueSelf, trueOthers, trueEnv);	
+	// Now that we have the truth values, we have to insert them. They will be filtered by the observer in the NaiveEnvironment object during predict phase
+	selfTrajectory.insert(currentTime, trueSelf);
 	
-	selfTrajectory.insert(currentTime, observedSensorOutput.RetrieveSelfData());
+	othersTrajectory.insert(currentTime, trueOthers);
 	
-	othersTrajectory.insert(currentTime, observedSensorOutput.RetrieveOtherAgentsData());
-	
-	environmentTrajectory.insert(currentTime, observedSensorOutput.RetrieveEnvironmentData());
-	
-	
-}
-
-SensorOutput NaiveObserver::SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams)
-{
-	SensorOutput sensorOutput;
-	
-	// Call external external sensors
-	for (auto extSensor = extSensors.begin(); extSensor != extSensors.end(); extSensor++)
-	{
-		ExternalSensorOutput extOutput = RetrieveExternalSensorOutput((*extSensor)->GetName(), trueSelfInWorld, trueOthersInWorld, trueEnvParams);
-		
-		sensorOutput.MergeExternalSensor(extOutput);
-	}
-
-	// Call internal sensors
-	for (auto intSensor = intSensors.begin(); intSensor != intSensors.end(); intSensor++)
-	{
-		InternalSensorOutput intOutput = RetrieveInternalSensorOutput((*intSensor)->GetName(), trueSelfInWorld);
-		
-		sensorOutput.MergeInternalSensor(intOutput);
-	}
-
-	return sensorOutput;
-	
-}
-
-ExternalSensorOutput NaiveObserver::RetrieveExternalSensorOutput(const std::string& sensorName, const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams)
-{
-	ExternalSensor* sensor = nullptr;
-	for (auto itr = extSensors.begin(); itr != extSensors.end(); itr++)
-	{
-		if ((*itr)->GetName() == sensorName)
-			sensor = itr->get();
-	}
-	
-	if (sensor == nullptr)
-		Error("SimulAgent::RetrieveExternalSensorData", string("Sensor \'") + sensorName + "\'"  + "not found in SimulAgent sensor list");
-	
-	StateRegion visibleRegion;
-	std::set<std::string> visibleIDs;
-	
-	sensor->SimulateVisibility(visibleRegion, visibleIDs, trueSelfInWorld, trueOthersInWorld);
-	
-	// Build vector of visible agents (with true states) and compute sensor output for those agents
-	AgentVector trueVisibleAgents;
-	for (auto visibleID = visibleIDs.begin(); visibleID != visibleIDs.end(); visibleID++)
-	{
-		trueVisibleAgents[*visibleID] = trueOthersInWorld.at(*visibleID);
-	}
-	
-	// ================ Prepare variables for to call sensor output =================
-	ExternalSensor::SensorVars agentVars = sensor->GetMeasuredAgentVariables();
-	
-	State measuredState = State::GenerateStateOfType(agentVars);
-	
-	// measuredVisibleAgents will contain the output of the sensor
-	AgentVector measuredVisibleAgents;
-	for (auto visibleAgent = trueVisibleAgents.begin(); visibleAgent != trueVisibleAgents.end(); visibleAgent++)
-	{
-		// Create agent with true ID and empty state with vars that can be measured by this sensor
-		Agent newAgent;
-		newAgent.SetID(visibleAgent->first);
-		newAgent.SetState(measuredState);
-		 
-		// FIXME This should set only parameters measured by sensor.
-		//newAgent.SetParameters(visibleAgent->second.GetParameters());
-		
-		measuredVisibleAgents[newAgent.GetID()] = newAgent;
-	}
-	
-	// Now we do something similar for the environment measurements
-	ExternalSensor::SensorVars envVars = sensor->GetMeasuredEnvironmentVariables();
-	EnvironmentParameters measuredEnvParameters;
-	
-	for (auto itr = envVars.begin(); itr != envVars.end(); itr++)
-		measuredEnvParameters.AddEntry(*itr, 0.0);
-	
-	// Compute the output
-	ExternalSensorOutput output;
-	output.SetMeasuredAgents(measuredVisibleAgents);
-	output.SetMeasuredEnvironment(measuredEnvParameters);
-	
-	// TODO set visible region?
-	
-	// By default, set 
-	sensor->SimulateOutput(output, trueSelfInWorld, trueOthersInWorld, trueEnvParams);
-		
-	return output;
-}
-
-InternalSensorOutput NaiveObserver::RetrieveInternalSensorOutput(const std::string& sensorName, const Agent& trueSelfInWorld)
-{
-	const InternalSensor* sensor = nullptr;
-	for (auto itr = intSensors.begin(); itr != intSensors.end(); itr++)
-	{
-		if ((*itr)->GetName() == sensorName)
-			sensor = itr->get();
-	}
-	
-	if (sensor == nullptr)
-		Error("SimulAgent::RetrieveInternalSensorData", string("Sensor \'") + sensorName + "\'"  + "not found in SimulAgent sensor list");
-	
-	
-	// ================ Prepare variables for to call sensor output =================
-	InternalSensor::SensorVars agentVars = sensor->GetSelfMeasuredVariables();
-	State measuredSelfState = State::GenerateStateOfType(agentVars);
-	
-	Agent measuredSelf;
-	measuredSelf.SetID(trueSelfInWorld.GetID());
-	measuredSelf.SetState(measuredSelfState);
-	//measuredSelf.SetParameters(trueSelfInWorld.GetParameters());
-	
-	// Compute the output
-	InternalSensorOutput output;
-	output.SetMeasuredSelf(measuredSelf);
-	sensor->SimulateOutput(output, trueSelfInWorld);
-	
-	return output;
+	environmentTrajectory.insert(currentTime, trueEnv);
 }
 
 void NaiveObserver::InitializeHiddenState()
@@ -581,17 +504,104 @@ State NaiveObserver::GenerateHiddenState(const int& i)
 
 void NaiveObserver::PredictPhase()
 {
-	Agent initSelf = selfTrajectory.latest().value();
-	AgentVector initOthers = othersTrajectory.latest().value();
-	EnvironmentParameters initEnv = environmentTrajectory.latest().value();
+	// FIXME for now, every time it resets
+	environments.clear();
+	
+	Agent initSelf = selfTrajectory.begin().value();
+	AgentVector initOthers = othersTrajectory.begin().value();
+	EnvironmentParameters initEnv = environmentTrajectory.begin().value();
+	
+	// Build first hypothesis of no hidden agents
+	environments.push_back(NaiveEnvironment(initSelf, initOthers, initEnv, extSensors, intSensors, false));
 	
 	for (auto itr = hiddenInitState.begin(); itr != hiddenInitState.end(); itr++)
 	{
 		AgentVector totInitOthers = initOthers;
-		totInitOthers["__hidden__"] = *itr;
+		
+		// Build hidden agent
+		Agent hidden;
+		hidden.SetID("__hidden__");
+		hidden.SetState(*itr);
+		hidden.SetParameters(parameters);
+
+		
+		Agent hiddenWorld;
+		hiddenWorld.SetID(hidden.GetID());
+		// Convert hidden to world variables using your max model of knowledge (all vars that you measure of the observed agent)
+		hiddenWorld.SetState(pLayer("__default__").GetDynamicModel().GetWorldState(hidden, initSelf.GetState()));
+		
+		// Add hidden agent to the others
+		totInitOthers["__hidden__"] = hiddenWorld;
+		
+		environments.push_back(NaiveEnvironment(initSelf, totInitOthers, initEnv, extSensors, intSensors));
 	}
 }
 
+void NaiveObserver::UpdatePhase(const Agent&, const AgentVector&, const EnvironmentParameters&)
+{
+}
+
+Agent NaiveObserver::InterpolateSelf(const TimedContainer<Agent>::const_iterator& p1, const TimedContainer<Agent>::const_iterator& p2)
+{
+	Agent interpolated;
+	interpolated.SetID(p1.value().GetID());
+	AgentParameters pars = p1.value().GetParameters();
+	interpolated.SetParameters(pars);
+	
+	const State& oldState = p1.value().GetState();
+	const State& newState = p2.value().GetState();
+	
+	double deltaTime = p2.time() - p1.time();
+	Require(deltaTime > 0, "NaiveObserver::InterpolateSelf", "Delta time between sensor data must be > 0");
+	
+	interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime));
+	
+	return interpolated;
+}
+
+AgentVector NaiveObserver::InterpolateOthers(TimedContainer<AgentVector>::const_iterator p1, TimedContainer<AgentVector>::const_iterator p2)
+{
+	AgentVector interpolatedAgents;
+	
+	// FIXME It could happen that sensors do not see same things at subsequent instants. How to deal with it?
+	Require(p1.value().size() == p2.value().size(), "NaiveObserver::InterpolateOthers", "FIXME!!!");
+	
+	try
+	{
+		for (auto itr = p1.value().begin(); itr != p1.value().end(); itr++)
+		{
+			Agent interpolated;	
+	
+			const Agent& oldAgent = itr->second;
+			const Agent& newAgent = p2.value().at(itr->first);
+		
+			interpolated.SetID(itr->first);
+			interpolated.SetParameters(itr->second.GetParameters());
+	
+			const State& oldState = oldAgent.GetState();
+			const State& newState = newAgent.GetState();
+	
+			double deltaTime = p2.time() - p1.time();
+			Require(deltaTime > 0, "NaiveObserver::InterpolateOthers", "Delta time between sensor data must be > 0");
+	
+			interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime));
+	
+			interpolatedAgents[itr->first] = interpolated;
+		}
+	}
+	catch(out_of_range&)
+	{
+		Error("NaiveObserver::InterpolateOthers", "Probably happend because of new/disappeared agents, see FIXME");
+	}
+	
+		return interpolatedAgents;
+}
+
+EnvironmentParameters NaiveObserver::InterpolateEnvironment(TimedContainer<EnvironmentParameters>::const_iterator p1, TimedContainer<EnvironmentParameters>::const_iterator p2)
+{
+	//FIXME for now do not do anything here
+	return p1.value();
+}
 
 
 

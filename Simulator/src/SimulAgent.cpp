@@ -154,7 +154,7 @@ void SimulAgent::Run(const SensorOutput& sensorOutput, const double& currentTime
 	automaton->PostEvolve();	
 	
 	SendToLocalMonitor(sensorOutput, currentTime);
-	localMonitor.Run();
+	localMonitor.Run(currentTime);
 }
 
 void SimulAgent::SendToController(const SensorOutput& sensorOutput, const double& currentTime)
@@ -224,7 +224,7 @@ ExternalSensorOutput SimulAgent::RetrieveExternalSensorOutput(const std::string&
 		newAgent.SetState(measuredState);
 		 
 		// FIXME This should set only parameters measured by sensor.
-		//newAgent.SetParameters(visibleAgent->second.GetParameters());
+		newAgent.SetParameters(visibleAgent->second.GetParameters());
 		
 		measuredVisibleAgents[newAgent.GetID()] = newAgent;
 	}
@@ -270,7 +270,9 @@ InternalSensorOutput SimulAgent::RetrieveInternalSensorOutput(const std::string&
 	Agent measuredSelf;
 	measuredSelf.SetID(trueSelfInWorld.GetID());
 	measuredSelf.SetState(measuredSelfState);
-	//measuredSelf.SetParameters(trueSelfInWorld.GetParameters());
+	
+	// FIXME Should only set parameters measured by sensor
+	measuredSelf.SetParameters(trueSelfInWorld.GetParameters());
 	
 	// Compute the output
 	InternalSensorOutput output;
