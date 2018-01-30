@@ -28,9 +28,7 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	
 	const double y = (q0("yb") + q0("yf"))/2.0;
 	const double theta = atan2(q0("yf") - q0("yb"), q0("xf") - q0("xb"));
-	
-	cout << "Theta? " << theta << endl;
-	
+		
 	double laneWidth;
 	if (env.IsAvailable("lane_width"))
 		laneWidth = env("lane_width");

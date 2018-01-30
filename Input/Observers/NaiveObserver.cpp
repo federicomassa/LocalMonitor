@@ -58,7 +58,7 @@ void NaiveObserver::Run(const double& currentTime)
 		EnvironmentParameters interpolatedEnv = InterpolateEnvironment(++envTraj.begin(), envTraj.begin());
 		
 		UpdatePhase(interpolatedSelf, interpolatedOthers, interpolatedEnv);
-		lastUpdateTime = lastPredictedTime;
+		lastUpdateTime = mostRecentDataTime;
 	}
 	if (lastUpdateTime >= lastPredictedTime)
 	{
@@ -442,7 +442,7 @@ void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const 
 	const EnvironmentParameters& currentEnv = sensorOutput.RetrieveEnvironmentData();
 	
 	// if last prediction time is smaller than update time it means that it has updated but not started a new prediction
-	if (lastPredictionStartTime <= lastUpdateTime)
+	if (lastPredictionStartTime < lastUpdateTime)
 	{
 		selfTrajectory.clear();
 		othersTrajectory.clear();

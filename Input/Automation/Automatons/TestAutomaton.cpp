@@ -87,8 +87,6 @@ void TestAutomaton::DefineRules()
 void TestAutomaton::PreEvolve()
 {
 	oldManeuver = GetManeuver();
-	
-	cout << GetManeuver() << endl;
 }
 
 void TestAutomaton::PostEvolve()
@@ -103,13 +101,10 @@ void TestAutomaton::PostEvolve()
 		const double currentY = 1.0/2.0*(currentYf + currentYb);
 		
 		SetProperty("targetLaneBegin", Utility::ToString(floor(currentY/laneWidth)*laneWidth + laneWidth));
-		
-		cout << "Setting property" << endl;
 	}
 	
 	if (oldManeuver == "LEFT" && GetManeuver() != "LEFT")
 	{
-		cout << "Unsetting property" << endl;
 		UnsetProperty("targetLaneBegin");
 	}
 }

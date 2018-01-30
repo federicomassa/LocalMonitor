@@ -34,8 +34,8 @@ class NaiveEnvironment
 	
 	// a pLayer for each agent, an automaton just for the observed (the others have a simple model), a controller for each one (but simple for agents != observedID)
 	IMap<PhysicalLayer>* pLayer;
-	Automaton* automaton;
-	IMap<Controller*> controller;
+	std::shared_ptr<Automaton> automaton;
+	IMap<std::shared_ptr<Controller> > controller;
 	
 	// This methods are used to simulate sensors of observed agent
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);
@@ -48,6 +48,11 @@ public:
 	NaiveEnvironment(NaiveObserver* parent, const Agent&, const Maneuver&, const AgentVector&, const EnvironmentParameters&,
 		const std::vector<std::shared_ptr<ExternalSensor> >&, const std::vector<std::shared_ptr<InternalSensor> >&, const bool& hidden = true
 	);
+	
+	~NaiveEnvironment();
+	NaiveEnvironment(const NaiveEnvironment&);
+	const NaiveEnvironment& operator=(const NaiveEnvironment&);
+	
 	
 	void Predict(const double& predictionSpan);
 	

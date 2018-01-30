@@ -43,11 +43,6 @@ HighwayViewer::HighwayViewer(const SimulatorConfiguration &c) : SimulatorViewer(
     markDistance(ToDouble(c.GetCustomEntries().at("mark_distance"))),
     ffmpegWriter(VIDEO_OUTPUT)
 {	
-	cout << fixed << setprecision(3) << laneWidth << '\t' << markLength << '\t' << markWidth << '\t' << markDistance << endl;
-	
-	cout << fixed << setprecision(3) << c.GetCustomEntries().at("lane_width").c_str() << '\t' << c.GetCustomEntries().at("mark_length").c_str() << '\t' << c.GetCustomEntries().at("mark_width").c_str() << '\t' << c.GetCustomEntries().at("mark_distance").c_str() << endl;
-	
-	
 	//ui->setupUi(this);
     Q_INIT_RESOURCE(resources);
 	
@@ -236,9 +231,6 @@ void HighwayViewer::DrawVehicles(const SimulAgentVector& a)
 		
 		agentPixmap->setOffset(GetPixelX(x) - agentPixmap->pixmap().width()/2, GetPixelY(y) - agentPixmap->pixmap().height()/2);
 		
-		cout << "Draw vehicle " << agent->first << " at pix: " << GetPixelX(x) - agentPixmap->pixmap().width()/2 << 
-		" x " << GetPixelY(y) - agentPixmap->pixmap().height()/2 << endl;
-		
 	}
 }
 
@@ -339,13 +331,9 @@ void HighwayViewer::Encode()
 	
 	Frame* f = new Frame;
 	f->AddImage(imgPtr);
-	
-	cout << "B Frame: " << f->GetWidth() << " x " << f->GetHeight() << endl;
-	
+		
 	std::shared_ptr<Frame> framePtr(f);
-	
-	cout << "Frame: " << framePtr->GetWidth() << " x " << framePtr->GetHeight() << endl;
-	
+
 	ffmpegWriter.WriteFrame(framePtr);
 }
 

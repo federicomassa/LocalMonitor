@@ -25,10 +25,11 @@ NaiveEnvironment::NaiveEnvironment(NaiveObserver* parent, const Agent& s, const 
 	
 	hasHiddenAgent = hidden;
 	
+	pLayer = &parent->pLayer;
 	// == First set automaton and controller for observedID ====
-	automaton = InstantiateAutomaton(parent->controlModels(parent->observedID).GetAutomatonName());
+	automaton = shared_ptr<Automaton>(InstantiateAutomaton(parent->controlModels(parent->observedID).GetAutomatonName()));
 	
-	controller[parent->observedID] = InstantiateController(parent->controlModels(parent->observedID).GetControllerName());
+	controller[parent->observedID] = shared_ptr<Controller>(InstantiateController(parent->controlModels(parent->observedID).GetControllerName()));
 	
 	controller(parent->observedID)->SetControlModel(parent->controlModels(parent->observedID));
 	
@@ -46,13 +47,13 @@ NaiveEnvironment::NaiveEnvironment(NaiveObserver* parent, const Agent& s, const 
 			// Use default value when not specified
 			try
 			{
-				controller[itr->first] = InstantiateController(parent->controlModels(itr->first).GetControllerName());
+				controller[itr->first] = shared_ptr<Controller>(InstantiateController(parent->controlModels(itr->first).GetControllerName()));
 				
 				controller(itr->first)->SetControlModel(parent->controlModels(itr->first));
 			}
 			catch(out_of_range&)
 			{
-				controller[itr->first] = InstantiateController(parent->controlModels("__default__").GetControllerName());
+				controller[itr->first] = shared_ptr<Controller>(InstantiateController(parent->controlModels("__default__").GetControllerName()));
 				
 				controller(itr->first)->SetControlModel(parent->controlModels("__default__"));
 			}
@@ -63,6 +64,25 @@ NaiveEnvironment::NaiveEnvironment(NaiveObserver* parent, const Agent& s, const 
 			noOthersOutput.SetEnvironment(env);
 			controller(itr->first)->ReceiveSensorOutput(noOthersOutput, 0);
 		 }
+}
+
+NaiveEnvironment::~NaiveEnvironment()
+{
+}
+
+NaiveEnvironment::NaiveEnvironment(const NaiveEnvironment& e) : extSensors(e.extSensors), intSensors(e.intSensors)
+{
+	observer = e.observer;
+	
+	self = e.self;
+	selfManeuver = e.selfManeuver;
+	others = e.others;
+	env = e.env;
+	hasHiddenAgent = e.hasHiddenAgent;
+	
+	pLayer = e.pLayer;
+	automaton = e.automaton;
+	controller = e.controller;
 }
 
 SensorOutput NaiveEnvironment::SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams)
