@@ -16,19 +16,23 @@
 
 class NaiveObserver : public Observer
 {
+	friend class NaiveEnvironment;
 	// Each agent in the environment, including the hidden one, has its own dynamics and controller (usually only the observed one is complicated, and the others are simplified
+	
+	// Physical Layer is the same for each environment, automaton and controller have to be in each environment
 	IMap<PhysicalLayer> pLayer;
-	IMap<Automaton*> automaton;
-	IMap<Controller*> controller;
+	
+	// Save only models. Actual instantiations are in each NaiveEnvironment
+	IMap<ControlModel> controlModels;
 	
 	// ID of observed agent
 	std::string observedID;
 	
 	// This is the discretization step. Prediction is achieved by integrating q_dot in this time
-	int simulTimeStep;
+	int simulTimeSteps;
 	
 	// This is the total prediction time span, that is, the time interval from prediction to update 
-	int predictionTimeSpan;
+	double predictionTimeSpan;
 	
 	// Last time you begun a prediction
 	double lastPredictionStartTime;

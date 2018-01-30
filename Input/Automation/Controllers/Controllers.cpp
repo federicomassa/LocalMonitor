@@ -1,5 +1,6 @@
 #include "Controllers.h"
 #include "AccOmegaControl.h"
+#include "StraightLineControl.h"
 #include <iostream>
 
 Controller* InstantiateController(const std::string& controllerClassName) 
@@ -7,6 +8,10 @@ Controller* InstantiateController(const std::string& controllerClassName)
 	if (controllerClassName == "AccOmegaControl")
 	{
 		return new AccOmegaControl(controllerClassName);
+	}
+	else if (controllerClassName == "StraightLineControl")
+	{
+		return new StraightLineControl(controllerClassName);
 	}
 	else 
 		{

@@ -7,6 +7,7 @@
 #include "Utility/EnvironmentParameters.h"
 #include "Basic/Agent.h"
 #include "Automation/Control.h"
+#include "ControlModel.h"
 #include "Automation/SensorOutput.h"
 #include "Basic/Maneuver.h"
 
@@ -18,8 +19,13 @@ class Controller
 	TimedContainer<Agent> selfTrajectory;
 	TimedContainer<AgentVector> othersTrajectory;
 	TimedContainer<EnvironmentParameters> environmentTrajectory;
+	
+	ControlModel model;
 public:
 	Controller(const std::string&);
+	Controller(const Controller&);
+	const Controller& operator=(const Controller&);
+	
 	virtual void ComputeControl(Control&, const Maneuver&) const = 0;
 	
 	// By default, stores only last sensor data. If a different behaviour
@@ -32,6 +38,9 @@ public:
 	const TimedContainer<EnvironmentParameters>& GetEnvironmentTrajectory() const;
 	
 	const std::string& GetName() const;
+	
+	const ControlModel& GetControlModel() const;
+	void SetControlModel(const ControlModel&);
 	
 	virtual ~Controller();
 	

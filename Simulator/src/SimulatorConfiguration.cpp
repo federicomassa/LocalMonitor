@@ -359,6 +359,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 						Error("SimulatorConfiguration::ReadAgent", "BUG FIXME! Why is agent's controller or automaton already filled?");
 					
 					a.controller = InstantiateController(model->GetControllerName());
+					a.controller->SetControlModel(*model);
 					a.automaton = InstantiateAutomaton(model->GetAutomatonName());
 					a.automaton->SetPossibleManeuvers(model->GetManeuvers());
 					a.automaton->DefineRules();

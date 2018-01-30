@@ -6,13 +6,11 @@
 			"type" : "NaiveObserver",
 			"dynamic_model" : 
 			[
-			
 				{
 					"id" : "1",
 					"name" : "Unicycle1",
 					"state_variables" : ["x", "y", "theta", "v"],
 					"dynamics" : "TestKinematics",
-				
 					"control_variables" : ["a", "omega"],
 					"world_conversion_function" : "TestKinematicsToWorld",
 					"state_estimation_function" : "TestKinematicsToState",
@@ -23,19 +21,16 @@
 					"name" : "Unicycle1",
 					"state_variables" : ["x", "y", "theta", "v"],
 					"dynamics" : "TestKinematics",
-				
 					"control_variables" : ["a", "omega"],
 					"world_conversion_function" : "TestKinematicsToWorld",
 					"state_estimation_function" : "TestKinematicsToState",
 					"parameters" : ["length", "desiredV"]
 				},
-				
 				{
 					"id" : "__default__",
 					"name" : "Unicycle1",
 					"state_variables" : ["x", "y", "theta", "v"],
 					"dynamics" : "TestKinematics",
-				
 					"control_variables" : ["a", "omega"],
 					"world_conversion_function" : "TestKinematicsToWorld",
 					"state_estimation_function" : "TestKinematicsToState",
@@ -43,7 +38,6 @@
 				}
 			],
 				
-			
 			"control_model" :
 			[
 				{
@@ -54,31 +48,25 @@
 					"control_variables" : ["a", "omega"],
 					"automaton" : "TestAutomaton"
 				},
-				
 				{
 					"id" : "0",
 					"name" : "SimpleEuropean",
-					"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-					"init_maneuver" : "FAST",
-					"controller" : "AccOmegaControl",
-					"control_variables" : ["a", "omega"],
-					"automaton" : "TestAutomaton"
+					"maneuvers" : ["FAST"],
+					"controller" : "StraightLineControl",
+					"control_variables" : ["a", "omega"]
 				},
-				
 				{
 					"id" : "__default__",
 					"name" : "SimpleEuropean",
-					"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-					"init_maneuver" : "FAST",
-					"controller" : "AccOmegaControl",
-					"control_variables" : ["a", "omega"],
-					"automaton" : "TestAutomaton"
+					"maneuvers" : ["FAST"],
+					"controller" : "StraightLineControl",
+					"control_variables" : ["a", "omega"]
 				}
 			],
 			
 			"external_sensors" : ["VisionSensor"],
 			"internal_sensors" : ["SelfSensor"],
-			"simulation_time_step" : 0.5,
+			"simulation_steps" : 5,
 			"prediction_time_span" : 1,
 			
 			"hidden_range" : 
@@ -104,7 +92,6 @@
 			}
 		}
 	],
-	
 	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desiredV"], 
 	"world_environment_features" : ["lanes", "lane_width"]
 }

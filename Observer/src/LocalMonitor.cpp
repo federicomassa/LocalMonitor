@@ -33,7 +33,15 @@ void LocalMonitor::Configure(const std::string& configFilePath)
 	
 	
 	json j;
-	configFile >> j;
+	
+	try
+	{
+		configFile >> j;
+	}
+	catch(std::invalid_argument& e)
+	{
+		Error("LocalMonitor::Configure", string(e.what()));
+	}
 	
 	// ========= CHECK MANDATORY ENTRIES ============
 	std::vector<std::string> mandatoryEntries;

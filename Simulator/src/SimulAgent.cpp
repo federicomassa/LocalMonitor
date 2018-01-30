@@ -39,6 +39,7 @@ SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 	
 	// SimulAgent has ownership --> Pointers are reinstantiated, not copied
 	controller = InstantiateController(a.controller->GetName());
+	controller->SetControlModel(a.controller->GetControlModel());
 	
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();
@@ -61,6 +62,7 @@ SimulAgent& SimulAgent::operator=(const SimulAgent& a)
 	
 	agent = a.agent;
 	controller = InstantiateController(a.controller->GetName());
+	controller->SetControlModel(a.controller->GetControlModel());
 	
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();

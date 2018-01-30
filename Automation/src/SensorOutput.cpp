@@ -117,6 +117,21 @@ const EnvironmentParameters & SensorOutput::RetrieveEnvironmentData() const
 	return measuredEnvParams;
 }
 
+void SensorOutput::SetSelf(const Agent& a)
+{
+	selfMeasure = a;
+}
+
+void SensorOutput::SetOthers(const AgentVector& o)
+{
+	measuredAgents = o;
+}
+
+void SensorOutput::SetEnvironment(const EnvironmentParameters& e)
+{
+	measuredEnvParams = e;
+}
+
 
 
 

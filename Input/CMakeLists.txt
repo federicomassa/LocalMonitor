@@ -16,6 +16,7 @@ set(MODULE_SOURCE_DIR
 # TODO Automatize insertion of user-defined classes (controllers, automatons and such)
 set(MODULE_SOURCES
 	Automation/Controllers/AccOmegaControl.cpp
+	Automation/Controllers/StraightLineControl.cpp
     Automation/Sensors/VisionSensor.cpp
     Automation/Sensors/SelfSensor.cpp
     Dynamics/DynamicModels.cpp

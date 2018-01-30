@@ -1,4 +1,4 @@
-#include "AccOmegaControl.h"
+#include "StraightLineControl.h"
 #include "Utility/MyLogger.h"
 #include "Utility/LogFunctions.h"
 #include <math.h>
@@ -8,15 +8,15 @@
 using namespace LogFunctions;
 using namespace std;
 
-
-AccOmegaControl::AccOmegaControl(const std::string& className) : Controller(className)
+StraightLineControl::StraightLineControl(const std::string& className) : Controller(className)
 {
 }
 
 
-void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
+void StraightLineControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {
 	u = Control::GenerateStateOfType(GetControlModel().GetControlVariables());
+
 	
 	const double K = 0.5;
 	
@@ -29,13 +29,11 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	const double y = (q0("yb") + q0("yf"))/2.0;
 	const double theta = atan2(q0("yf") - q0("yb"), q0("xf") - q0("xb"));
 	
-	cout << "Theta? " << theta << endl;
-	
 	double laneWidth;
 	if (env.IsAvailable("lane_width"))
 		laneWidth = env("lane_width");
 	else
-		Error("AccOmegaControl::ComputeControl", "Environment lane width is needed");
+		Error("StraightLineControl::ComputeControl", "Environment lane width is needed");
 	
 	
 	double beginOfLaneY = floor(y/laneWidth)*laneWidth;
@@ -49,30 +47,8 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");
 		
 	}
-	else if (maneuver == "SLOW")
-	{
-		u("a") = -1000000;
-		if (fabs(theta) > 1E-9)
-			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
-		else
-			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");		
-	}
-	else if (maneuver == "LEFT")
-	{
-		u("a") = 0;
-		
-		// Max omega, saturation is given by the system in dynamics fcn
-		u("omega") = 10000;
-	}
-	else if (maneuver == "RIGHT")
-	{
-		u("a") = 0;
-		
-		// Max omega, saturation is given by the system in dynamics fcn
-		u("omega") = -10000;
-	}
 	else
-		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());
+		Error("StraightLineControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());
 	
 	
 }

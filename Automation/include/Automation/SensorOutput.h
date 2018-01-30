@@ -35,6 +35,10 @@ public:
 	const AgentVector& RetrieveOtherAgentsData() const;
 	const EnvironmentParameters& RetrieveEnvironmentData() const;
 	
+	void SetSelf(const Agent&);
+	void SetOthers(const AgentVector&);
+	void SetEnvironment(const EnvironmentParameters&);
+	
 	
 };
 

@@ -6,20 +6,36 @@
 #include "Basic/Agent.h"
 #include "Utility/EnvironmentParameters.h"
 #include "Automation/SensorOutput.h"
+#include "Basic/Maneuver.h"
+#include "Utility/IMap.h"
+#include "Automation/PhysicalLayer.h"
 #include <memory>
 
 class ExternalSensor;
 class InternalSensor;
+class NaiveObserver;
+class Controller;
+class Automaton;
 
 class NaiveEnvironment
 {
+	friend class NaiveObserver;
+	
+	NaiveObserver* observer;
+	
 	const std::vector<std::shared_ptr<ExternalSensor> >& extSensors;
 	const std::vector<std::shared_ptr<InternalSensor> >& intSensors;
 	
 	Agent self;
+	Maneuver selfManeuver;
 	AgentVector others;
 	EnvironmentParameters env;
 	bool hasHiddenAgent;
+	
+	// a pLayer for each agent, an automaton just for the observed (the others have a simple model), a controller for each one (but simple for agents != observedID)
+	IMap<PhysicalLayer>* pLayer;
+	Automaton* automaton;
+	IMap<Controller*> controller;
 	
 	// This methods are used to simulate sensors of observed agent
 	SensorOutput SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams);
@@ -29,10 +45,11 @@ class NaiveEnvironment
 	InternalSensorOutput RetrieveInternalSensorOutput(const std::string& sensorName, const Agent& trueSelfInWorld);
 	
 public:
-	NaiveEnvironment(const Agent&, const AgentVector&, const EnvironmentParameters&,
+	NaiveEnvironment(NaiveObserver* parent, const Agent&, const Maneuver&, const AgentVector&, const EnvironmentParameters&,
 		const std::vector<std::shared_ptr<ExternalSensor> >&, const std::vector<std::shared_ptr<InternalSensor> >&, const bool& hidden = true
 	);
 	
+	void Predict(const double& predictionSpan);
 	
 	
 };

@@ -2,19 +2,67 @@
 #include "Automation/ExternalSensor.h"
 #include "Automation/InternalSensor.h"
 #include "Utility/LogFunctions.h"
+#include "NaiveObserver.h"
+#include "Automation/Controller.h"
+#include "Automation/PhysicalLayer.h"
+#include "Automation/Automaton.h"
+#include "Automation/Automatons/Automatons.h"
+#include "Automation/Controllers/Controllers.h"
+#include "Automation/Sensors/Sensors.h"
 #include <string>
 
 using namespace std;
 using namespace LogFunctions;
 
-NaiveEnvironment::NaiveEnvironment(const Agent& s, const AgentVector& o, const EnvironmentParameters& e, 
+NaiveEnvironment::NaiveEnvironment(NaiveObserver* parent, const Agent& s, const Maneuver& man, const AgentVector& o, const EnvironmentParameters& e, 
 	const std::vector<std::shared_ptr<ExternalSensor> >& extSens,
-	const std::vector<std::shared_ptr<InternalSensor> >& intSens, const bool& hidden) : extSensors(extSens), intSensors(intSens)
+	const std::vector<std::shared_ptr<InternalSensor> >& intSens, const bool& hidden) : observer(parent), extSensors(extSens), intSensors(intSens)
 {
 	SensorOutput output = SimulateSensors(s, o, e);
 	
 	output.RetrieveSensorData(self, others, env);
+	selfManeuver = man;
+	
 	hasHiddenAgent = hidden;
+	
+	// == First set automaton and controller for observedID ====
+	automaton = InstantiateAutomaton(parent->controlModels(parent->observedID).GetAutomatonName());
+	
+	controller[parent->observedID] = InstantiateController(parent->controlModels(parent->observedID).GetControllerName());
+	
+	controller(parent->observedID)->SetControlModel(parent->controlModels(parent->observedID));
+	
+	// FIXME Time here is relative to beginning of prediction
+	controller(parent->observedID)->ReceiveSensorOutput(output, 0);
+	automaton->ReceiveSensorOutput(output, 0);
+	// =========================================================
+	
+	
+	// Now set controller for everyone else (simplistic model)
+	for (auto itr = o.begin(); itr != o.end();
+		 itr++)
+		 {
+			 
+			// Use default value when not specified
+			try
+			{
+				controller[itr->first] = InstantiateController(parent->controlModels(itr->first).GetControllerName());
+				
+				controller(itr->first)->SetControlModel(parent->controlModels(itr->first));
+			}
+			catch(out_of_range&)
+			{
+				controller[itr->first] = InstantiateController(parent->controlModels("__default__").GetControllerName());
+				
+				controller(itr->first)->SetControlModel(parent->controlModels("__default__"));
+			}
+			
+			// Other agents only see themselves without further simulation. Their model should be pretty simple as they must only need this.
+			SensorOutput noOthersOutput;
+			noOthersOutput.SetSelf(others.at(itr->first));
+			noOthersOutput.SetEnvironment(env);
+			controller(itr->first)->ReceiveSensorOutput(noOthersOutput, 0);
+		 }
 }
 
 SensorOutput NaiveEnvironment::SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams)
@@ -137,3 +185,17 @@ InternalSensorOutput NaiveEnvironment::RetrieveInternalSensorOutput(const std::s
 	
 	return output;
 }
+
+void NaiveEnvironment::Predict(const double& predictionSpan)
+{
+	double predictionTime = 0;
+	double simulationStep = observer->pLayer.begin()->second.GetSimulationTimeStep();
+	while (predictionTime < predictionSpan)
+	{
+		Control selfControl;
+		controller(self.GetID())->ComputeControl(selfControl, selfManeuver);
+		
+		predictionTime += simulationStep;
+	}
+}
+

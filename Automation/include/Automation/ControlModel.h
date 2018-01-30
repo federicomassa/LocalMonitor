@@ -4,7 +4,6 @@
 #include <vector>
 #include <string>
 
-#include "Controller.h"
 #include "Basic/Maneuver.h"
 
 class ControlModel

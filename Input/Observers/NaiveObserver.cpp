@@ -17,11 +17,10 @@ using namespace LogFunctions;
 using namespace nlohmann;
 
 // TODO: there is no check that automaton's transitions are among maneuvers in control model 
-
 NaiveObserver::NaiveObserver(const std::string& name) : Observer(name)
 {
 	observedID = "";
-	simulTimeStep = -1;
+	simulTimeSteps = -1;
 	predictionTimeSpan = -1;
 	lastPredictionStartTime = -1;
 	lastPredictedTime = -1;
@@ -30,11 +29,6 @@ NaiveObserver::NaiveObserver(const std::string& name) : Observer(name)
 
 NaiveObserver::~NaiveObserver()
 {
-	for (auto itr = automaton.begin(); itr != automaton.end(); itr++)
-		delete itr->second;
-	
-	for (auto itr = controller.begin(); itr != controller.end(); itr++)
-		delete itr->second;
 }
 
 void NaiveObserver::Run(const double& currentTime)
@@ -85,7 +79,7 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 	mandatoryEntries.push_back("type");
 	mandatoryEntries.push_back("dynamic_model");
 	mandatoryEntries.push_back("control_model");
-	mandatoryEntries.push_back("simulation_time_step");
+	mandatoryEntries.push_back("simulation_steps");
 	mandatoryEntries.push_back("prediction_time_span");
 	mandatoryEntries.push_back("hidden_range");
 	mandatoryEntries.push_back("hidden_resolution");
@@ -146,20 +140,26 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 
 	try
 	{
-		controller("__default__");
-		automaton("__default__");
+		controlModels("__default__");
 	}
 	catch(out_of_range&)
 	{
-		Error("NaiveObserver::Configure", "You must specified a control model for ID \'__default__\'");
+		Error("NaiveObserver::Configure", "You must specify a control model for ID \'__default__\'");
 	}
 
-	simulTimeStep = observingJson.at("simulation_time_step").get<double>();
+	if (!observingJson.at("simulation_steps").is_number_integer())
+		Error("NaiveObserver::Configure", "\'simulation_steps\' must be an integer");
+		
+	simulTimeSteps = observingJson.at("simulation_steps").get<int>();
+	Require(simulTimeSteps > 0, "NaiveObserver::Configure", "\'simulation_steps\' must be > 0");
 	
-	for (auto itr = pLayer.begin(); itr != pLayer.end(); itr++)
-		itr->second.SetSimulationTimeStep(simulTimeStep);
+	if (!observingJson.at("prediction_time_span").is_number())
+		Error("NaiveObserver::Configure", "\'prediction_time_span\' must be a number");
 	
 	predictionTimeSpan = observingJson.at("prediction_time_span").get<double>();
+	
+	for (auto itr = pLayer.begin(); itr != pLayer.end(); itr++)
+		itr->second.SetSimulationTimeStep(predictionTimeSpan/double(simulTimeSteps));
 	
 	nlohmann::json rangeJson = observingJson.at("hidden_range");
 	if (!rangeJson.is_object())
@@ -287,7 +287,7 @@ void NaiveObserver::ReadDynamicModel(const nlohmann::json& dynJ)
 }
 
 void NaiveObserver::ReadControlModel(const nlohmann::json& controlJ)
-{
+{	
 	// ========= CHECK MANDATORY ENTRIES ============
 	vector<string> mandatoryEntries;
 	mandatoryEntries.push_back("id");
@@ -295,12 +295,16 @@ void NaiveObserver::ReadControlModel(const nlohmann::json& controlJ)
 	mandatoryEntries.push_back("maneuvers");
 	mandatoryEntries.push_back("controller");
 	mandatoryEntries.push_back("control_variables");
-	mandatoryEntries.push_back("automaton");
 	
-	// This is mandatory for each non observed agent
-	if (controlJ.at("id").get<string>() != observedID)
-		mandatoryEntries.push_back("init_maneuver");
-	
+	try
+	{
+		if (controlJ.at("id").get<string>() == observedID)
+			mandatoryEntries.push_back("automaton");
+	}
+	catch (out_of_range&)
+	{
+		Error("NaiveObserver::ReadControlModel", string("Mandatory entry \'id\' not found in observer configuration file, inside observing entry of agent ") + observedID + ", in \'control_model\'");
+	}
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
 	{
@@ -310,33 +314,50 @@ void NaiveObserver::ReadControlModel(const nlohmann::json& controlJ)
 		}
 		catch(out_of_range&)
 		{
-			Error("NaiveObserver::ReadControlModel", string("Mandatory entry \'") + *itr + "\' not found in observer configuration file, inside observing entry of agent " + GetObservedID() + ", in control_model"); 
+			Error("NaiveObserver::ReadControlModel", string("Mandatory entry \'") + *itr + "\' not found in observer configuration file, inside observing entry of agent " + GetObservedID() + ", in \'control_model\'"); 
 		}
 	}
 	// =============================================
+	string ID = controlJ.at("id").get<string>();
 	
-	controller[controlJ.at("id").get<string>()] = InstantiateController(controlJ.at("controller").get<string>());
+	controlModels[ID].SetName(controlJ.at("name").get<string>());
 	
-	// FIXME Set but not simulated
-	automaton[controlJ.at("id").get<string>()] = InstantiateAutomaton(controlJ.at("automaton").get<string>());
+	controlModels[ID].SetController(controlJ.at("controller").get<string>());
+	
+	if (observedID == controlJ.at("id").get<string>())
+		controlModels[ID].SetAutomaton(controlJ.at("automaton").get<string>());
 	
 	vector<string> controlVars;
 	json controlVarsJ = controlJ.at("control_variables");
 	
 	if (!controlVarsJ.is_array())
-		Error("NaiveObserver::ReadDynamicModel", "control_variables should be an array");
+		Error("NaiveObserver::ReadControlModel", "control_variables should be an array");
 	
 	for (auto itr = controlVarsJ.begin(); itr != controlVarsJ.end(); itr++)
 		controlVars.push_back(itr->get<string>());
 	
+	controlModels[ID].SetControlVariables(controlVars);
 	Require(pLayer.at(controlJ.at("id").get<string>()).GetDynamicModel().GetControlVariables() == controlVars, "NaiveObserver::ReadControlModel", "control_model and dynamic_model must have same control variables");
 	
+
+	vector<Maneuver> possibleMan;
+	json possibleManJ = controlJ.at("maneuvers");
+	
+	if (!possibleManJ.is_array())
+		Error("NaiveObserver::ReadControlModel", "control_variables should be an array");
+	
+	for (auto itr = possibleManJ.begin(); itr != possibleManJ.end(); itr++)
+		possibleMan.push_back(Maneuver(itr->get<string>()));
+	
+	controlModels[ID].SetManeuvers(possibleMan);
+	
 	// When defining models of other agents (not the observed one, you 
-	// must specified an init_maneuver that remains the same (the automaton is not actually run). This is a simplified model 
+	// must specified a single maneuver that remains the same (the automaton is not actually run). This is a simplified model 
 	if (controlJ.at("id").get<string>() != observedID)
 	{
-		
+		Require(possibleMan.size() == 1, "NaiveObserver::ReadControlModel", "Agents different from the observed one must have a simple control model with ONE maneuver");
 	}	
+	
 }
 
 void NaiveObserver::ReadRange(const nlohmann::json& rangeJ)
@@ -512,7 +533,11 @@ void NaiveObserver::PredictPhase()
 	EnvironmentParameters initEnv = environmentTrajectory.begin().value();
 	
 	// Build first hypothesis of no hidden agents
-	environments.push_back(NaiveEnvironment(initSelf, initOthers, initEnv, extSensors, intSensors, false));
+	const std::vector<Maneuver>& possibleManeuvers = controlModels(observedID).GetManeuvers();
+	
+	for (auto itr = possibleManeuvers.begin(); itr != possibleManeuvers.end();
+		 itr++)
+	environments.push_back(NaiveEnvironment(this, initSelf, *itr, initOthers, initEnv, extSensors, intSensors, false));
 	
 	for (auto itr = hiddenInitState.begin(); itr != hiddenInitState.end(); itr++)
 	{
@@ -533,8 +558,13 @@ void NaiveObserver::PredictPhase()
 		// Add hidden agent to the others
 		totInitOthers["__hidden__"] = hiddenWorld;
 		
-		environments.push_back(NaiveEnvironment(initSelf, totInitOthers, initEnv, extSensors, intSensors));
+		for (auto itr = possibleManeuvers.begin(); itr != possibleManeuvers.end();
+		 itr++)
+		environments.push_back(NaiveEnvironment(this, initSelf, *itr, totInitOthers, initEnv, extSensors, intSensors));
 	}
+	
+	for (auto itr = environments.begin(); itr != environments.end(); itr++)
+		itr->Predict(predictionTimeSpan);
 }
 
 void NaiveObserver::UpdatePhase(const Agent&, const AgentVector&, const EnvironmentParameters&)
