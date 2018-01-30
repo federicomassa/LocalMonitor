@@ -95,3 +95,8 @@ bool ControlModel::operator==(const ControlModel& model) const
 	return (name == model.name);
 }
 
+const std::vector<Maneuver> & ControlModel::GetPossibleManeuvers() const
+{
+	return maneuvers;
+}
+

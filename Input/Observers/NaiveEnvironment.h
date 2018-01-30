@@ -30,10 +30,15 @@ class NaiveEnvironment
 	Maneuver selfManeuver;
 	AgentVector others;
 	EnvironmentParameters env;
-	bool hasHiddenAgent;
 	
+	// In local coordinates (state variables)
+	Agent localSelf;
+	AgentVector localOthers;
+	
+	bool hasHiddenAgent;
+		
 	// a pLayer for each agent, an automaton just for the observed (the others have a simple model), a controller for each one (but simple for agents != observedID)
-	IMap<PhysicalLayer>* pLayer;
+	IMap<PhysicalLayer> pLayer;
 	std::shared_ptr<Automaton> automaton;
 	IMap<std::shared_ptr<Controller> > controller;
 	

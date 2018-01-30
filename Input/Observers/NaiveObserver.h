@@ -42,6 +42,10 @@ class NaiveObserver : public Observer
 	// Last time you updated the prediction
 	double lastUpdateTime;
 	
+	// Array of world vars
+	std::vector<std::string> worldAgentVars;
+
+	
 	// This is the mapping range FIXME right now the mapping
 	// is done in this range, without considering visibility
 	IMap<std::pair<double, double> > varRange;
@@ -97,6 +101,8 @@ public:
 	~NaiveObserver();
 	void Run(const double& currentTime) override;
 	void Configure(const nlohmann::json&) override;
+	void PreConfigure(const nlohmann::json&) override;
+
 	void ReceiveSensorOutput(const SensorOutput&, const double& currentTime) override;
 
 	

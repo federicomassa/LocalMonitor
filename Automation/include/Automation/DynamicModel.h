@@ -47,7 +47,11 @@ public:
 	void SetStateConversionToWorld(StateConversionFcn);
 	void SetStateConversionToState(StateConversionFcn);
 	void Run(State&, const Agent&, const Control&, const double&) const;
+	
+	// Conversion functions
 	State GetWorldState(const Agent&, const State& modelWorldState) const;
+	Agent GetLocalState(const Agent&, const State& modelLocalState) const;
+
 	void SetControlVariables(const std::vector<std::string>&);
 	const std::string& GetName() const;
 	const std::vector<std::string>& GetStateVariables() const;

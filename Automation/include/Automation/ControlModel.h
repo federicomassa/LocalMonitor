@@ -33,7 +33,7 @@ public:
 	const std::vector<std::string>& GetControlVariables() const;
 	const std::string& GetAutomatonName() const;
 	const std::string& GetControllerName() const;
-	const std::vector<std::string>& GetPossibleManeuvers() const;
+	const std::vector<Maneuver>& GetPossibleManeuvers() const;
 };
 
 #endif

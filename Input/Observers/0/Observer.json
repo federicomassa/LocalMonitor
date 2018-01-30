@@ -50,14 +50,14 @@
 				},
 				{
 					"id" : "0",
-					"name" : "SimpleEuropean",
+					"name" : "Simplistic",
 					"maneuvers" : ["FAST"],
 					"controller" : "StraightLineControl",
 					"control_variables" : ["a", "omega"]
 				},
 				{
 					"id" : "__default__",
-					"name" : "SimpleEuropean",
+					"name" : "Simplistic",
 					"maneuvers" : ["FAST"],
 					"controller" : "StraightLineControl",
 					"control_variables" : ["a", "omega"]
@@ -92,6 +92,7 @@
 			}
 		}
 	],
+	
 	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desiredV"], 
 	"world_environment_features" : ["lanes", "lane_width"]
 }

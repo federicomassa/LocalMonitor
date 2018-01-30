@@ -13,6 +13,7 @@ class SensorOutput;
 class LocalMonitor
 {
 	std::vector<Observer*> observers;
+	nlohmann::json j;
 	
 	void ReadObserving(const nlohmann::json&);
 public:

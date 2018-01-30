@@ -70,9 +70,39 @@ void NaiveObserver::Run(const double& currentTime)
 	
 }
 
+void NaiveObserver::PreConfigure(const nlohmann::json& j)
+{
+	// ========= CHECK MANDATORY ENTRIES ============
+	vector<string> mandatoryEntries;
+	mandatoryEntries.push_back("world_agent_features");
+	
+	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
+	{
+		try
+		{
+			j.at(*itr);
+		}
+		catch(out_of_range&)
+		{
+			Error("NaiveObserver::PreConfigure", string("Mandatory entry ") + *itr + " not found in observer configuration file"); 
+		}
+	}
+	// =============================================
+	
+	json worldAgentJ = j.at("world_agent_features");
+	
+	if (!worldAgentJ.is_array())
+		Error("NaiveObserver::ReadDynamicModel", "\'world_agent_features\' should be an array");
+	
+	for (auto itr = worldAgentJ.begin(); itr != worldAgentJ.end(); itr++)
+		worldAgentVars.push_back(itr->get<string>());
+	
+}
+
 
 void NaiveObserver::Configure(const nlohmann::json& observingJson)
 {
+	
 	// ========= CHECK MANDATORY ENTRIES ============
 	vector<string> mandatoryEntries;
 	mandatoryEntries.push_back("id");
@@ -217,6 +247,7 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 		Info("NaiveObserver::Configure", string("No internal sensors defined in \'observing\' agent with ID \'") + observingJson.at("id").get<string>() + "\'."); 
 	}
 
+	
 	
 	// FIXME Someday this will be computed for each run because it might depend on visibility
 	for (auto itr = pLayer(observedID).GetDynamicModel().GetStateVariables().begin(); 

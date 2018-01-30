@@ -113,6 +113,22 @@ State DynamicModel::GetWorldState(const Agent& a, const State& modelWorldState) 
 	return worldAgent.GetState();
 }
 
+Agent DynamicModel::GetLocalState(const Agent& a, const State& modelLocalState) const
+{
+	State convertedState = State::GenerateStateOfType(modelLocalState);
+	Agent localAgent;
+	
+	localAgent.SetID(a.GetID());
+	localAgent.SetState(convertedState);
+	
+	if (IsSet())
+		conversionFcnToState(localAgent, a);
+	else
+		Error("DynamicModel::GetLocalState", "Cannot call GetLocalState without setting the dynamic model first");
+	
+	return localAgent;
+}
+
 void DynamicModel::SetControlVariables(const vector<string>& s)
 {
 	isControlVarsSet = true;

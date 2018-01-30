@@ -31,9 +31,6 @@ void LocalMonitor::Configure(const std::string& configFilePath)
 		return;
 	}
 	
-	
-	json j;
-	
 	try
 	{
 		configFile >> j;
@@ -100,6 +97,7 @@ void LocalMonitor::ReadObserving(const basic_json<>& observingJson)
 	Observer* observer = InstantiateObserver(observerType);
 	observer->SetClassName(observerType);
 	observer->SetObservedID(observedID);
+	observer->PreConfigure(j);
 	observer->Configure(observingJson);
 	
 	observers.push_back(observer);

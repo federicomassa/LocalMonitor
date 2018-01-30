@@ -73,3 +73,9 @@ void Observer::SetObservedID(const std::string& id)
 // By default, it does not do anything
 void Observer::Configure(const nlohmann::json& observingJson)
 {}
+
+// By default, it does not do anything
+void Observer::PreConfigure(const nlohmann::json& topJson)
+{}
+
+

@@ -20,12 +20,35 @@ NaiveEnvironment::NaiveEnvironment(NaiveObserver* parent, const Agent& s, const 
 {
 	SensorOutput output = SimulateSensors(s, o, e);
 	
+	// Populate map
+	for (auto itr = o.begin(); itr != o.end(); itr++)
+		localOthers[itr->first];
+	
+//	MyLogger logger(std::cout);
+//	logger << localOthers << logger.EndL();
+	
 	output.RetrieveSensorData(self, others, env);
 	selfManeuver = man;
 	
 	hasHiddenAgent = hidden;
 	
-	pLayer = &parent->pLayer;
+	// Initialize pLayers ===============================
+	for (auto itr = o.begin(); itr != o.end(); itr++)
+	{
+		try
+		{
+			pLayer[itr->first] = observer->pLayer(itr->first);
+		}
+		catch(out_of_range&)
+		{
+			pLayer[itr->first] = observer->pLayer("__default__");
+		}
+	}
+	
+	pLayer[observer->observedID] = observer->pLayer(observer->observedID);
+	
+	// ===================================================
+	
 	// == First set automaton and controller for observedID ====
 	automaton = shared_ptr<Automaton>(InstantiateAutomaton(parent->controlModels(parent->observedID).GetAutomatonName()));
 	
@@ -77,10 +100,15 @@ NaiveEnvironment::NaiveEnvironment(const NaiveEnvironment& e) : extSensors(e.ext
 	self = e.self;
 	selfManeuver = e.selfManeuver;
 	others = e.others;
+	
+	localSelf = e.localSelf;
+	localOthers = e.localOthers;
+	
 	env = e.env;
 	hasHiddenAgent = e.hasHiddenAgent;
 	
-	pLayer = e.pLayer;
+	pLayer = e.pLayer
+	;
 	automaton = e.automaton;
 	controller = e.controller;
 }
@@ -210,12 +238,109 @@ void NaiveEnvironment::Predict(const double& predictionSpan)
 {
 	double predictionTime = 0;
 	double simulationStep = observer->pLayer.begin()->second.GetSimulationTimeStep();
+	
+	MyLogger logger(std::cout);
+	logger << localOthers << logger.EndL();
+	
+	// =========== CONVERT WORLD TO STATE ============
+	for (auto itr = pLayer.begin(); itr != pLayer.end(); itr++)
+	{
+		if (!hasHiddenAgent && itr->first == "__hidden__")
+				continue;
+		
+		if (itr->first == observer->observedID)
+		{
+			localSelf = pLayer(itr->first).GetDynamicModel().GetLocalState(self,
+																				   State::GenerateStateOfType(pLayer(itr->first).GetDynamicModel()));
+		}
+		else
+		{
+			logger << "... " << itr->first << logger.EndL();
+			
+			localOthers.at(itr->first) = pLayer(itr->first).GetDynamicModel().GetLocalState(others.at(itr->first),
+																				   State::GenerateStateOfType(pLayer(itr->first).GetDynamicModel()));
+		}
+			
+	}
+	
+	
+	// ===============================================
+	
+	// Now run physical layer on local variables, then convert again to update agents expressed in world variables
 	while (predictionTime < predictionSpan)
 	{
-		Control selfControl;
-		controller(self.GetID())->ComputeControl(selfControl, selfManeuver);
+		for (auto itr = controller.begin(); itr != controller.end(); itr++)
+		{
+			Control control;
+			
+			Maneuver currManeuver;
+			if (itr->first == observer->observedID)
+				currManeuver = selfManeuver;
+			else
+			{
+				currManeuver = *(itr->second->GetControlModel().GetPossibleManeuvers().begin());
+			}
+			
+			controller(itr->first)->ComputeControl(control, currManeuver);
+						
+			State q;
+			
+			if (itr->first == observer->observedID)
+				q = pLayer(itr->first).GetNextState(localSelf, control);
+			else
+				q = pLayer(itr->first).GetNextState(localOthers.at(itr->first), control);
+			
+			
+			if (itr->first == observer->observedID)
+				localSelf.SetState(q);
+			else
+				localOthers.at(itr->first).SetState(q);
+		}
+		
+		// Now re-convert to world and update measures (without sensor simulation)
+		for (auto itr = pLayer.begin(); itr != pLayer.end(); itr++)
+		{
+			if (itr->first == observer->observedID)
+			{
+				State convertedState = itr->second.GetDynamicModel().GetWorldState(localSelf, State::GenerateStateOfType(observer->worldAgentVars));
+				
+				self.SetState(convertedState);
+			}
+			else
+			{
+				State convertedState = itr->second.GetDynamicModel().GetWorldState(localOthers.at(itr->first), State::GenerateStateOfType(observer->worldAgentVars));
+				
+				others.at(itr->first).SetState(convertedState);
+			}
+		}
 		
 		predictionTime += simulationStep;
+		
+		// Now update controllers and automaton
+		for (auto itr = controller.begin(); itr != controller.end(); itr++)
+		{
+			SensorOutput output;
+			if (itr->first == observer->observedID)
+			{
+				output.SetSelf(self);
+				output.SetOthers(others);
+				output.SetEnvironment(env);
+				
+				// Use updated time
+				itr->second->ReceiveSensorOutput(output, predictionTime);
+				automaton->ReceiveSensorOutput(output, predictionTime);
+			}
+			else
+			{
+				output.SetSelf(others.at(itr->first));
+				output.SetEnvironment(env);
+				
+				// Use updated time and update controller only (there is no automaton)
+				itr->second->ReceiveSensorOutput(output, predictionTime);
+			}
+		}
+		
+		
 	}
 }
 

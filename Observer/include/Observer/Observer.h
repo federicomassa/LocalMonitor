@@ -43,6 +43,7 @@ public:
 	virtual void Run(const double& currentTime) = 0;
 	
 	// This is useful to customize observer configuration file for each type of observer. By default, only "observing" entry is mandatory and inside it only "id" and "type" entries are mandatory. With this, you can add more.
+	virtual void PreConfigure(const nlohmann::json&);
 	virtual void Configure(const nlohmann::json&);
 };
 
