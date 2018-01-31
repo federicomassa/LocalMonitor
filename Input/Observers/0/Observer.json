@@ -66,14 +66,14 @@
 			
 			"external_sensors" : ["VisionSensor"],
 			"internal_sensors" : ["SelfSensor"],
-			"simulation_steps" : 5,
+			"simulation_steps" : 21,
 			"prediction_time_span" : 1,
 			
 			"hidden_range" : 
 			{
 				"x" : [0, 10],
 				"y" : [0, 12],
-				"theta" : [-3.14, 3.14],
+				"theta" : [-0.7, 0.7],
 				"v" : [0, 20]
 			},
 			

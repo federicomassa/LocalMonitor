@@ -66,12 +66,7 @@ ControlModel::~ControlModel()
 
 ControlModel::ControlModel(const ControlModel& m) 
 {
-	name = m.name;
-	maneuvers = m.maneuvers;
-	controlVars = m.controlVars;
-	controllerClassName = m.controllerClassName;
-	automatonClassName = m.automatonClassName;
-	
+	*this = m;
 }
 
 
@@ -81,7 +76,9 @@ ControlModel & ControlModel::operator=(const ControlModel& m)
 	maneuvers = m.maneuvers;
 	controlVars = m.controlVars;
 	controllerClassName = m.controllerClassName;
-
+	automatonClassName = m.automatonClassName;
+	
+	return *this;
 }
 
 

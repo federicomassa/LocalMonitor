@@ -18,7 +18,7 @@ void TestKinematicsToState(Agent& localState, const Agent& agent)
 	localState("x") = 0.5*(agent("xb") + agent("xf"));
 	localState("y") = 0.5*(agent("yb") + agent("yf"));
 	
-	localState("theta") = atan2(agent("xf") - agent("xb"), agent("yf") - agent("yb"));
+	localState("theta") = atan2(agent("yf") - agent("yb"), agent("xf") - agent("xb"));
 	localState("v") = agent("v");
 }
 

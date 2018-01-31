@@ -18,7 +18,7 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 {
 	u = Control::GenerateStateOfType(GetControlModel().GetControlVariables());
 	
-	const double K = 0.5;
+	const double K = 1;
 	
 	const State& q0 = GetSelfTrajectory().begin().value().GetState();
 	
@@ -37,23 +37,26 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	
 	
 	double beginOfLaneY = floor(y/laneWidth)*laneWidth;
+	double centerOfLaneY = beginOfLaneY + laneWidth/2.0;
+	
+	std::cout << "CENTER: " << maneuver << '\t' << GetSelfTrajectory().begin().value().GetID() << '\t' << y << '\t' << "theta: " << theta << std::endl;
 	
 	if (maneuver == "FAST")
 	{
 		u("a") = 10000000;
 		if (fabs(theta) > 1E-9)
-			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
+			u("omega") = -(y - centerOfLaneY)*q0("v")*sin(theta)/theta - K*q0("v")*theta;
 		else
-			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");
+			u("omega") = -(y - centerOfLaneY)*q0("v");
 		
 	}
 	else if (maneuver == "SLOW")
 	{
 		u("a") = -1000000;
 		if (fabs(theta) > 1E-9)
-			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v")*sin(theta)/theta - K*q0("v")*theta;
+			u("omega") = -(y - centerOfLaneY)*q0("v")*sin(theta)/theta - K*q0("v")*theta;
 		else
-			u("omega") = -(y - (beginOfLaneY + laneWidth/2.0))*q0("v");		
+			u("omega") = -(y - centerOfLaneY)*q0("v");		
 	}
 	else if (maneuver == "LEFT")
 	{
@@ -72,5 +75,5 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	else
 		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());
 	
-	
+	std::cout << "omega: " << u("omega") << std::endl;
 }

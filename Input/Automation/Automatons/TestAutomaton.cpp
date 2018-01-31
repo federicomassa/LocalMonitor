@@ -71,7 +71,7 @@ void TestAutomaton::DefineRules()
 	
 	set<string> ev1;
 	ev1.insert("MinLane");
-	AddTransition("FAST", "LEFT", ev1);
+	//AddTransition("FAST", "LEFT", ev1);
 	
 	set<string> subs2;
 	subs2.insert("TargetLane");

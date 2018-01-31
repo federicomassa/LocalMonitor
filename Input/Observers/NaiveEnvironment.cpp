@@ -239,9 +239,6 @@ void NaiveEnvironment::Predict(const double& predictionSpan)
 	double predictionTime = 0;
 	double simulationStep = observer->pLayer.begin()->second.GetSimulationTimeStep();
 	
-	MyLogger logger(std::cout);
-	logger << localOthers << logger.EndL();
-	
 	// =========== CONVERT WORLD TO STATE ============
 	for (auto itr = pLayer.begin(); itr != pLayer.end(); itr++)
 	{
@@ -254,9 +251,7 @@ void NaiveEnvironment::Predict(const double& predictionSpan)
 																				   State::GenerateStateOfType(pLayer(itr->first).GetDynamicModel()));
 		}
 		else
-		{
-			logger << "... " << itr->first << logger.EndL();
-			
+		{			
 			localOthers.at(itr->first) = pLayer(itr->first).GetDynamicModel().GetLocalState(others.at(itr->first),
 																				   State::GenerateStateOfType(pLayer(itr->first).GetDynamicModel()));
 		}
@@ -343,4 +338,26 @@ void NaiveEnvironment::Predict(const double& predictionSpan)
 		
 	}
 }
+
+const Agent & NaiveEnvironment::GetSelf() const
+{
+	return self;
+}
+
+const AgentVector & NaiveEnvironment::GetOthers() const
+{
+	return others;
+}
+
+const EnvironmentParameters & NaiveEnvironment::GetEnvironment() const
+{
+	return env;
+}
+
+const Maneuver & NaiveEnvironment::GetManeuver() const
+{
+	return selfManeuver;
+}
+
+
 

@@ -63,6 +63,7 @@ void NaiveObserver::Run(const double& currentTime)
 	if (lastUpdateTime >= lastPredictedTime)
 	{
 		std::cout << "PREDICT PHASE" << std::endl;
+		
 		PredictPhase();
 		lastPredictionStartTime = mostRecentDataTime;
 		lastPredictedTime = mostRecentDataTime + predictionTimeSpan;
@@ -598,8 +599,18 @@ void NaiveObserver::PredictPhase()
 		itr->Predict(predictionTimeSpan);
 }
 
-void NaiveObserver::UpdatePhase(const Agent&, const AgentVector&, const EnvironmentParameters&)
+void NaiveObserver::UpdatePhase(const Agent& newSelf, const AgentVector& newOthers, const EnvironmentParameters& newEnv)
 {
+	MyLogger logger(std::cout);
+	
+	for (auto itr = environments.begin(); itr != environments.end(); itr++)
+	{
+		// Compare prediction with real data
+		State diff = itr->GetSelf().GetState() - newSelf.GetState();
+		logger << "Diff with man: " << itr->GetManeuver() << logger.EndL();
+		logger << itr->GetSelf().GetState() << logger.EndL();
+		logger << newSelf.GetState() << logger.EndL();
+	}
 }
 
 Agent NaiveObserver::InterpolateSelf(const TimedContainer<Agent>::const_iterator& p1, const TimedContainer<Agent>::const_iterator& p2)
@@ -613,9 +624,15 @@ Agent NaiveObserver::InterpolateSelf(const TimedContainer<Agent>::const_iterator
 	const State& newState = p2.value().GetState();
 	
 	double deltaTime = p2.time() - p1.time();
+		
 	Require(deltaTime > 0, "NaiveObserver::InterpolateSelf", "Delta time between sensor data must be > 0");
 	
-	interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime));
+	interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime - p1.time()));
+	
+	MyLogger logger(std::cout);
+	logger << oldState << logger.EndL();
+	logger << newState << logger.EndL();
+	logger << interpolated << logger.EndL();
 	
 	return interpolated;
 }
@@ -645,7 +662,7 @@ AgentVector NaiveObserver::InterpolateOthers(TimedContainer<AgentVector>::const_
 			double deltaTime = p2.time() - p1.time();
 			Require(deltaTime > 0, "NaiveObserver::InterpolateOthers", "Delta time between sensor data must be > 0");
 	
-			interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime));
+			interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime - p1.time()));
 	
 			interpolatedAgents[itr->first] = interpolated;
 		}
@@ -655,7 +672,7 @@ AgentVector NaiveObserver::InterpolateOthers(TimedContainer<AgentVector>::const_
 		Error("NaiveObserver::InterpolateOthers", "Probably happend because of new/disappeared agents, see FIXME");
 	}
 	
-		return interpolatedAgents;
+	return interpolatedAgents;
 }
 
 EnvironmentParameters NaiveObserver::InterpolateEnvironment(TimedContainer<EnvironmentParameters>::const_iterator p1, TimedContainer<EnvironmentParameters>::const_iterator p2)

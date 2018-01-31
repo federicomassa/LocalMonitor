@@ -25,6 +25,8 @@ public:
 	inline void AddEntry(const std::string& key, const T& value);
 	inline T& operator[](const std::string& key);
 	
+	inline int size() const;
+	
 	inline const IMap<T>& operator=(const IMap<T>& imap)
 	{
 		obj = imap.obj;
@@ -32,6 +34,9 @@ public:
 	}
 	
 	inline void RemoveEntry(const std::string& key);
+	
+	// Check if two maps have same entries
+	inline bool IsConsistent(const IMap<T>&);
 	
 	inline bool IsAvailable(const std::string&) const;
 		
@@ -165,7 +170,32 @@ bool IMap<T>::IsAvailable(const std::string& key) const
 	return isAvailable;
 }
 
+template<class T> bool IMap<T>::IsConsistent(const IMap<T>& m)
+{	
+	if (size() != m.size())
+		return false;
+	
+	for (auto itr = begin(); itr != end(); itr++)
+	{
+		try
+		{
+			m(itr->first);
+		}
+		catch(std::out_of_range&)
+		{
+			return false;
+		}
+	}
+	
+	
+	return true;
+}
 
+
+template<class T> int IMap<T>::size() const
+{
+	return obj.size();
+}
 
 
 template <class U>

@@ -58,9 +58,14 @@ public:
 	NaiveEnvironment(const NaiveEnvironment&);
 	const NaiveEnvironment& operator=(const NaiveEnvironment&);
 	
-	
+	// Predict states <predictionSpan> seconds away from initial situation
 	void Predict(const double& predictionSpan);
 	
+	// Getters
+	const Agent& GetSelf() const;
+	const AgentVector& GetOthers() const;
+	const EnvironmentParameters& GetEnvironment() const;
+	const Maneuver& GetManeuver() const;
 	
 };
 

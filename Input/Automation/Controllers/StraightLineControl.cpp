@@ -14,11 +14,10 @@ StraightLineControl::StraightLineControl(const std::string& className) : Control
 
 
 void StraightLineControl::ComputeControl(Control& u, const Maneuver& maneuver) const
-{
+{	
 	u = Control::GenerateStateOfType(GetControlModel().GetControlVariables());
-
 	
-	const double K = 0.5;
+	const double K = 1;
 	
 	const State& q0 = GetSelfTrajectory().begin().value().GetState();
 	

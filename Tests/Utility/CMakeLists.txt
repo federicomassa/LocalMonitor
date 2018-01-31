@@ -18,6 +18,7 @@ set(MODULE_SOURCE_DIR
 
 set(MODULE_EXECUTABLES
   TTimedContainer
+  TIMap
 	)
 
 set (CMAKE_AUTOMOC ON)
@@ -26,12 +27,13 @@ set (CMAKE_AUTORCC ON)
 find_package(Qt5Widgets REQUIRED)
 
 foreach(EXEC IN ITEMS ${MODULE_EXECUTABLES})
-	add_executable(${EXEC}
-	${EXEC}.cpp resources.qrc mywidget.cpp)
+	add_executable(${EXEC} ${EXEC}.cpp)
+	#${EXEC}.cpp resources.qrc mywidget.cpp)
 	target_link_libraries(${EXEC} ${Boost_LIBRARIES})
-	target_link_libraries(${EXEC} Qt5::Widgets)
 endforeach(EXEC)
 
 target_link_libraries(TTimedContainer Utility)
+target_link_libraries(TIMap Utility)
+
 
       

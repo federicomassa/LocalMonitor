@@ -24,7 +24,7 @@ void TestKinematics(State& qdot, const Agent &self, const Control & u, const dou
 		if (fabs(u("omega")) > maxOmega)
 			qdot("theta") = maxOmega*fabs(u("omega"))/u("omega");
 		else
-			qdot("theta") = maxOmega;
+			qdot("theta") = u("omega");
 		
 		double nextTheta = q0("theta") + qdot("theta")*simulDeltaT;
 		
