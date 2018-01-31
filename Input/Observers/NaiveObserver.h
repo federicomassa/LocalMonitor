@@ -56,6 +56,10 @@ class NaiveObserver : public Observer
 	// This is the list of parameters of hidden agent
 	IMap<double> parameters;
 	
+	// This is the tolerance in local variables to achieve the discrete state observation
+	IMap<double> tolerances;
+
+	
 	// Number of predictions per variable. Obtained from varRange and varResolution
 	IMap<int> nPredictions;
 	
@@ -75,6 +79,7 @@ class NaiveObserver : public Observer
 	void ReadRange(const nlohmann::json&);
 	void ReadResolution(const nlohmann::json&);
 	void ReadParameters(const nlohmann::json&);
+	void ReadTolerances(const nlohmann::json&);
 
 	
 	// Takes decimal integer and, by converting it to a number in base given by the number of predictions for each variable, produces a different initial state

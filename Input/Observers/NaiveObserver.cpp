@@ -115,6 +115,7 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 	mandatoryEntries.push_back("hidden_range");
 	mandatoryEntries.push_back("hidden_resolution");
 	mandatoryEntries.push_back("hidden_parameters");
+	mandatoryEntries.push_back("tolerances");
 
 	if (!observingJson.at("id").is_string())
 		Error("NaiveObserver::Configure", "\'id\' entry should be a string");
@@ -210,6 +211,13 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 		Error("NaiveObserver::Configure", "\'hidden_parameters\' entry must be a json object");
 	
 	ReadParameters(parJson);
+	
+	
+	nlohmann::json tolJson = observingJson.at("tolerances");
+	if (!tolJson.is_object())
+		Error("NaiveObserver::Configure", "\'tolerances\' entry must be a json object");
+	
+	ReadTolerances(tolJson);
 	
 	// EXTERNAL SENSORS
 	try
@@ -464,6 +472,15 @@ void NaiveObserver::ReadParameters(const nlohmann::json& parJ)
 	}
 }
 
+void NaiveObserver::ReadTolerances(const nlohmann::json& tolJ)
+{
+	for (auto itr = tolJ.begin(); itr != tolJ.end(); itr++)
+	{
+		Require(itr.value().is_number(), "NaiveObserver::ReadParameters", "\'tolerances\' entry must contain numbers");
+		tolerances[itr.key()] = itr.value().get<double>();
+	}
+}
+
 // TODO When deploying this code, remember that this method is not thread safe (if run and receivesensoroutput are run in different threads, it might lead to data races)
 void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const double& currentTime)
 {
@@ -602,15 +619,51 @@ void NaiveObserver::PredictPhase()
 void NaiveObserver::UpdatePhase(const Agent& newSelf, const AgentVector& newOthers, const EnvironmentParameters& newEnv)
 {
 	MyLogger logger(std::cout);
-	
+	logger << "TOLERANCES: " << tolerances << logger.EndL();
+
+	bool erasedFirstElement = false;
 	for (auto itr = environments.begin(); itr != environments.end(); itr++)
 	{
+		// Trick to erase iterator inside its own for loop
+		if (erasedFirstElement)
+		{
+			itr = environments.begin();
+			erasedFirstElement = false;
+		}
+		
 		// Compare prediction with real data
 		State diff = itr->GetSelf().GetState() - newSelf.GetState();
-		logger << "Diff with man: " << itr->GetManeuver() << logger.EndL();
-		logger << itr->GetSelf().GetState() << logger.EndL();
-		logger << newSelf.GetState() << logger.EndL();
+		
+		bool needErase = false;
+		
+		for (auto stateVar = diff.begin(); stateVar != diff.end(); stateVar++)
+		{
+			// If difference is larger than tolerance, erase hypothesis
+			if (fabs(stateVar->second) >= tolerances(stateVar->first))
+			{
+				needErase = true;
+				break;
+			}	
+		}
+		
+		if (needErase)
+		{
+			std::cout << "erasing" << std::endl;
+			std::cout << "size before: " << environments.size() << std::endl;
+			environments.erase(itr);
+			std::cout << "size after: " << environments.size() << std::endl;
+			
+				
+			if (!(itr == environments.begin()))
+				itr--;
+			else
+				erasedFirstElement = true;
+		}
+			
 	}
+	
+	std::cout << "SHOULD BE ZERO: " << environments.size() << std::endl;
+	
 }
 
 Agent NaiveObserver::InterpolateSelf(const TimedContainer<Agent>::const_iterator& p1, const TimedContainer<Agent>::const_iterator& p2)

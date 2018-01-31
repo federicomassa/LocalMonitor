@@ -23,8 +23,8 @@ class NaiveEnvironment
 	
 	NaiveObserver* observer;
 	
-	const std::vector<std::shared_ptr<ExternalSensor> >& extSensors;
-	const std::vector<std::shared_ptr<InternalSensor> >& intSensors;
+	const std::vector<std::shared_ptr<ExternalSensor> >* extSensors;
+	const std::vector<std::shared_ptr<InternalSensor> >* intSensors;
 	
 	Agent self;
 	Maneuver selfManeuver;
@@ -57,12 +57,13 @@ public:
 	~NaiveEnvironment();
 	NaiveEnvironment(const NaiveEnvironment&);
 	const NaiveEnvironment& operator=(const NaiveEnvironment&);
-	
+
 	// Predict states <predictionSpan> seconds away from initial situation
 	void Predict(const double& predictionSpan);
 	
 	// Getters
 	const Agent& GetSelf() const;
+	const Agent& GetLocalSelf() const;
 	const AgentVector& GetOthers() const;
 	const EnvironmentParameters& GetEnvironment() const;
 	const Maneuver& GetManeuver() const;

@@ -16,7 +16,7 @@ using namespace LogFunctions;
 
 NaiveEnvironment::NaiveEnvironment(NaiveObserver* parent, const Agent& s, const Maneuver& man, const AgentVector& o, const EnvironmentParameters& e, 
 	const std::vector<std::shared_ptr<ExternalSensor> >& extSens,
-	const std::vector<std::shared_ptr<InternalSensor> >& intSens, const bool& hidden) : observer(parent), extSensors(extSens), intSensors(intSens)
+	const std::vector<std::shared_ptr<InternalSensor> >& intSens, const bool& hidden) : observer(parent), extSensors(&extSens), intSensors(&intSens)
 {
 	SensorOutput output = SimulateSensors(s, o, e);
 	
@@ -93,8 +93,16 @@ NaiveEnvironment::~NaiveEnvironment()
 {
 }
 
-NaiveEnvironment::NaiveEnvironment(const NaiveEnvironment& e) : extSensors(e.extSensors), intSensors(e.intSensors)
+NaiveEnvironment::NaiveEnvironment(const NaiveEnvironment& e)
 {
+	*this = e;
+}
+
+const NaiveEnvironment & NaiveEnvironment::operator=(const NaiveEnvironment& e)
+{
+	extSensors = e.extSensors;
+	intSensors = e.intSensors;
+
 	observer = e.observer;
 	
 	self = e.self;
@@ -107,18 +115,20 @@ NaiveEnvironment::NaiveEnvironment(const NaiveEnvironment& e) : extSensors(e.ext
 	env = e.env;
 	hasHiddenAgent = e.hasHiddenAgent;
 	
-	pLayer = e.pLayer
-	;
+	pLayer = e.pLayer;
 	automaton = e.automaton;
 	controller = e.controller;
+	
+	return *this;
 }
+
 
 SensorOutput NaiveEnvironment::SimulateSensors(const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams)
 {
 	SensorOutput sensorOutput;
 	
 	// Call external external sensors
-	for (auto extSensor = extSensors.begin(); extSensor != extSensors.end(); extSensor++)
+	for (auto extSensor = extSensors->begin(); extSensor != extSensors->end(); extSensor++)
 	{
 		ExternalSensorOutput extOutput = RetrieveExternalSensorOutput((*extSensor)->GetName(), trueSelfInWorld, trueOthersInWorld, trueEnvParams);
 		
@@ -126,7 +136,7 @@ SensorOutput NaiveEnvironment::SimulateSensors(const Agent& trueSelfInWorld, con
 	}
 
 	// Call internal sensors
-	for (auto intSensor = intSensors.begin(); intSensor != intSensors.end(); intSensor++)
+	for (auto intSensor = intSensors->begin(); intSensor != intSensors->end(); intSensor++)
 	{
 		InternalSensorOutput intOutput = RetrieveInternalSensorOutput((*intSensor)->GetName(), trueSelfInWorld);
 		
@@ -140,7 +150,7 @@ SensorOutput NaiveEnvironment::SimulateSensors(const Agent& trueSelfInWorld, con
 ExternalSensorOutput NaiveEnvironment::RetrieveExternalSensorOutput(const std::string& sensorName, const Agent& trueSelfInWorld, const AgentVector& trueOthersInWorld, const EnvironmentParameters& trueEnvParams)
 {
 	ExternalSensor* sensor = nullptr;
-	for (auto itr = extSensors.begin(); itr != extSensors.end(); itr++)
+	for (auto itr = extSensors->begin(); itr != extSensors->end(); itr++)
 	{
 		if ((*itr)->GetName() == sensorName)
 			sensor = itr->get();
@@ -205,7 +215,7 @@ ExternalSensorOutput NaiveEnvironment::RetrieveExternalSensorOutput(const std::s
 InternalSensorOutput NaiveEnvironment::RetrieveInternalSensorOutput(const std::string& sensorName, const Agent& trueSelfInWorld)
 {
 	const InternalSensor* sensor = nullptr;
-	for (auto itr = intSensors.begin(); itr != intSensors.end(); itr++)
+	for (auto itr = intSensors->begin(); itr != intSensors->end(); itr++)
 	{
 		if ((*itr)->GetName() == sensorName)
 			sensor = itr->get();
@@ -342,6 +352,11 @@ void NaiveEnvironment::Predict(const double& predictionSpan)
 const Agent & NaiveEnvironment::GetSelf() const
 {
 	return self;
+}
+
+const Agent & NaiveEnvironment::GetLocalSelf() const
+{
+	return localSelf;
 }
 
 const AgentVector & NaiveEnvironment::GetOthers() const
