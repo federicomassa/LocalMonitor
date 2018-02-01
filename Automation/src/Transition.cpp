@@ -30,6 +30,8 @@ Transition & Transition::operator=(const Transition& t)
 	initDiscrState = t.initDiscrState;
 	finalDiscrState = t.finalDiscrState;
 	events = t.events;
+	
+	return *this;
 }
 
 

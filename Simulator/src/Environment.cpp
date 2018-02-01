@@ -27,6 +27,8 @@ void Environment::Configure(const SimulatorConfiguration &conf)
 			agents[itr->first] = itr->second;
 			agents[itr->first].InitializeLocalMonitor(string(INPUT_DIR) + "/Observers/" + itr->first + "/Observer.json");
 			
+			agents[itr->first].SetEnvironment(this);
+
 		 }
 		 
 	agentFeatures = conf.GetWorldAgentFeatures();
@@ -75,7 +77,7 @@ void Environment::Run(const double& currentTime)
 			}
 		
 		SensorOutput sensorOutput = selfAgent.SimulateSensors(selfWorld, othersInWorld, envParameters);
-			
+		
 		selfAgent.Run(sensorOutput, currentTime);
 	}
 }

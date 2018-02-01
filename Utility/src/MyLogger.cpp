@@ -1,10 +1,24 @@
 #include "MyLogger.h"
+#include "LogFunctions.h"
 #include <iostream>
+
+using namespace LogFunctions;
 
 MyLogger::MyLogger(std::ostream &os) : out(&os)
 {
 	currentIndentation = 0;
 }
+
+MyLogger::MyLogger() : out(nullptr)
+{
+	currentIndentation = 0;
+}
+
+void MyLogger::SetOutput(std::ofstream* o)
+{
+	out = o;
+}
+
 
 MyLogger::EndLine MyLogger::EndL(const Indent &ind)
 {
@@ -15,30 +29,40 @@ MyLogger::EndLine MyLogger::EndL(const Indent &ind)
 
 MyLogger &MyLogger::operator<< (const std::string &obj)
 {
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
     (*out) << obj;
     return (*this);
 }
 
 MyLogger &MyLogger::operator<< (const char *obj)
 {
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
     (*out) << obj;
     return (*this);
 }
 
 MyLogger &MyLogger::operator<< (const char &obj)
 {
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
     (*out) << obj;
     return (*this);
 }
 
 MyLogger &MyLogger::operator<< (const int &obj)
 {
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
     (*out) << obj;
     return (*this);
 }
 
 MyLogger &MyLogger::operator<< (const long unsigned int &obj)
 {
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
     (*out) << obj;
     return (*this);
 }
@@ -46,12 +70,16 @@ MyLogger &MyLogger::operator<< (const long unsigned int &obj)
 
 MyLogger &MyLogger::operator<< (const double &obj)
 {
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
     (*out) << obj;
     return (*this);
 }
 
 MyLogger &MyLogger::operator<< (const EndLine &obj)
 {
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
     (*out) << '\n';
 
     if (obj.indentMode != NOIND) {

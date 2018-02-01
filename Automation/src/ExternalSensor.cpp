@@ -122,7 +122,7 @@ void ExternalSensorOutput::SetMeasuredAgents(const AgentVector& agents)
 
 const AgentVector & ExternalSensorOutput::GetMeasuredAgents() const
 {
-	agentMeasuredStates;
+	return agentMeasuredStates;
 }
 
 

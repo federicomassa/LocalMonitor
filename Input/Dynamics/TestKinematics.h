@@ -8,7 +8,7 @@
 #include <math.h>
 #include <iostream>
 
-void TestKinematics(State& qdot, const Agent &self, const Control & u, const double& simulDeltaT)
+void TestKinematics(State& qdot, const Agent &self, const AgentVector&, const Control & u, const double& simulDeltaT)
 {	
 		// Saturation
 		const double maxA = 3;

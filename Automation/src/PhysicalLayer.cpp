@@ -32,6 +32,8 @@ PhysicalLayer& PhysicalLayer::operator=(const PhysicalLayer& pL)
 	dynamicModel = pL.dynamicModel;
 	simulTimeStep = pL.simulTimeStep;
 	logger = pL.logger;
+	
+	return *this;
 }
 
 
@@ -45,7 +47,7 @@ void PhysicalLayer::SetSimulationTimeStep(const double& deltaT)
 	simulTimeStep = deltaT;
 }
 
-State PhysicalLayer::GetNextState(const Agent & currentAgent, const Control& control) const
+State PhysicalLayer::GetNextState(const Agent & currentAgent, const AgentVector& trueOthersInWorld, const Control& control) const
 {
 	if (simulTimeStep < 0)
 		Error("PhysicalLayer::GetNextState", "Simulation time step should be > 0");
@@ -56,7 +58,7 @@ State PhysicalLayer::GetNextState(const Agent & currentAgent, const Control& con
 	{
 		try
 		{
-			dynamicModel.Run(dCurrentState, currentAgent, control, simulTimeStep);
+			dynamicModel.Run(dCurrentState, currentAgent, trueOthersInWorld, control, simulTimeStep);
 		}
 		catch (std::out_of_range& e)
 		{

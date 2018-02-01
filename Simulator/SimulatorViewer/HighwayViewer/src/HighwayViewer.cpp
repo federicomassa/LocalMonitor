@@ -221,6 +221,7 @@ void HighwayViewer::DrawVehicles(const SimulAgentVector& a)
 	{
 		agents.at(agent->first)->setPixmap(agentsPixmap.at(agent->first));
 		
+		// FIXME Use world state!!!
 		double x, y, theta;
 		ConvertFromState(agent->second.GetState(), agent->first, x, y, theta);
 		QGraphicsPixmapItem* agentPixmap = agents.at(agent->first);

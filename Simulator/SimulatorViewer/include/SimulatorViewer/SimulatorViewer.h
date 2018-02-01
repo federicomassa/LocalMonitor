@@ -7,7 +7,7 @@
 
 #include <string>
 #include <map>
-#include "SimulAgent.h"
+#include "Simulator/SimulAgent.h"
 #include <QMainWindow>
 
 class SimulatorConfiguration;

@@ -64,15 +64,6 @@ class SimulatorConfiguration
 	 */
 	void RegisterMandatoryEntry(const std::string& entryName);
 	void RegisterStandardEntry(const std::string& entryName);
-
-	
-	/**
-	 * @brief Returns a json containing the specific entry
-	 * 
-	 * @param entryName p_entryName:entry name
-	 * @return nlohmann::json
-	 */
-	 nlohmann::json GetEntry(const std::string& entryName) const;
 	
     SimulAgent ReadAgent ( const nlohmann::json & );
 	void ReadSensor(const nlohmann::json&);
@@ -106,7 +97,14 @@ public:
 	const bool& UseSimulatorViewer() const;
 
 	static nlohmann::json GetEntry(const std::string& entryName, const nlohmann::json&);
-
+	
+	/**
+	 * @brief Returns a json containing the specific entry
+	 * 
+	 * @param entryName p_entryName:entry name
+	 * @return nlohmann::json
+	 */
+	 nlohmann::json GetEntry(const std::string& entryName) const;
 	
 };
 

@@ -121,7 +121,9 @@
 			"maneuvers" : ["sigma_1", "sigma_2", "reset"],
 			"controller" : "PowNetController",
 			"control_variables" : ["u1", "u2"],
-			"automaton" : "DistrPowNetAutomaton"
+			"automaton" : "PowNetDistrAutomaton"
 		}
-	]
+	],
+	
+	"ascii_output_dir" : "/home/federico-asus/Simulator/LocalMonitor/Output/"
 }

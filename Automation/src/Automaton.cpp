@@ -213,14 +213,18 @@ void Automaton::PostEvolve()
 
 std::string Automaton::GetProperty(const std::string& propertyName) const
 {
+	std::string property;
+	
 	try
 	{
-		return properties.at(propertyName);
+		property = properties.at(propertyName);
 	}
 	catch (out_of_range&)
 	{
 		Error("Automaton::GetProperty", string("Property \'") + propertyName + "\' not set");
 	}
+	
+	return property;
 }
 
 void Automaton::SetProperty(const std::string& propertyName, const std::string& propertyValue)

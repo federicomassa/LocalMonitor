@@ -11,6 +11,8 @@
 #include "Input/Automation/Automatons/Automatons.h"
 #include "Input/Observers/Observers.h"
 
+#include "Environment.h"
+
 #include <iostream>
 
 using namespace std;
@@ -22,6 +24,8 @@ SimulAgent::SimulAgent(SimulatorConfiguration* config) : controller(nullptr), au
 	
 	if (config)
 		pLayer.SetSimulationTimeStep(config->GetSimulationTimeStep());
+	
+	environment = nullptr;
 }
 
 SimulAgent::~SimulAgent()
@@ -50,6 +54,8 @@ SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 	worldState = a.worldState;
 	extSensors = a.extSensors;
 	intSensors = a.intSensors;
+	
+	environment = a.environment;
 }
 
 SimulAgent& SimulAgent::operator=(const SimulAgent& a)
@@ -79,7 +85,14 @@ SimulAgent& SimulAgent::operator=(const SimulAgent& a)
 	for (auto itr = a.intSensors.begin(); itr != a.intSensors.end(); itr++)
 		intSensors.push_back(*itr);
 	
+	environment = a.environment;
+	
 	return *this;
+}
+
+void SimulAgent::SetEnvironment(const Environment* e)
+{
+	environment = e;
 }
 
 const string &SimulAgent::GetID() const
@@ -149,7 +162,25 @@ void SimulAgent::Run(const SensorOutput& sensorOutput, const double& currentTime
 	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();
 	Control control = Control::GenerateStateOfType(controlVars);
 	controller->ComputeControl(control, GetManeuver());
-    agent.SetState(pLayer.GetNextState(agent, control));
+	
+	// Get true others from environment
+	Require(environment != nullptr, "SimulAgent::Run", "Environment is not set. Please call SimulAgent::SetEnvironment first");
+	
+	const SimulAgentVector& trueSimulOthersInWorld = environment->GetAgents();
+	
+	// vector containing all other agents expressed in world coordinates
+	AgentVector trueOthersInWorld;
+	
+	for (auto itr = trueSimulOthersInWorld.begin(); itr != 
+		trueSimulOthersInWorld.end(); itr++)
+	{
+		if (itr->first == GetID())
+			continue;
+		
+		trueOthersInWorld[itr->first].SetState(itr->second.GetWorldState());
+	}
+	
+    agent.SetState(pLayer.GetNextState(agent, trueOthersInWorld, control));
 	
 	automaton->PreEvolve();
 	automaton->Evolve();

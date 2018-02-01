@@ -18,6 +18,10 @@ NaiveEnvironment::NaiveEnvironment(NaiveObserver* parent, const Agent& s, const 
 	const std::vector<std::shared_ptr<ExternalSensor> >& extSens,
 	const std::vector<std::shared_ptr<InternalSensor> >& intSens, const bool& hidden) : observer(parent), extSensors(&extSens), intSensors(&intSens)
 {
+	trueSelf = s;
+	trueOthers = o;
+	trueEnv = e;
+	
 	SensorOutput output = SimulateSensors(s, o, e);
 	
 	// Populate map
@@ -287,13 +291,23 @@ void NaiveEnvironment::Predict(const double& predictionSpan)
 			}
 			
 			controller(itr->first)->ComputeControl(control, currManeuver);
-						
+			
+			// FIXME Now we are using simulated others, this is only --almost-- right 
+			// because physical layer should have the true values, which should be 
+			// simulated separately and then filtered by sensors each time
+			// Instead, now we are using simulated data at first and then 
+			// predicting without further simulation, which should be 
+			// done at each prediction step
+			// WARNING For simplicity, for agents other than the one observed, 
+			// we demand a simple dynamics that does not couple with other agents
+			// so physical layer is run with dummy argument
 			State q;
 			
 			if (itr->first == observer->observedID)
-				q = pLayer(itr->first).GetNextState(localSelf, control);
+				q = pLayer(itr->first).GetNextState(localSelf, others, control);
 			else
-				q = pLayer(itr->first).GetNextState(localOthers.at(itr->first), control);
+				q = pLayer(itr->first).GetNextState(localOthers.at(itr->first),
+													AgentVector(), control);
 			
 			
 			if (itr->first == observer->observedID)

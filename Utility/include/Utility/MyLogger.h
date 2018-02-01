@@ -7,7 +7,7 @@
 #include <utility>
 #include <set>
 #include <map>
-
+#include "LogFunctions.h"
 
 #include <iostream>
 
@@ -15,7 +15,7 @@
 
 class MyLogger
 {
-    std::ostream *const out;
+    std::ostream * out;
     int currentIndentation;
 public:
     enum Indent {CURR, INC, DEC, NOIND};
@@ -25,17 +25,18 @@ public:
         EndLine ( const Indent & );
     };
 
+    MyLogger();
     MyLogger ( std::ostream & );
-
+    void SetOutput ( std::ofstream* );
 
     EndLine EndL ( const Indent &ind = CURR );
 
     MyLogger &operator<< ( const std::string & );
     MyLogger &operator<< ( const char * );
-	MyLogger &operator<< ( const char & );
+    MyLogger &operator<< ( const char & );
 
     MyLogger &operator<< ( const int & );
-	MyLogger &operator<< ( const long unsigned int & );
+    MyLogger &operator<< ( const long unsigned int & );
 
     MyLogger &operator<< ( const double & );
     MyLogger &operator<< ( const EndLine & );
@@ -43,14 +44,14 @@ public:
     template <class T>
     MyLogger &operator<< ( const std::vector<T> & );
 
-	template <class Key, class T>
+    template <class Key, class T>
     MyLogger &operator<< ( const std::map<Key, T> & );
 
-	
+
     template <class T, class U>
     MyLogger &operator<< ( const std::pair<T, U> & );
-	
-	template <class T>
+
+    template <class T>
     MyLogger &operator<< ( const std::set<T> & );
 };
 
@@ -58,6 +59,8 @@ public:
 template <class T>
 MyLogger &MyLogger::operator<< ( const std::vector<T> &v )
 {
+    LogFunctions::Require ( out != nullptr, "MyLogger::operator<<", "You must set output first." );
+
     ( *this ) << "{ " << EndL();
 
     for ( int i = 0; i < v.size() - 1; i++ ) {
@@ -73,14 +76,15 @@ MyLogger &MyLogger::operator<< ( const std::vector<T> &v )
 template <class Key, class T>
 MyLogger &MyLogger::operator<< ( const std::map<Key, T> & m )
 {
+    LogFunctions::Require ( out != nullptr, "MyLogger::operator<<", "You must set output first." );
+
     ( *this ) << "{ " << EndL();
 
-    for (typename std::map<Key, T>::const_iterator itr = m.begin(); itr != m.end(); itr++)
-	{
-		(*this) << (*itr) << EndL();
-	}
-	
-	( *this ) << " }" << EndL();
+    for ( typename std::map<Key, T>::const_iterator itr = m.begin(); itr != m.end(); itr++ ) {
+        ( *this ) << ( *itr ) << EndL();
+    }
+
+    ( *this ) << " }" << EndL();
 
     return ( *this );
 }
@@ -88,6 +92,8 @@ MyLogger &MyLogger::operator<< ( const std::map<Key, T> & m )
 template <class T, class U>
 MyLogger &MyLogger::operator<< ( const std::pair<T, U> &p )
 {
+    LogFunctions::Require ( out != nullptr, "MyLogger::operator<<", "You must set output first." );
+
     ( *this ) << "( " << p.first << " , " << p.second << " )";
 
     return ( *this );
@@ -96,13 +102,15 @@ MyLogger &MyLogger::operator<< ( const std::pair<T, U> &p )
 template <class T>
 MyLogger &MyLogger::operator<< ( const std::set<T> &s )
 {
-  ( *this ) << "{ " << EndL();
+    LogFunctions::Require ( out != nullptr, "MyLogger::operator<<", "You must set output first." );
 
-    for (typename std::set<T>::const_iterator itr = s.begin(); itr != --s.end(); ++itr ) {
+    ( *this ) << "{ " << EndL();
+
+    for ( typename std::set<T>::const_iterator itr = s.begin(); itr != --s.end(); ++itr ) {
         ( *this ) << *itr << ", " << EndL();
     }
 
-    ( *this ) << *(--s.end());
+    ( *this ) << * ( --s.end() );
     ( *this ) << " }";
 
     return ( *this );

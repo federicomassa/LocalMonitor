@@ -31,6 +31,10 @@ class NaiveEnvironment
 	AgentVector others;
 	EnvironmentParameters env;
 	
+	Agent trueSelf;
+	AgentVector trueOthers;
+	EnvironmentParameters trueEnv;
+	
 	// In local coordinates (state variables)
 	Agent localSelf;
 	AgentVector localOthers;

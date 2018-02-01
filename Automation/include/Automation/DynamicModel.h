@@ -7,7 +7,7 @@
 #include "Basic/Agent.h"
 #include "Control.h"
 
-typedef void (*DynamicsFcn) (State&, const Agent&, const Control&, const double&);
+typedef void (*DynamicsFcn) (State&, const Agent&, const AgentVector&, const Control&, const double&);
 typedef void (*StateConversionFcn) (Agent&, const Agent&);
 
 class DynamicModel
@@ -46,7 +46,7 @@ public:
 	void SetDynamicsFunction(DynamicsFcn);
 	void SetStateConversionToWorld(StateConversionFcn);
 	void SetStateConversionToState(StateConversionFcn);
-	void Run(State&, const Agent&, const Control&, const double&) const;
+	void Run(State&, const Agent&, const AgentVector&, const Control&, const double&) const;
 	
 	// Conversion functions
 	State GetWorldState(const Agent&, const State& modelWorldState) const;

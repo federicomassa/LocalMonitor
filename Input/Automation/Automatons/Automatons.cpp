@@ -2,11 +2,14 @@
 #include <iostream>
 
 #include "TestAutomaton.h"
+#include "PowNetDistrAutomaton.h"
 
 Automaton* InstantiateAutomaton(const std::string& automatonClassName)
 {
 	if (automatonClassName == "TestAutomaton")
 		return new TestAutomaton(automatonClassName);
+	else if (automatonClassName == "PowNetDistrAutomaton")
+		return new PowNetDistrAutomaton(automatonClassName);
 	else 
 		{
 			std::cerr << "Error in configure: " << automatonClassName << ".h not found";

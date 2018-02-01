@@ -17,14 +17,19 @@ set(MODULE_SOURCE_DIR
 set(MODULE_SOURCES
 	Automation/Controllers/AccOmegaControl.cpp
 	Automation/Controllers/StraightLineControl.cpp
+	Automation/Controllers/PowNetController.cpp
     Automation/Sensors/VisionSensor.cpp
     Automation/Sensors/SelfSensor.cpp
+    Automation/Sensors/PowNetInternalSensor.cpp
+    Automation/Sensors/PowNetExternalSensor.cpp
     Dynamics/DynamicModels.cpp
+    Dynamics/PowNetDynamics.cpp
     Dynamics/StateConversions.cpp
     Automation/Controllers/Controllers.cpp
     Automation/Sensors/Sensors.cpp
     Automation/Automatons/Automatons.cpp
     Automation/Automatons/TestAutomaton.cpp
+    Automation/Automatons/PowNetDistrAutomaton.cpp
     Observers/Observers.cpp
     Observers/NaiveObserver.cpp
     Observers/NaiveEnvironment.cpp

@@ -17,7 +17,9 @@ Observer & Observer::operator=(const Observer& obs)
 	name = obs.name;
 	selfTrajectory = obs.selfTrajectory;
 	othersTrajectory = obs.othersTrajectory;
-	environmentTrajectory = obs.environmentTrajectory;	
+	environmentTrajectory = obs.environmentTrajectory;
+
+	return *this;
 }
 
 Observer::~Observer()

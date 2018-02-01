@@ -13,11 +13,15 @@ Maneuver::Maneuver(const ManeuverName& name) : man(name)
 Maneuver& Maneuver::operator=(const Maneuver& m)
 {
 	man = m.man;
+	
+	return *this;
 }
 
 Maneuver& Maneuver::operator=(const ManeuverName& name)
 {
 	man = name;
+	
+	return *this;
 }
 
 bool Maneuver::operator==(const Maneuver& m) const

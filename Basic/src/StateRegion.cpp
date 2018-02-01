@@ -268,6 +268,8 @@ MyLogger & operator<<(MyLogger& os, const StateRegion& r)
 	}
 	
 	os << os.EndL(MyLogger::DEC);
+	
+	return os;
 }
 
 

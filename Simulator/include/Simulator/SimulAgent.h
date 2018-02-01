@@ -19,11 +19,14 @@
 
 class MyLogger;
 class SimulatorConfiguration;
+class Environment;
 
 class SimulAgent
 {
     friend class SimulatorConfiguration;
 
+	const Environment* environment;
+	
     Agent agent;
     PhysicalLayer pLayer;
 	Controller* controller;
@@ -62,6 +65,7 @@ public:
     void SetState ( const State & );
 	void SetDynamicModel(const DynamicModel&);
 	void SetParameters(const AgentParameters&);
+	void SetEnvironment(const Environment*);
 	const AgentParameters& GetParameters() const;
 	State GenerateWorldState(const State&);
 	const State& GetWorldState() const;

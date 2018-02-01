@@ -38,3 +38,11 @@ string Utility::ToString(const double& value, const int& precision)
   ss >> str;
   return str;	
 }
+
+double Utility::Sign(const double& x)
+{
+	if (x == 0)
+		return 0;
+	
+	return x/fabs(x);
+}

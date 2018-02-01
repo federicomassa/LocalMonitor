@@ -1,2 +1,2 @@
-set (CHOSEN_SIMULATOR_VIEWER HighwayViewer)
+set (CHOSEN_SIMULATOR_VIEWER PowerNetworksViewer)
 set (VIDEO_OUTPUT video-output.avi)

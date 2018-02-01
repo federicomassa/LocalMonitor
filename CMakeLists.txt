@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(LocalMonitor)
 
+add_compile_options("-Wall")
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(PROJECT_INPUT_DIR ${PROJECT_SOURCE_DIR}/Input)
