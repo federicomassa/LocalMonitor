@@ -32,7 +32,11 @@ public:
 
     MyLogger &operator<< ( const std::string & );
     MyLogger &operator<< ( const char * );
+	MyLogger &operator<< ( const char & );
+
     MyLogger &operator<< ( const int & );
+	MyLogger &operator<< ( const long unsigned int & );
+
     MyLogger &operator<< ( const double & );
     MyLogger &operator<< ( const EndLine & );
 

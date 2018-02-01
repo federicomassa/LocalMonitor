@@ -10,6 +10,7 @@
 #endif
 
 #include "Environment.h"
+#include "Utility/ProgressBar.h"
 
 #include <string>
 #include <iostream>
@@ -39,7 +40,7 @@ int main(int argc, char **argv)
 	
 	int currentTimeStep = 0;
 	
-	MyLogger logger(cout);
+	MyLogger logger(std::cout);
 	SimulatorConfiguration conf(string(INPUT_DIR) + "/" + string(SIMULATOR_CONFIG_FILE), &logger);
 	
     // Parse config file
@@ -55,6 +56,9 @@ int main(int argc, char **argv)
 	simViewer->DrawStaticEnvironment();
 	#endif
 	
+	// Print progress bar
+	std::cout << LM::ProgressBar();
+	
     for (; currentTimeStep < conf.GetSimulationSteps(); currentTimeStep++) 
 	{
 		double currentTime = currentTimeStep*conf.GetSimulationTimeStep();
@@ -67,11 +71,18 @@ int main(int argc, char **argv)
 		#endif
 		
         env.Run(currentTime);
+		
+		// Print progress bar
+		std::cout << LM::ProgressBar(currentTimeStep, conf.GetSimulationSteps());
+	
     }
     
 #ifdef USE_GRAPHICS
     delete simViewer;
 #endif
+	
+	// Print progress bar
+	std::cout << LM::ProgressBar(1,1) << std::endl;
 	
 	return 0;
 }

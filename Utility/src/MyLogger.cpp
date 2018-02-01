@@ -25,11 +25,24 @@ MyLogger &MyLogger::operator<< (const char *obj)
     return (*this);
 }
 
+MyLogger &MyLogger::operator<< (const char &obj)
+{
+    (*out) << obj;
+    return (*this);
+}
+
 MyLogger &MyLogger::operator<< (const int &obj)
 {
     (*out) << obj;
     return (*this);
 }
+
+MyLogger &MyLogger::operator<< (const long unsigned int &obj)
+{
+    (*out) << obj;
+    return (*this);
+}
+
 
 MyLogger &MyLogger::operator<< (const double &obj)
 {

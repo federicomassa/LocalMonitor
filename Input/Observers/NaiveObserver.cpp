@@ -3,7 +3,6 @@
 #include "Automation/DynamicModel.h"
 #include "Automation/ControlModel.h"
 #include "Dynamics/DynamicModels.h"
-#include "Utility/MyLogger.h"
 #include "Dynamics/StateConversions.h"
 #include "Automation/Automatons/Automatons.h"
 #include "Automation/Controllers/Controllers.h"
@@ -17,7 +16,7 @@ using namespace LogFunctions;
 using namespace nlohmann;
 
 // TODO: there is no check that automaton's transitions are among maneuvers in control model 
-NaiveObserver::NaiveObserver(const std::string& name) : Observer(name)
+NaiveObserver::NaiveObserver(const std::string& name) : Observer(name), logger(output)
 {
 	observedID = "";
 	simulTimeSteps = -1;
@@ -34,8 +33,18 @@ NaiveObserver::~NaiveObserver()
 void NaiveObserver::Run(const double& currentTime)
 {
 	Require(currentTime >= 0, "NaiveObserver::Run", "currentTime must be > 0");
+
+	// ====== Setup output file
+	if (output.is_open())
+		output.close();
 	
-	std::cout << "Run: " << currentTime << '\t' << lastPredictionStartTime << '\t' << lastUpdateTime << std::endl;
+	string outputPath = outputDir + "log" + ToStringWithPrecision(lastPredictionStartTime, 3) + ".txt";
+	output.open(outputPath.c_str());
+	
+	Require(output.is_open(), "NaiveObserver::PreConfigure", string("Error opening file \'") + outputPath + "\'");
+	// =========================
+	
+	logger << "Run: " << currentTime << '\t' << lastPredictionStartTime << '\t' << lastUpdateTime << logger.EndL();
 	
 	// Explicit const cast
 	const TimedContainer<Agent>& selfTraj = selfTrajectory;
@@ -46,8 +55,8 @@ void NaiveObserver::Run(const double& currentTime)
 	
 	if (mostRecentDataTime >= (lastPredictedTime) && lastPredictedTime >= 0 && lastUpdateTime < lastPredictedTime)
 	{
-		std::cout << "UPDATE PHASE" << std::endl;
-		std::cout << "... " << lastPredictionStartTime << '\t' << lastPredictedTime << '\t' << lastUpdateTime << std::endl;
+		logger << "UPDATE PHASE" << logger.EndL();
+		logger << "... " << lastPredictionStartTime << '\t' << lastPredictedTime << '\t' << lastUpdateTime << logger.EndL();
 		
 		
 		Require(selfTraj.size() == 3 && othersTraj.size() == 3 && envTraj.size() == 3,
@@ -62,7 +71,7 @@ void NaiveObserver::Run(const double& currentTime)
 	}
 	if (lastUpdateTime >= lastPredictedTime)
 	{
-		std::cout << "PREDICT PHASE" << std::endl;
+		logger << "PREDICT PHASE" << logger.EndL();
 		
 		PredictPhase();
 		lastPredictionStartTime = mostRecentDataTime;
@@ -76,6 +85,8 @@ void NaiveObserver::PreConfigure(const nlohmann::json& j)
 	// ========= CHECK MANDATORY ENTRIES ============
 	vector<string> mandatoryEntries;
 	mandatoryEntries.push_back("world_agent_features");
+	mandatoryEntries.push_back("output_dir");
+
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
 	{
@@ -98,6 +109,7 @@ void NaiveObserver::PreConfigure(const nlohmann::json& j)
 	for (auto itr = worldAgentJ.begin(); itr != worldAgentJ.end(); itr++)
 		worldAgentVars.push_back(itr->get<string>());
 	
+	outputDir = j.at("output_dir").get<string>();
 }
 
 
@@ -618,7 +630,6 @@ void NaiveObserver::PredictPhase()
 
 void NaiveObserver::UpdatePhase(const Agent& newSelf, const AgentVector& newOthers, const EnvironmentParameters& newEnv)
 {
-	MyLogger logger(std::cout);
 	logger << "TOLERANCES: " << tolerances << logger.EndL();
 
 	bool erasedFirstElement = false;
@@ -648,10 +659,10 @@ void NaiveObserver::UpdatePhase(const Agent& newSelf, const AgentVector& newOthe
 		
 		if (needErase)
 		{
-			std::cout << "erasing" << std::endl;
-			std::cout << "size before: " << environments.size() << std::endl;
+			logger << "erasing" << logger.EndL();
+			logger << "size before: " << environments.size() << logger.EndL();
 			environments.erase(itr);
-			std::cout << "size after: " << environments.size() << std::endl;
+			logger << "size after: " << environments.size() << logger.EndL();
 			
 				
 			if (!(itr == environments.begin()))
@@ -662,7 +673,7 @@ void NaiveObserver::UpdatePhase(const Agent& newSelf, const AgentVector& newOthe
 			
 	}
 	
-	std::cout << "SHOULD BE ZERO: " << environments.size() << std::endl;
+	logger << "SHOULD BE ZERO: " << environments.size() << logger.EndL();
 	
 }
 
@@ -682,7 +693,6 @@ Agent NaiveObserver::InterpolateSelf(const TimedContainer<Agent>::const_iterator
 	
 	interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime - p1.time()));
 	
-	MyLogger logger(std::cout);
 	logger << oldState << logger.EndL();
 	logger << newState << logger.EndL();
 	logger << interpolated << logger.EndL();

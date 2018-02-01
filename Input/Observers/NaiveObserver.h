@@ -7,16 +7,25 @@
 #include "Automation/Controller.h"
 #include "Automation/ExternalSensor.h"
 #include "Automation/InternalSensor.h"
+#include "Utility/MyLogger.h"
 #include "Automation/Automaton.h"
 #include "json.hpp"
 #include <string>
 #include "Utility/IMap.h"
 #include <utility>
+#include <fstream>
 #include <memory>
 
 class NaiveObserver : public Observer
 {
 	friend class NaiveEnvironment;
+	
+	// Output file
+	std::ofstream output;
+	std::string outputDir;
+	
+	MyLogger logger;
+	
 	// Each agent in the environment, including the hidden one, has its own dynamics and controller (usually only the observed one is complicated, and the others are simplified
 	
 	// Physical Layer is the same for each environment, automaton and controller have to be in each environment

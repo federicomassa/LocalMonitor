@@ -38,9 +38,7 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 	
 	double beginOfLaneY = floor(y/laneWidth)*laneWidth;
 	double centerOfLaneY = beginOfLaneY + laneWidth/2.0;
-	
-	std::cout << "CENTER: " << maneuver << '\t' << GetSelfTrajectory().begin().value().GetID() << '\t' << y << '\t' << "theta: " << theta << std::endl;
-	
+		
 	if (maneuver == "FAST")
 	{
 		u("a") = 10000000;
@@ -73,7 +71,5 @@ void AccOmegaControl::ComputeControl(Control& u, const Maneuver& maneuver) const
 		u("omega") = -10000;
 	}
 	else
-		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());
-	
-	std::cout << "omega: " << u("omega") << std::endl;
+		Error("AccOmegaControl::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());	
 }

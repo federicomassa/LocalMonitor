@@ -18,6 +18,7 @@ set(MODULE_SOURCES
 	MyLogger.cpp
 	Interval.cpp
 	Math.cpp
+	ProgressBar.cpp
 	)
 	
 foreach(SOURCE IN ITEMS ${MODULE_SOURCES})

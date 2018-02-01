@@ -1,59 +1,102 @@
 {
 	"agents" : 
 		[
-			{"id" : "0",
-			"init_states" : [0, 1.5, 0, 20],
-			"dynamic_model" : "Unicycle1",
-			"control_model" : "SimpleEuropean",
-			"init_maneuver" : "FAST",
-			"sensors" : ["VisionSensor", "SelfSensor"],
-			"communication" : "ON",
-			"image" : "Vehicles/Acura_NSX_red.png",
-			"length" : "4.47",
-			"desiredV" : "20",
-			"parameters" : ["length", "desiredV"]
+			{
+				"id" : "1",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
 			},
 			
-			{"id" : "1",
-			"init_states" : [6, 1.5, 0, 20],
-			"dynamic_model" : "Unicycle1",
-			"control_model" : "SimpleEuropean",
-			"sensors" : ["VisionSensor", "SelfSensor"],
-			"init_maneuver" : "FAST",
-			"communication" : "ON",
-			"image" : "Vehicles/Acura_NSX_yellow.png",
-			"length" : "4.47",
-			"desiredV" : "20",
-			"parameters" : ["length", "desiredV"]
-			}		
+			{
+				"id" : "2",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			},
+			
+			{
+				"id" : "3",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			},
+			
+			{
+				"id" : "4",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			},
+			
+			{
+				"id" : "5",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			}
 		],
 		
 	"simulation_time_span" : 3,
 	"simulation_time_step" : 0.011,
-	"visibility_function" : "VehicleVisibility",
-	"simulator_viewer" : "HighwayViewer",
-	"video_output" : "video-output.avi",
-	"subject_vehicle_id" : "1",
-	"lanes" : "3",
-	"lane_width" : "3",
-	"mark_length" : "0.5",
-	"mark_width" : "0.1",
-	"mark_distance" : "1.5",
 	
-	"parameters" : ["lanes", "lane_width"],
-	
-	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desiredV"], 
-	"world_environment_features" : ["lanes", "lane_width"],
+	"world_agent_features" : ["delta", "omega", "V", "xc"], 
+	"world_environment_features" : [],
 	
 	"sensors" : 
 	[
 		{
-		"name" : "VisionSensor", 
+		"name" : "PowNetExternalSensor", 
 		"type" : "external"
 		},
 		
 		{
-		"name" : "SelfSensor",
+		"name" : "PowNetInternalSensor",
 		"type" : "internal"
 		}
 	],
@@ -61,23 +104,24 @@
 	"dynamic_models" :
 	[
 		{ 	
-			"name" : "Unicycle1",
-			"state_variables" : ["x", "y", "theta", "v"],
-			"dynamics" : "TestKinematics",
-			"control_variables" : ["a", "omega"],
-			"world_conversion_function" : "TestKinematicsToWorld",
-			"state_estimation_function" : "TestKinematicsToState"
+			"name" : "PowNet",
+			
+			"state_variables" : ["delta", "omega", "V", "xc"],
+			"dynamics" : "PowNetDynamics",
+			"control_variables" : ["u1", "u2"],
+			"world_conversion_function" : "PowNetToWorld",
+			"state_estimation_function" : "PowNetToState"
 		}
 	],
 	
 	"control_models" :
 	[
 		{
-			"name" : "SimpleEuropean",
-			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
-			"controller" : "AccOmegaControl",
-			"control_variables" : ["a", "omega"],
-			"automaton" : "TestAutomaton"
+			"name" : "PowNetControl",
+			"maneuvers" : ["sigma_1", "sigma_2", "reset"],
+			"controller" : "PowNetController",
+			"control_variables" : ["u1", "u2"],
+			"automaton" : "DistrPowNetAutomaton"
 		}
 	]
 }

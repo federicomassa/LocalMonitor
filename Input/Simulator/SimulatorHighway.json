@@ -1,0 +1,98 @@
+{
+	"agents" : 
+		[
+			{"id" : "0",
+			"init_states" :
+			{
+				"x" : 0,
+				"y" : 1.5,
+				"theta" : 0.5,
+				"v" : 20
+			},
+			
+			"dynamic_model" : "Unicycle1",
+			"control_model" : "SimpleEuropean",
+			"init_maneuver" : "FAST",
+			"sensors" : ["VisionSensor", "SelfSensor"],
+			"communication" : "ON",
+			"image" : "Vehicles/Acura_NSX_red.png",
+			"length" : "4.47",
+			"desiredV" : "20",
+			"parameters" : ["length", "desiredV"]
+			},
+			
+			{"id" : "1",
+			
+			"init_states" :
+			{
+				"x" : 6,
+				"y" : 1.5,
+				"theta" : 0,
+				"v" : 20
+			},
+			
+			"dynamic_model" : "Unicycle1",
+			"control_model" : "SimpleEuropean",
+			"sensors" : ["VisionSensor", "SelfSensor"],
+			"init_maneuver" : "FAST",
+			"communication" : "ON",
+			"image" : "Vehicles/Acura_NSX_yellow.png",
+			"length" : "4.47",
+			"desiredV" : "20",
+			"parameters" : ["length", "desiredV"]
+			}		
+		],
+		
+	"simulation_time_span" : 3,
+	"simulation_time_step" : 0.011,
+	"visibility_function" : "VehicleVisibility",
+	"simulator_viewer" : "HighwayViewer",
+	"video_output" : "video-output.avi",
+	"subject_vehicle_id" : "1",
+	"lanes" : "3",
+	"lane_width" : "3",
+	"mark_length" : "0.5",
+	"mark_width" : "0.1",
+	"mark_distance" : "1.5",
+	
+	"parameters" : ["lanes", "lane_width"],
+	
+	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desiredV"], 
+	"world_environment_features" : ["lanes", "lane_width"],
+	
+	"sensors" : 
+	[
+		{
+		"name" : "VisionSensor", 
+		"type" : "external"
+		},
+		
+		{
+		"name" : "SelfSensor",
+		"type" : "internal"
+		}
+	],
+	
+	"dynamic_models" :
+	[
+		{ 	
+			"name" : "Unicycle1",
+			"state_variables" : ["x", "y", "theta", "v"],
+			"dynamics" : "TestKinematics",
+			"control_variables" : ["a", "omega"],
+			"world_conversion_function" : "TestKinematicsToWorld",
+			"state_estimation_function" : "TestKinematicsToState"
+		}
+	],
+	
+	"control_models" :
+	[
+		{
+			"name" : "SimpleEuropean",
+			"maneuvers" : ["FAST", "SLOW", "LEFT", "RIGHT"],
+			"controller" : "AccOmegaControl",
+			"control_variables" : ["a", "omega"],
+			"automaton" : "TestAutomaton"
+		}
+	]
+}

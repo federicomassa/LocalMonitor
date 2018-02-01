@@ -250,9 +250,17 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
         // NB Do this after setting dynamic model!
         // Set init states in the same order as appearing in the dynamic model
         StateMap stateVector;
-        for (auto stateItr = initStates.begin(); stateItr != initStates.end(); stateItr++)
-				stateVector[a.GetDynamicModel().GetStateVariables()[stateItr - initStates.begin()]] = stateItr->get<double>();
-
+        for (auto stateItr = a.GetDynamicModel().GetStateVariables().begin(); stateItr != a.GetDynamicModel().GetStateVariables().end(); stateItr++)
+		{
+			try
+			{
+				stateVector[*stateItr] = initStates.at(*stateItr).get<double>();
+			}
+			catch(out_of_range&)
+			{
+				Error("SimulatorConfiguration::ReadAgent", string("\'init_states\'") + " in agent " + a.GetID() + " does not initialize each variable of its dynamic model");
+			}
+		}
         a.SetState(State(stateVector));
 
 		
