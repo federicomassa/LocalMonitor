@@ -53,6 +53,8 @@ const std::string & Automaton::GetName() const
 void Automaton::Evolve(const bool& optimize)
 {
 	
+	Maneuver automatonOutput = maneuver;
+	
 	// Evaluates each transition from currentManeuver (as initDiscrState)
 	// If more than once is possible, error if optimize==false, 
 	// transite to the first possible maneuver if true.
@@ -87,7 +89,7 @@ void Automaton::Evolve(const bool& optimize)
 		
 		if (currentResult && optimize)
 		{
-			maneuver = finalDiscrState;
+			automatonOutput = finalDiscrState;
 			return;
 		}
 		else if (currentResult && !optimize)
@@ -98,9 +100,17 @@ void Automaton::Evolve(const bool& optimize)
 	}
 	
 	if (firstFoundTransition != "UNKNOWN")
-		maneuver = Maneuver(firstFoundTransition);
+		automatonOutput = Maneuver(firstFoundTransition);
 	// else no transitions found, maneuver doesn't change
 
+	/*for (auto fail = failures.begin(); fail != failures.end(); fail++)
+	{
+		fail->Run(automatonOutput, maneuver, currentTime);
+	}
+	*/
+	
+	maneuver = automatonOutput;
+	
 }
 
 const Maneuver& Automaton::GetManeuver() const

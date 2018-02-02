@@ -26,6 +26,8 @@ set(MODULE_SOURCES
     Dynamics/PowNetDynamics.cpp
     Dynamics/StateConversions.cpp
     Automation/Controllers/Controllers.cpp
+    Automation/Controllers/ControllerFailures.cpp
+    Automation/Controllers/ZeroControlFailure.cpp
     Automation/Sensors/Sensors.cpp
     Automation/Automatons/Automatons.cpp
     Automation/Automatons/TestAutomaton.cpp

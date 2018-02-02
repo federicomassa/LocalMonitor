@@ -10,6 +10,7 @@
 #include "Input/Dynamics/DynamicModels.h"
 #include "Input/Dynamics/StateConversions.h"
 #include "Input/Automation/Sensors/Sensors.h"
+#include "Input/Automation/Controllers/ControllerFailures.h"
 
 #include <iostream>
 #include <math.h>
@@ -220,7 +221,8 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 					it.key() != "control_model" &&
 					it.key() != "communication" &&
 					it.key() != "sensors" &&
-					it.key() != "parameters")
+					it.key() != "parameters" &&
+					it.key() != "control_failures")
 					aCustomEntries.AddEntry(it.key(), it.value());
 			 }
 		
@@ -245,7 +247,6 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 		{
             Error("SimulatorConfiguration::ReadAgent", "There should be one init_states entry for each state_variables entry in agent " + a.GetID());
         }
-
         
         // NB Do this after setting dynamic model!
         // Set init states in the same order as appearing in the dynamic model
@@ -351,6 +352,22 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 	try
 	{
 		json controllerJson = GetEntry("control_model", agent);
+		json controlFailuresJson;
+		std::vector<std::string> controlFailureNames;
+		
+		try
+		{
+			controlFailuresJson = GetEntry("control_failures", agent);
+			if (!controlFailuresJson.is_array())
+				Error("SimulatorConfiguration::ReadAgent", "\'control_failures\' entry must be an array");
+			
+			for (auto fail = controlFailuresJson.begin(); fail != controlFailuresJson.end(); fail++)
+				controlFailureNames.push_back(fail->get<string>());
+			
+		}
+		catch(out_of_range&)
+		{
+		}
 		
 		// TODO add a check like this to the other entries
 		if (!controllerJson.is_string())
@@ -368,6 +385,20 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 					
 					a.controller = InstantiateController(model->GetControllerName());
 					a.controller->SetControlModel(*model);
+					
+					std::vector<ControllerFailure> failures;
+					
+					for (auto fail = controlFailureNames.begin(); fail != controlFailureNames.end(); fail++)
+					{
+						ControllerFailure f;
+						
+						f.SetFailureFunction(InstantiateControllerFailure(*fail));
+						f.SetName(*fail);
+						failures.push_back(f);
+					}
+					
+					a.controller->SetFailures(failures);
+					
 					a.automaton = InstantiateAutomaton(model->GetAutomatonName());
 					a.automaton->SetPossibleManeuvers(model->GetManeuvers());
 					a.automaton->DefineRules();

@@ -14,6 +14,7 @@ set(MODULE_SOURCE_DIR
 )
 
 set(MODULE_SOURCES
+	ControllerFailure.cpp
 	PhysicalLayer.cpp
 	DynamicModel.cpp
 	ControlModel.cpp

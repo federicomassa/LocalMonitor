@@ -67,6 +67,7 @@ const Controller & Controller::operator=(const Controller& c)
 	selfTrajectory = c.selfTrajectory;
 	othersTrajectory = c.othersTrajectory;
 	environmentTrajectory = c.environmentTrajectory;
+	failures = c.failures;
 	
 	model = c.model;
 	
@@ -83,5 +84,27 @@ const Control & Controller::GetLastControl() const
 	return lastControl;
 }
 
+void Controller::SetFailures(const std::vector<ControllerFailure>& f)
+{
+	failures = f;
+}
+
+const std::vector<ControllerFailure>& Controller::GetFailures() const
+{
+	return failures;
+}
+
+void Controller::Run(Control& u, const Maneuver& man, const double& time)
+{
+	currentTime = time;
+	
+	ComputeControl(u, man);
+	
+	//WARNING There is no guarantee on which failure runs first. So 
+	// when writing your failures you should be careful that the effect
+	// is independent from the ordering
+	for (auto itr = failures.begin(); itr != failures.end(); itr++)
+		itr->Run(u, man, time);
+}
 
 

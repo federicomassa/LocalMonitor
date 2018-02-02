@@ -7,6 +7,8 @@ using namespace LogFunctions;
 
 Transition::Transition(const Maneuver& init, const Maneuver& final, const std::set<const Event*>& listOfEvents)
 {
+	Require(init != final, "Transition::Transition", "Cannot declare transition between same maneuver. The automaton automatically stays in the same maneuver when all transitions evaluate to false");
+	
 	initDiscrState = init;
 	finalDiscrState = final;
 	events = listOfEvents;

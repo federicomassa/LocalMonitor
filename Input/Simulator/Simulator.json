@@ -7,14 +7,15 @@
 					{
 						"delta" : 0,
 						"omega" : 1.033,
-						"V": 1.5,
+						"V": 1.4941,
 						"xc" : 0
 					},
 				"dynamic_model" : "PowNet",
 				"control_model" : "PowNetControl",
 				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
 				"init_maneuver" : "sigma_1",
-				"parameters" : []
+				"parameters" : [],
+				"control_failures" : ["ZeroControlFailure"]
 			},
 			
 			{

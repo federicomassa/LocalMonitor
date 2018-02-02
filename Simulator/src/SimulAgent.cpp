@@ -45,6 +45,7 @@ SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 	// SimulAgent has ownership --> Pointers are reinstantiated, not copied
 	controller = InstantiateController(a.controller->GetName());
 	controller->SetControlModel(a.controller->GetControlModel());
+	controller->SetFailures(a.controller->GetFailures());
 	
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();
@@ -71,7 +72,8 @@ SimulAgent& SimulAgent::operator=(const SimulAgent& a)
 	agent = a.agent;
 	controller = InstantiateController(a.controller->GetName());
 	controller->SetControlModel(a.controller->GetControlModel());
-	
+	controller->SetFailures(a.controller->GetFailures());
+
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();
 	automaton->SetManeuver(a.automaton->GetManeuver());
@@ -175,7 +177,7 @@ void SimulAgent::Run(const SensorOutput& sensorOutput, const double& currentTime
 	SendToAutomaton(sensorOutput, currentTime);
 	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();
 	Control control = Control::GenerateStateOfType(controlVars);
-	controller->ComputeControl(control, GetManeuver());
+	controller->Run(control, GetManeuver(), currentTime);
 	
 	// So to be able to write it to viewer if necessary
 	controller->SaveControl(control);
