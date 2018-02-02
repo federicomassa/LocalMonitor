@@ -1,5 +1,6 @@
 #include "MyLogger.h"
 #include "LogFunctions.h"
+#include <iomanip>
 #include <iostream>
 
 using namespace LogFunctions;
@@ -17,6 +18,11 @@ MyLogger::MyLogger() : out(nullptr)
 void MyLogger::SetOutput(std::ofstream* o)
 {
 	out = o;
+}
+
+void MyLogger::SetPrecision(const int& p)
+{
+	(*out) << std::fixed << std::setprecision(p);
 }
 
 

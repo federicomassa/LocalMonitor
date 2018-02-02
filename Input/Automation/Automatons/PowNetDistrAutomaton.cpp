@@ -20,6 +20,14 @@ bool sameSign(const Agent& self, const EnvironmentParameters& env, const Propert
 	return false;
 }
 
+bool differentSign(const Agent& self, const EnvironmentParameters& env, const Properties& automatonProperties)
+{
+	if (self("xc")*(self("V") - 1.4941) < 0)
+		return true;
+	
+	return false;
+}
+
 bool tooMuchEnergy(const Agent& self, const EnvironmentParameters& env, const Properties& automatonProperties)
 {
 	if (pow(self("xc"), 2) > pow(self("V") - 1.4941, 2))
@@ -46,7 +54,7 @@ void PowNetDistrAutomaton::DefineRules()
 	// ============= REGISTER SUB-EVENTS ===================
 	
 	RegisterSubEvent("SameSign", sameSign, SubEvent::SINGLE, "Stabilizer and distance from desired tension have same sign");
-	RegisterSubEvent("NotSameSign", sameSign, SubEvent::NSINGLE, "Stabilizer and distance from desired tension have different sign or zero");
+	RegisterSubEvent("NotSameSign", differentSign, SubEvent::SINGLE, "Stabilizer and distance from desired tension have different sign");
 	RegisterSubEvent("TooMuchEnergy", tooMuchEnergy, SubEvent::SINGLE, "Stabilizer is pouring too much energy");
 	RegisterSubEvent("SmallStabilizer", smallStabilizer, SubEvent::SINGLE, "Stabilizer is approx at zero value");
 	
@@ -79,11 +87,11 @@ void PowNetDistrAutomaton::DefineRules()
 	// ============== REGISTER TRANSITIONS ==================
 	
 	set<string> tr1;
-	tr1.insert("SameSign");
+	tr1.insert("NotSameSign");
 	AddTransition("sigma_1", "sigma_2", tr1);
 	
 	set<string> tr2;
-	tr2.insert("NotSameSign");
+	tr2.insert("SameSign");
 	AddTransition("sigma_2", "sigma_1", tr2);
 	
 	set<string> tr3;

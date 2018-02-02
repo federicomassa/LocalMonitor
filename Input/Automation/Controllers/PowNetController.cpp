@@ -64,6 +64,4 @@ void PowNetController::ComputeControl(Control& u, const Maneuver& maneuver) cons
 	}
 	else
 		Error("PowNetController::ComputeControl", string("Unrecognized maneuver: ") + maneuver.GetName());
-	
-	
 }

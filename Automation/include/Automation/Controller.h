@@ -21,6 +21,7 @@ class Controller
 	TimedContainer<EnvironmentParameters> environmentTrajectory;
 	
 	ControlModel model;
+	Control lastControl;
 public:
 	Controller(const std::string&);
 	Controller(const Controller&);
@@ -36,11 +37,13 @@ public:
 	const TimedContainer<Agent>& GetSelfTrajectory() const;
 	const TimedContainer<AgentVector>& GetOtherAgentsTrajectory() const;
 	const TimedContainer<EnvironmentParameters>& GetEnvironmentTrajectory() const;
-	
+	const Control& GetLastControl() const;
 	const std::string& GetName() const;
 	
 	const ControlModel& GetControlModel() const;
 	void SetControlModel(const ControlModel&);
+	void SaveControl(const Control&);
+
 	
 	virtual ~Controller();
 	

@@ -28,6 +28,9 @@ public:
     MyLogger();
     MyLogger ( std::ostream & );
     void SetOutput ( std::ofstream* );
+	
+	// Set numerical precision
+	void SetPrecision(const int&);
 
     EndLine EndL ( const Indent &ind = CURR );
 

@@ -239,7 +239,7 @@ SimulAgent SimulatorConfiguration::ReadAgent(const json &agent)
 		a.SetDynamicModel(*dynItr);
 		
         json initStates = agent.at("init_states");
-		const int varSize = a.GetDynamicModel().GetStateVariables().size();
+		const unsigned int varSize = a.GetDynamicModel().GetStateVariables().size();
 		
         if (varSize != initStates.size()) 
 		{
@@ -488,15 +488,19 @@ const double& SimulatorConfiguration::GetEnvironmentParameter(const std::string&
 }
 
 const AgentCustomEntries & SimulatorConfiguration::GetAgentCustomEntries(const std::string& ID) const
-{
+{	
+	const AgentCustomEntries* entry = nullptr;
+	
 	try
 	{
-		return agentsCustomEntries.at(ID);
+		entry = &agentsCustomEntries.at(ID);
 	}
 	catch (out_of_range&)
 	{
 		Error("SimulatorConfiguration::GetAgentParameters", string("Agent ") + ID + " not found");
 	}
+	
+	return *entry;
 }
 
 void SimulatorConfiguration::AddDynamicModel ( const nlohmann::json & modelJ)

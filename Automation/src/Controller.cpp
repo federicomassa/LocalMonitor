@@ -4,6 +4,8 @@
 Controller::Controller(const std::string& n)
 {
 	name = n;
+	
+	lastControl = State::GenerateStateOfType(model.GetControlVariables());
 }
 
 // Default functionality, stores only current data
@@ -69,6 +71,16 @@ const Controller & Controller::operator=(const Controller& c)
 	model = c.model;
 	
 	return *this;
+}
+
+void Controller::SaveControl(const Control& u)
+{
+	lastControl = u;
+}
+
+const Control & Controller::GetLastControl() const
+{
+	return lastControl;
 }
 
 

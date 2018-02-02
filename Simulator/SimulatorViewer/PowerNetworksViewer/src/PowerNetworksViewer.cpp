@@ -5,7 +5,7 @@
 using namespace std;
 
 PowerNetworksViewer::PowerNetworksViewer(const SimulatorConfiguration& conf) : SimulatorViewer(conf), config(&conf)
-{
+{	
 	string asciiDir;
 	
 	try
@@ -24,6 +24,7 @@ PowerNetworksViewer::PowerNetworksViewer(const SimulatorConfiguration& conf) : S
 		if (output(itr->first)->is_open())
 		{
 			logger[itr->first].SetOutput(output(itr->first));
+			logger(itr->first).SetPrecision(15);
 		}
 		else
 			LogFunctions::Error("PowerNetworksViewer::PowerNetworksViewer", "Error opening file in \'ascii_output_dir\'");
@@ -31,17 +32,30 @@ PowerNetworksViewer::PowerNetworksViewer(const SimulatorConfiguration& conf) : S
 	
 	variables = conf.GetWorldAgentFeatures();
 	
-	for (auto agent = conf.GetAgents().begin(); agent != conf.GetAgents().end(); agent++)
+	for (auto itr = conf.GetAgents().begin(); itr != conf.GetAgents().end(); itr++)
 	{
-		for (auto itr = variables.begin(); itr != variables.end(); itr++)
+		for (auto var = variables.begin(); var != variables.end(); var++)
 		{
-			logger[agent->first] << *itr;
-			
-			if (itr != --variables.end())
-				logger[agent->first] << '\t';
+			logger[itr->first] << *var << '\t';
 		}
 		
-		logger[agent->first] << logger[agent->first].EndL();
+		for (auto var = itr->second.GetController()->GetControlModel().GetControlVariables().begin(); 
+			 var != itr->second.GetController()->GetControlModel().GetControlVariables().end(); var++)
+		{
+			logger[itr->first] << *var << '\t';
+		}
+		
+		for (auto man = itr->second.GetAutomaton()->GetPossibleManeuvers().begin();
+				man != itr->second.GetAutomaton()->GetPossibleManeuvers().end(); man++)
+		{
+			logger(itr->first) << man->GetName();
+			
+			if (man != --itr->second.GetAutomaton()->GetPossibleManeuvers().end())
+				logger(itr->first) << '\t';
+		}
+		
+		
+		logger[itr->first] << logger[itr->first].EndL();
 	}
 }
 
@@ -62,6 +76,35 @@ void PowerNetworksViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
 {
 	for (auto itr = agents.begin(); itr != agents.end(); itr++)
 	{
-		logger(itr->first) << "Ciao agente " << itr->first << "!" << logger(itr->first).EndL();
+		for (auto var = variables.begin(); var != variables.end(); var++)
+		{
+			logger(itr->first) << itr->second.GetWorldState()(*var) << '\t';
+		}
+		
+		// WARNING given the structure, we cannot write control at first instant because control is evaluated after draw. So first raw will be zero, and the 
+		// control evaluated at time 0 it's displayed at time 1.
+		for (auto var = itr->second.GetController()->GetControlModel().GetControlVariables().begin(); 
+			 var != itr->second.GetController()->GetControlModel().GetControlVariables().end(); var++)
+		{
+			try
+			{
+				logger(itr->first) << itr->second.GetController()->GetLastControl()(*var) << '\t';
+			}
+			catch(out_of_range&)
+			{
+				logger(itr->first) << 0.0 << '\t';
+			}
+		}
+		
+		
+		for (auto man = itr->second.GetAutomaton()->GetPossibleManeuvers().begin();
+				man != itr->second.GetAutomaton()->GetPossibleManeuvers().end(); man++)
+				{
+					logger(itr->first) << (int)(itr->second.GetManeuver() == *man);
+					if (man != --itr->second.GetAutomaton()->GetPossibleManeuvers().end())
+						logger(itr->first) << '\t';
+				}
+		
+		logger(itr->first) << logger(itr->first).EndL();
 	}
 }

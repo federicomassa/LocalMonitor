@@ -7,7 +7,7 @@
 					{
 						"delta" : 0,
 						"omega" : 1.033,
-						"V": 1.4941,
+						"V": 1.5,
 						"xc" : 0
 					},
 				"dynamic_model" : "PowNet",
@@ -82,8 +82,8 @@
 			}
 		],
 		
-	"simulation_time_span" : 3,
-	"simulation_time_step" : 0.011,
+	"simulation_time_span" : 10,
+	"simulation_time_step" : 0.0001,
 	
 	"world_agent_features" : ["delta", "omega", "V", "xc"], 
 	"world_environment_features" : [],

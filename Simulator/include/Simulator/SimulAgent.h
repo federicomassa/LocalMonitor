@@ -61,6 +61,8 @@ public:
     void SetID ( const std::string & );
     const State &GetState() const;
 	const Maneuver& GetManeuver() const;
+	const Automaton* GetAutomaton() const;
+	const Controller* GetController() const;
 	const DynamicModel& GetDynamicModel() const;
     void SetState ( const State & );
 	void SetDynamicModel(const DynamicModel&);

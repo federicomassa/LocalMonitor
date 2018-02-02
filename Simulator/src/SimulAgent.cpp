@@ -37,6 +37,7 @@ SimulAgent::~SimulAgent()
 		delete automaton;
 }
 
+// FIXME Automaton does not use a copy method. It's not modular and does not copy everything. For now it's okay because the copy happens at config time
 SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 {	
 	agent = a.agent;
@@ -48,6 +49,7 @@ SimulAgent::SimulAgent(const SimulAgent& a) : pLayer(a.pLayer)
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();
 	automaton->SetManeuver(a.automaton->GetManeuver());
+	automaton->SetPossibleManeuvers(a.automaton->GetPossibleManeuvers());
 	
 	conf = a.conf;
 	
@@ -73,6 +75,8 @@ SimulAgent& SimulAgent::operator=(const SimulAgent& a)
 	automaton = InstantiateAutomaton(a.automaton->GetName());
 	automaton->DefineRules();
 	automaton->SetManeuver(a.automaton->GetManeuver());
+	automaton->SetPossibleManeuvers(a.automaton->GetPossibleManeuvers());
+
 	
 	conf = a.conf;
 	pLayer = a.pLayer;
@@ -112,6 +116,16 @@ const State &SimulAgent::GetState() const
 const DynamicModel& SimulAgent::GetDynamicModel() const
 {
 	return pLayer.GetDynamicModel();
+}
+
+const Automaton * SimulAgent::GetAutomaton() const
+{
+	return automaton;
+}
+
+const Controller * SimulAgent::GetController() const
+{
+	return controller;
 }
 
 void SimulAgent::SetState(const State& q)
@@ -162,6 +176,9 @@ void SimulAgent::Run(const SensorOutput& sensorOutput, const double& currentTime
 	vector<string> controlVars = pLayer.GetDynamicModel().GetControlVariables();
 	Control control = Control::GenerateStateOfType(controlVars);
 	controller->ComputeControl(control, GetManeuver());
+	
+	// So to be able to write it to viewer if necessary
+	controller->SaveControl(control);
 	
 	// Get true others from environment
 	Require(environment != nullptr, "SimulAgent::Run", "Environment is not set. Please call SimulAgent::SetEnvironment first");
