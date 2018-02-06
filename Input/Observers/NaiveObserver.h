@@ -24,6 +24,9 @@ class NaiveObserver : public Observer
 	std::ofstream output;
 	std::string outputDir;
 	
+	// Current time, updated each run
+	double now;
+	
 	MyLogger logger;
 	
 	// Each agent in the environment, including the hidden one, has its own dynamics and controller (usually only the observed one is complicated, and the others are simplified
@@ -33,9 +36,6 @@ class NaiveObserver : public Observer
 	
 	// Save only models. Actual instantiations are in each NaiveEnvironment
 	IMap<ControlModel> controlModels;
-	
-	// ID of observed agent
-	std::string observedID;
 	
 	// This is the discretization step. Prediction is achieved by integrating q_dot in this time
 	int simulTimeSteps;

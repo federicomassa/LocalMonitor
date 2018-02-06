@@ -22,7 +22,7 @@ public:
 	PowerNetworksViewer(const SimulatorConfiguration&);
 	~PowerNetworksViewer();
 	void DrawStaticEnvironment() override;
-	void DrawDynamicEnvironment(const SimulAgentVector&) override;
+	void DrawDynamicEnvironment(const SimulAgentVector&, const double& currentTime) override;
 };
 
 #endif

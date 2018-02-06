@@ -360,6 +360,6 @@ SensorOutput SimulAgent::SimulateSensors(const Agent& trueSelfInWorld, const Age
 
 void SimulAgent::InitializeLocalMonitor(const std::string& configFilePath)
 {
-	localMonitor.Configure(configFilePath);
+	localMonitor.Configure(GetID(), configFilePath);
 }
 

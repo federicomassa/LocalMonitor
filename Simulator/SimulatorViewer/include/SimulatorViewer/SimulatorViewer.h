@@ -39,7 +39,7 @@ public:
 	SimulatorViewer(const SimulatorConfiguration&);
 	virtual ~SimulatorViewer();
 	virtual void DrawStaticEnvironment(); 
-	virtual void DrawDynamicEnvironment(const SimulAgentVector&); 
+	virtual void DrawDynamicEnvironment(const SimulAgentVector&, const double& currentTime = 0); 
 	
 	/**
 	 * @brief Set a viewer property, that must have been registered in the constructor of the child viewer

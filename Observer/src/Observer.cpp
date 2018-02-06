@@ -41,10 +41,17 @@ const std::string & Observer::GetName() const
 	return name;
 }
 
+const std::string & Observer::GetObserverID() const
+{
+	return observerID;
+}
+
 const std::string & Observer::GetObservedID() const
 {
 	return observedID;
 }
+
+
 
 // Default behaviour, store only latest measure
 void Observer::ReceiveSensorOutput(const SensorOutput& sensorOutput, const double& currentTime)
@@ -71,6 +78,12 @@ void Observer::SetObservedID(const std::string& id)
 {
 	observedID = id;
 }
+
+void Observer::SetObserverID(const std::string& id)
+{
+	observerID = id;
+}
+
 
 // By default, it does not do anything
 void Observer::Configure(const nlohmann::json& observingJson)

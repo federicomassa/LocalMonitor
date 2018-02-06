@@ -15,7 +15,7 @@ class Observer
 {
 	std::string name;
 	std::string observedID;
-	
+	std::string observerID;
 protected:
 	// The observer can store trajectories in memory
 	// and use them to determine next maneuver
@@ -32,10 +32,11 @@ public:
 	bool operator==(const Observer&) const;
 	bool operator!=(const Observer&) const;
 	const std::string& GetName() const;
-	const std::string& GetObservedID() const;
 	void SetClassName(const std::string&);
 	void SetObservedID(const std::string&);
-	
+	void SetObserverID(const std::string&);
+	const std::string& GetObservedID() const;
+	const std::string& GetObserverID() const;
 	// This method defines how the observer stores sensor data into memory. By default, it only stores latest sensor data
 	virtual void ReceiveSensorOutput(const SensorOutput&, const double& currentTime);
 	

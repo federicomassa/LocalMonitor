@@ -34,6 +34,9 @@ PowerNetworksViewer::PowerNetworksViewer(const SimulatorConfiguration& conf) : S
 	
 	for (auto itr = conf.GetAgents().begin(); itr != conf.GetAgents().end(); itr++)
 	{
+		
+		logger[itr->first] << "Timestamp" << '\t';
+		
 		for (auto var = variables.begin(); var != variables.end(); var++)
 		{
 			logger[itr->first] << *var << '\t';
@@ -72,10 +75,12 @@ void PowerNetworksViewer::DrawStaticEnvironment()
 {
 }
 
-void PowerNetworksViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
+void PowerNetworksViewer::DrawDynamicEnvironment(const SimulAgentVector& agents, const double& currentTime)
 {
 	for (auto itr = agents.begin(); itr != agents.end(); itr++)
 	{
+		logger(itr->first) << currentTime << '\t';
+		
 		for (auto var = variables.begin(); var != variables.end(); var++)
 		{
 			logger(itr->first) << itr->second.GetWorldState()(*var) << '\t';

@@ -120,7 +120,7 @@ public:
 	 * 
 	 */
 	void DrawStaticEnvironment() override;
-	void DrawDynamicEnvironment(const SimulAgentVector&) override;
+	void DrawDynamicEnvironment(const SimulAgentVector&, const double& currentTime) override;
 	void Encode() override;
 	//void paintEvent(QPaintEvent*) override;
 		

@@ -18,6 +18,7 @@ set(MODULE_SOURCES
 	Automation/Controllers/AccOmegaControl.cpp
 	Automation/Controllers/StraightLineControl.cpp
 	Automation/Controllers/PowNetController.cpp
+	Automation/Controllers/PowNetConstantController.cpp
     Automation/Sensors/VisionSensor.cpp
     Automation/Sensors/SelfSensor.cpp
     Automation/Sensors/PowNetInternalSensor.cpp
@@ -32,6 +33,7 @@ set(MODULE_SOURCES
     Automation/Automatons/Automatons.cpp
     Automation/Automatons/TestAutomaton.cpp
     Automation/Automatons/PowNetDistrAutomaton.cpp
+	Automation/Automatons/PowNetConstAutomaton.cpp
     Observers/Observers.cpp
     Observers/NaiveObserver.cpp
     Observers/NaiveEnvironment.cpp

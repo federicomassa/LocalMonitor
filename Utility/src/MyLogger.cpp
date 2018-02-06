@@ -82,6 +82,18 @@ MyLogger &MyLogger::operator<< (const double &obj)
     return (*this);
 }
 
+MyLogger &MyLogger::operator<< (const bool &obj)
+{
+	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");
+	
+	if (obj)
+		(*out) << 1;
+	else
+		(*out) << 0;
+	
+    return (*this);
+}
+
 MyLogger &MyLogger::operator<< (const EndLine &obj)
 {
 	Require(out != nullptr, "MyLogger::operator<<", "You must set output first.");

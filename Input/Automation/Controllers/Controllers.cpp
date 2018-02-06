@@ -2,6 +2,7 @@
 #include "AccOmegaControl.h"
 #include "StraightLineControl.h"
 #include "PowNetController.h"
+#include "PowNetConstantController.h"
 #include <iostream>
 
 Controller* InstantiateController(const std::string& controllerClassName) 
@@ -18,6 +19,8 @@ Controller* InstantiateController(const std::string& controllerClassName)
 	{
 		return new PowNetController(controllerClassName);
 	}
+	else if (controllerClassName == "PowNetConstantController")
+		return new PowNetConstantController(controllerClassName);
 	else 
 		{
 			std::cerr << "Error in configure: " << controllerClassName << ".h not found";

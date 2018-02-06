@@ -50,7 +50,7 @@ void SimulatorViewer::DrawStaticEnvironment()
 {
 }
 
-void SimulatorViewer::DrawDynamicEnvironment(const SimulAgentVector&)
+void SimulatorViewer::DrawDynamicEnvironment(const SimulAgentVector&, const double&)
 {
 }
 

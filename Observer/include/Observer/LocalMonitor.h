@@ -14,12 +14,12 @@ class LocalMonitor
 {
 	std::vector<Observer*> observers;
 	nlohmann::json j;
-	
+	std::string observerID;
 	void ReadObserving(const nlohmann::json&);
 public:
 	LocalMonitor();
 	~LocalMonitor();
-	void Configure(const std::string& configFilePath);
+	void Configure(const std::string& myID, const std::string& configFilePath);
 	void ReceiveSensorOutput(const SensorOutput&, const double& currentTime);
 	void Run(const double& currentTime);
 };

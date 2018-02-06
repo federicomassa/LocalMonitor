@@ -3,9 +3,7 @@
 
 Controller::Controller(const std::string& n)
 {
-	name = n;
-	
-	lastControl = State::GenerateStateOfType(model.GetControlVariables());
+	name = n;	
 }
 
 // Default functionality, stores only current data
@@ -49,6 +47,7 @@ const std::string & Controller::GetName() const
 void Controller::SetControlModel(const ControlModel& mod)
 {
 	model = mod;
+	lastControl = State::GenerateStateOfType(model.GetControlVariables());
 }
 
 const ControlModel & Controller::GetControlModel() const

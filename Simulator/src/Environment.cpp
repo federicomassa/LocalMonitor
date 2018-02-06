@@ -25,6 +25,7 @@ void Environment::Configure(const SimulatorConfiguration &conf)
 		 itr != conf.GetAgents().end(); itr++)
 		 {
 			agents[itr->first] = itr->second;
+			
 			agents[itr->first].InitializeLocalMonitor(string(INPUT_DIR) + "/Observers/" + itr->first + "/Observer.json");
 			
 			agents[itr->first].SetEnvironment(this);

@@ -10,6 +10,7 @@
 #include "Utility/IMap.h"
 #include "Automation/PhysicalLayer.h"
 #include <memory>
+#include <fstream>
 
 class ExternalSensor;
 class InternalSensor;
@@ -20,6 +21,9 @@ class Automaton;
 class NaiveEnvironment
 {
 	friend class NaiveObserver;
+	
+	IMap<std::shared_ptr<std::ofstream> > dataOutput;
+	IMap<MyLogger> dataLogger;
 	
 	NaiveObserver* observer;
 	
@@ -71,6 +75,7 @@ public:
 	const AgentVector& GetOthers() const;
 	const EnvironmentParameters& GetEnvironment() const;
 	const Maneuver& GetManeuver() const;
+	const bool& HasHiddenAgent() const;
 	
 };
 

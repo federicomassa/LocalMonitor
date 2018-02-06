@@ -210,7 +210,7 @@ void HighwayViewer::DrawStaticEnvironment()
     
 }
 
-void HighwayViewer::DrawDynamicEnvironment(const SimulAgentVector& agents)
+void HighwayViewer::DrawDynamicEnvironment(const SimulAgentVector& agents, const double&)
 {
 	paint(agents);
 }

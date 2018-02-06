@@ -21,8 +21,10 @@ LocalMonitor::~LocalMonitor()
 }
 
 
-void LocalMonitor::Configure(const std::string& configFilePath)
+void LocalMonitor::Configure(const std::string& myID, const std::string& configFilePath)
 {
+	observerID = myID;
+	
 	ifstream configFile(configFilePath.c_str());
 	
 	if (!configFile.good())
@@ -97,6 +99,7 @@ void LocalMonitor::ReadObserving(const basic_json<>& observingJson)
 	Observer* observer = InstantiateObserver(observerType);
 	observer->SetClassName(observerType);
 	observer->SetObservedID(observedID);
+	observer->SetObserverID(observerID);
 	observer->PreConfigure(j);
 	observer->Configure(observingJson);
 	

@@ -42,6 +42,7 @@ public:
     MyLogger &operator<< ( const long unsigned int & );
 
     MyLogger &operator<< ( const double & );
+	MyLogger &operator<< ( const bool & );
     MyLogger &operator<< ( const EndLine & );
 
     template <class T>

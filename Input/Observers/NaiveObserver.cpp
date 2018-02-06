@@ -18,12 +18,12 @@ using namespace nlohmann;
 // TODO: there is no check that automaton's transitions are among maneuvers in control model 
 NaiveObserver::NaiveObserver(const std::string& name) : Observer(name), logger(output)
 {
-	observedID = "";
 	simulTimeSteps = -1;
 	predictionTimeSpan = -1;
 	lastPredictionStartTime = -1;
 	lastPredictedTime = -1;
 	lastUpdateTime = -1;
+	now = -1;
 }
 
 NaiveObserver::~NaiveObserver()
@@ -33,18 +33,18 @@ NaiveObserver::~NaiveObserver()
 void NaiveObserver::Run(const double& currentTime)
 {
 	Require(currentTime >= 0, "NaiveObserver::Run", "currentTime must be > 0");
-
+	now = currentTime;
+	
 	// ====== Setup output file
 	if (output.is_open())
 		output.close();
 	
-	string outputPath = outputDir + "log" + ToStringWithPrecision(lastPredictionStartTime, 3) + ".txt";
+	string outputPath = outputDir + "log" + ToStringWithPrecision(lastPredictionStartTime, 6) + ".txt";
 	output.open(outputPath.c_str());
 	
 	Require(output.is_open(), "NaiveObserver::PreConfigure", string("Error opening file \'") + outputPath + "\'");
 	// =========================
-	
-	logger << "Run: " << currentTime << '\t' << lastPredictionStartTime << '\t' << lastUpdateTime << logger.EndL();
+
 	
 	// Explicit const cast
 	const TimedContainer<Agent>& selfTraj = selfTrajectory;
@@ -54,10 +54,7 @@ void NaiveObserver::Run(const double& currentTime)
 	const double& mostRecentDataTime = selfTraj.begin().time();
 	
 	if (mostRecentDataTime >= (lastPredictedTime) && lastPredictedTime >= 0 && lastUpdateTime < lastPredictedTime)
-	{
-		logger << "UPDATE PHASE" << logger.EndL();
-		logger << "... " << lastPredictionStartTime << '\t' << lastPredictedTime << '\t' << lastUpdateTime << logger.EndL();
-		
+	{		
 		
 		Require(selfTraj.size() == 3 && othersTraj.size() == 3 && envTraj.size() == 3,
 				"NaiveObserver::Run", string("Need 3 points, one for the beginning of prediction and two close to the end of prediction to interpolate, instead there is only ") + ToStringWithPrecision(selfTraj.size(), 1) + "! Maybe sensor frequency is too low compared to prediction span?");
@@ -66,16 +63,14 @@ void NaiveObserver::Run(const double& currentTime)
 		AgentVector interpolatedOthers = InterpolateOthers(++othersTraj.begin(), othersTraj.begin());
 		EnvironmentParameters interpolatedEnv = InterpolateEnvironment(++envTraj.begin(), envTraj.begin());
 		
-		UpdatePhase(interpolatedSelf, interpolatedOthers, interpolatedEnv);
 		lastUpdateTime = mostRecentDataTime;
+		UpdatePhase(interpolatedSelf, interpolatedOthers, interpolatedEnv);
 	}
 	if (lastUpdateTime >= lastPredictedTime)
-	{
-		logger << "PREDICT PHASE" << logger.EndL();
-		
-		PredictPhase();
+	{		
 		lastPredictionStartTime = mostRecentDataTime;
 		lastPredictedTime = mostRecentDataTime + predictionTimeSpan;
+		PredictPhase();
 	}
 	
 }
@@ -131,9 +126,7 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 
 	if (!observingJson.at("id").is_string())
 		Error("NaiveObserver::Configure", "\'id\' entry should be a string");
-	
-	observedID = observingJson.at("id").get<string>();
-	
+			
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
 	{
 		try
@@ -271,8 +264,8 @@ void NaiveObserver::Configure(const nlohmann::json& observingJson)
 	
 	
 	// FIXME Someday this will be computed for each run because it might depend on visibility
-	for (auto itr = pLayer(observedID).GetDynamicModel().GetStateVariables().begin(); 
-		 itr != pLayer(observedID).GetDynamicModel().GetStateVariables().end(); itr++)
+	for (auto itr = pLayer(GetObservedID()).GetDynamicModel().GetStateVariables().begin(); 
+		 itr != pLayer(GetObservedID()).GetDynamicModel().GetStateVariables().end(); itr++)
 		 nPredictions[*itr] = floor((varRange[*itr].second - varRange[*itr].first)/varResolution[*itr] + 1);
 
 	InitializeHiddenState();
@@ -350,12 +343,12 @@ void NaiveObserver::ReadControlModel(const nlohmann::json& controlJ)
 	
 	try
 	{
-		if (controlJ.at("id").get<string>() == observedID)
+		if (controlJ.at("id").get<string>() == GetObservedID())
 			mandatoryEntries.push_back("automaton");
 	}
 	catch (out_of_range&)
 	{
-		Error("NaiveObserver::ReadControlModel", string("Mandatory entry \'id\' not found in observer configuration file, inside observing entry of agent ") + observedID + ", in \'control_model\'");
+		Error("NaiveObserver::ReadControlModel", string("Mandatory entry \'id\' not found in observer configuration file, inside observing entry of agent ") + GetObservedID() + ", in \'control_model\'");
 	}
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
@@ -376,7 +369,7 @@ void NaiveObserver::ReadControlModel(const nlohmann::json& controlJ)
 	
 	controlModels[ID].SetController(controlJ.at("controller").get<string>());
 	
-	if (observedID == controlJ.at("id").get<string>())
+	if (GetObservedID() == controlJ.at("id").get<string>())
 		controlModels[ID].SetAutomaton(controlJ.at("automaton").get<string>());
 	
 	vector<string> controlVars;
@@ -405,7 +398,7 @@ void NaiveObserver::ReadControlModel(const nlohmann::json& controlJ)
 	
 	// When defining models of other agents (not the observed one, you 
 	// must specified a single maneuver that remains the same (the automaton is not actually run). This is a simplified model 
-	if (controlJ.at("id").get<string>() != observedID)
+	if (controlJ.at("id").get<string>() != GetObservedID())
 	{
 		Require(possibleMan.size() == 1, "NaiveObserver::ReadControlModel", "Agents different from the observed one must have a simple control model with ONE maneuver");
 	}	
@@ -418,8 +411,8 @@ void NaiveObserver::ReadRange(const nlohmann::json& rangeJ)
 	
 	// There must be a range specified for each state variable of the model
 	vector<string> mandatoryEntries;
-	for (auto itr = pLayer(observedID).GetDynamicModel().GetStateVariables().begin();
-		 itr != pLayer(observedID).GetDynamicModel().GetStateVariables().end(); itr++)
+	for (auto itr = pLayer(GetObservedID()).GetDynamicModel().GetStateVariables().begin();
+		 itr != pLayer(GetObservedID()).GetDynamicModel().GetStateVariables().end(); itr++)
 		 mandatoryEntries.push_back(*itr);
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
@@ -451,8 +444,8 @@ void NaiveObserver::ReadResolution(const nlohmann::json& resJ)
 	
 	// There must be a range specified for each state variable of the model
 	vector<string> mandatoryEntries;
-	for (auto itr = pLayer(observedID).GetDynamicModel().GetStateVariables().begin();
-		 itr != pLayer(observedID).GetDynamicModel().GetStateVariables().end(); itr++)
+	for (auto itr = pLayer(GetObservedID()).GetDynamicModel().GetStateVariables().begin();
+		 itr != pLayer(GetObservedID()).GetDynamicModel().GetStateVariables().end(); itr++)
 		 mandatoryEntries.push_back(*itr);
 	
 	for (auto itr = mandatoryEntries.begin();  itr != mandatoryEntries.end(); itr++)
@@ -519,7 +512,7 @@ void NaiveObserver::ReceiveSensorOutput(const SensorOutput& sensorOutput, const 
 	// Look for observed agent in 'others', that will be the true self
 	for (auto itr = currentOthers.begin(); itr != currentOthers.end(); itr++)
 	{
-		if (itr->second.GetID() == observedID)
+		if (itr->second.GetID() == GetObservedID())
 			trueSelf = itr->second;
 		else
 			trueOthers[itr->first] = itr->second;
@@ -594,7 +587,7 @@ void NaiveObserver::PredictPhase()
 	EnvironmentParameters initEnv = environmentTrajectory.begin().value();
 	
 	// Build first hypothesis of no hidden agents
-	const std::vector<Maneuver>& possibleManeuvers = controlModels(observedID).GetManeuvers();
+	const std::vector<Maneuver>& possibleManeuvers = controlModels(GetObservedID()).GetManeuvers();
 	
 	for (auto itr = possibleManeuvers.begin(); itr != possibleManeuvers.end();
 		 itr++)
@@ -630,25 +623,29 @@ void NaiveObserver::PredictPhase()
 
 void NaiveObserver::UpdatePhase(const Agent& newSelf, const AgentVector& newOthers, const EnvironmentParameters& newEnv)
 {
-	logger << "TOLERANCES: " << tolerances << logger.EndL();
-
+	
 	bool erasedFirstElement = false;
 	for (auto itr = environments.begin(); itr != environments.end(); itr++)
-	{
+	{		
 		// Trick to erase iterator inside its own for loop
 		if (erasedFirstElement)
 		{
-			itr = environments.begin();
+			itr--;
+			environments.erase(itr);
 			erasedFirstElement = false;
 		}
 		
 		// Compare prediction with real data
 		State diff = itr->GetSelf().GetState() - newSelf.GetState();
 		
+		if (!itr->hasHiddenAgent)
+			logger << "DIFF! " << itr->GetSelf().GetState() << newSelf.GetState() << diff << logger.EndL();
+		
 		bool needErase = false;
 		
 		for (auto stateVar = diff.begin(); stateVar != diff.end(); stateVar++)
 		{
+			logger << fabs(stateVar->second) << '\t' << tolerances(stateVar->first) << logger.EndL();
 			// If difference is larger than tolerance, erase hypothesis
 			if (fabs(stateVar->second) >= tolerances(stateVar->first))
 			{
@@ -660,20 +657,35 @@ void NaiveObserver::UpdatePhase(const Agent& newSelf, const AgentVector& newOthe
 		if (needErase)
 		{
 			logger << "erasing" << logger.EndL();
-			logger << "size before: " << environments.size() << logger.EndL();
-			environments.erase(itr);
-			logger << "size after: " << environments.size() << logger.EndL();
 			
-				
-			if (!(itr == environments.begin()))
+			if (!(itr == environments.begin()) && environments.size() != 0)
+			{
+				environments.erase(itr);
 				itr--;
+			}
+			else if (environments.size() == 1)
+			{
+				environments.clear();
+				break;
+			}
 			else
 				erasedFirstElement = true;
 		}
-			
+		
+		
+		
 	}
 	
-	logger << "SHOULD BE ZERO: " << environments.size() << logger.EndL();
+	// ========= LOGGING =============
+	logger << "Update at time " << now << "..." << "Agent " << GetObserverID() << " observing agent " << GetObservedID() << logger.EndL() << logger.EndL();
+	
+	logger << "Measured (interpolated) value: " << newSelf.GetState() << logger.EndL();
+	logger << "Predictions..." << logger.EndL();
+	
+	for (auto itr = environments.begin(); itr != environments.end(); itr++)
+	{
+		logger << itr->GetManeuver() << '\t' << itr->GetSelf().GetState() << logger.EndL();
+	}
 	
 }
 
@@ -692,10 +704,6 @@ Agent NaiveObserver::InterpolateSelf(const TimedContainer<Agent>::const_iterator
 	Require(deltaTime > 0, "NaiveObserver::InterpolateSelf", "Delta time between sensor data must be > 0");
 	
 	interpolated.SetState(oldState + (newState - oldState)/deltaTime*(lastPredictedTime - p1.time()));
-	
-	logger << oldState << logger.EndL();
-	logger << newState << logger.EndL();
-	logger << interpolated << logger.EndL();
 	
 	return interpolated;
 }

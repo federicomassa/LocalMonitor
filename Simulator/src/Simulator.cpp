@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 		env.ConvertAgentsToWorld();
 		
 		#ifdef USE_GRAPHICS
-		simViewer->DrawDynamicEnvironment(env.GetAgents());
+		simViewer->DrawDynamicEnvironment(env.GetAgents(), currentTime);
 		simViewer->Encode();
 		#endif
 		
