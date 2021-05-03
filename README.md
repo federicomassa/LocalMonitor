@@ -1,7 +1,9 @@
 #################################################################################
+
 Authors = Federico Massa, Adriano Fagiolini
 Date = 02.10.2017
 Note for devs = This is a generalized and modular version of Sim_Highway 
+
 #################################################################################
 
 LocalMonitor is a software designed to work in a distributed multi-agent environment
@@ -28,11 +30,6 @@ xhost +
 docker run --network=host --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -v /absolute/path/to/localmonitor/Output:/home/Output -it localmonitor:latest bash
 ```
 
-And when you are done:
-```
-xhost -
-```
-
 Inside the shell, type:
 
 ```
@@ -42,3 +39,9 @@ build/Simulator/Simulator
 to launch a simulation.
 
 To configure the simulation, edit `Input/Simulator/Simulator.json`; to configure the observers, edit `Input/Observers/<ID>/Observer.json`; to change the viewer type, edit `Simulator/SET_SIMULATOR_VARIABLES.in`
+
+
+When you are done, exit the docker shell with `exit`, and type
+```
+xhost -
+```
