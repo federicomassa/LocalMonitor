@@ -29,7 +29,7 @@ docker build -t localmonitor:latest .
 To open a shell inside the docker image:
 ```
 xhost +
-docker run --network=host --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -v /absolute/path/to/localmonitor/Output:/home/Output -it localmonitor:latest bash
+docker run --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -v /absolute/path/to/localmonitor/Output:/home/Output -it localmonitor:latest bash
 ```
 
 Inside the shell, type:
@@ -47,3 +47,7 @@ When you are done, exit the docker shell with `exit`, and type
 ```
 xhost -
 ```
+
+## Using a custom environment
+
+In order to use a custom environment, you should add the appropriate methods to the Input folder. In the provided version of the Input folder, you can find some sample Controllers, Automatons, Observers, System Dynamics, Sensor Models and Viewers, but you can develop your own in a similar fashion. The results are usually stored inside the Output folder. The `docker run` command provided before mounts a volume in the host machine, so you should find the results in your local Output folder.
