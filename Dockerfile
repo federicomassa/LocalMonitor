@@ -13,3 +13,5 @@ RUN apt-get update && \
     libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavresample-dev libavutil-dev libswscale-dev \
     libopencv-dev libboost-dev libboost-test-dev doxygen libunittest++-dev && \
     rm -rf /var/lib/apt/lists/*
+
+RUN mkdir build && cd build && cmake .. && make -j && cd .. && mkdir Output
