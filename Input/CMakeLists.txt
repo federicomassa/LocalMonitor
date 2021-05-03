@@ -63,4 +63,5 @@ target_include_directories(${MODULE_NAME} PUBLIC
 target_link_libraries(${MODULE_NAME} Basic)
 target_link_libraries(${MODULE_NAME} Automation)
 target_link_libraries(${MODULE_NAME} Observer)
+target_link_libraries(${MODULE_NAME} -lstdc++fs)
 

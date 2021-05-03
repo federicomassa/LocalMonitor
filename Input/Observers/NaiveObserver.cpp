@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <experimental/filesystem>
 
 using namespace std;
 using namespace LogFunctions;
@@ -34,6 +35,10 @@ void NaiveObserver::Run(const double& currentTime)
 {
 	Require(currentTime >= 0, "NaiveObserver::Run", "currentTime must be > 0");
 	now = currentTime;
+
+	if (!std::experimental::filesystem::exists(outputDir)) {
+	    std::experimental::filesystem::create_directories(outputDir);
+	  }
 	
 	// ====== Setup output file
 	if (output.is_open())
@@ -42,7 +47,7 @@ void NaiveObserver::Run(const double& currentTime)
 	string outputPath = outputDir + "log" + ToStringWithPrecision(lastPredictionStartTime, 6) + ".txt";
 	output.open(outputPath.c_str());
 	
-	Require(output.is_open(), "NaiveObserver::PreConfigure", string("Error opening file \'") + outputPath + "\'");
+	Require(output.is_open(), "NaiveObserver::Run", string("Error opening file \'") + outputPath + "\'");
 	// =========================
 
 	
