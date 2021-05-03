@@ -1,10 +1,12 @@
-#################################################################################
+===================================================================================
 
 Authors = Federico Massa, Adriano Fagiolini
+
 Date = 02.10.2017
+
 Note for devs = This is a generalized and modular version of Sim_Highway 
 
-#################################################################################
+===================================================================================
 
 LocalMonitor is a software designed to work in a distributed multi-agent environment
 and its goal is to monitor the behaviour of an agent whose state follows a known hybrid
