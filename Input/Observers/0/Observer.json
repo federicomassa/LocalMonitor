@@ -106,5 +106,5 @@
 	
 	"world_agent_features" : ["xb", "xf", "yb", "yf", "v", "length", "desiredV"], 
 	"world_environment_features" : ["lanes", "lane_width"],
-	"output_dir" : "/home/federico-asus/Simulator/LocalMonitor/Output/Observers/0/"
+	"output_dir" : "/home/Output/Observers/0/"
 }

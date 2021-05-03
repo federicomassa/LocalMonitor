@@ -7,6 +7,7 @@
 #include <set>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -100,7 +101,7 @@ void TestAutomaton::PostEvolve()
 		
 		const double currentY = 1.0/2.0*(currentYf + currentYb);
 		
-		SetProperty("targetLaneBegin", Utility::ToString(floor(currentY/laneWidth)*laneWidth + laneWidth));
+		SetProperty("targetLaneBegin", Utility::ToString(std::floor(currentY/laneWidth)*laneWidth + laneWidth));
 	}
 	
 	if (oldManeuver == "LEFT" && GetManeuver() != "LEFT")

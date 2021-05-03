@@ -127,6 +127,7 @@ target_link_libraries(${CONFIGURE_MODULE_NAME} Utility)
 target_link_libraries(${CONFIGURE_MODULE_NAME} nlohmann_json)
 
 target_include_directories(${MODULE_NAME} PRIVATE ${nlohmann_json_INCLUDE_DIRS})
+target_include_directories(${MODULE_NAME} PRIVATE ${LOCAL_MONITOR_BASE_DIR}/Utility/libopenshot0.1.8/include)
 
 add_subdirectory(SimulatorViewer)
 

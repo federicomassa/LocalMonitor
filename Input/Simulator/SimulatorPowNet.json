@@ -1,0 +1,130 @@
+{
+	"agents" : 
+		[
+			{
+				"id" : "1",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.5,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : [],
+				"control_failures" : []
+			},
+			
+			{
+				"id" : "2",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			},
+			
+			{
+				"id" : "3",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			},
+			
+			{
+				"id" : "4",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			},
+			
+			{
+				"id" : "5",
+				"init_states" : 
+					{
+						"delta" : 0,
+						"omega" : 1.033,
+						"V": 1.4941,
+						"xc" : 0
+					},
+				"dynamic_model" : "PowNet",
+				"control_model" : "PowNetControl",
+				"sensors" : ["PowNetExternalSensor", "PowNetInternalSensor"],
+				"init_maneuver" : "sigma_1",
+				"parameters" : []
+			}
+		],
+		
+	"simulation_time_span" : 0.3,
+	"simulation_time_step" : 0.0001,
+	
+	"world_agent_features" : ["delta", "omega", "V", "xc"], 
+	"world_environment_features" : [],
+	
+	"sensors" : 
+	[
+		{
+		"name" : "PowNetExternalSensor", 
+		"type" : "external"
+		},
+		
+		{
+		"name" : "PowNetInternalSensor",
+		"type" : "internal"
+		}
+	],
+	
+	"dynamic_models" :
+	[
+		{ 	
+			"name" : "PowNet",
+			
+			"state_variables" : ["delta", "omega", "V", "xc"],
+			"dynamics" : "PowNetDynamics",
+			"control_variables" : ["u1", "u2"],
+			"world_conversion_function" : "PowNetToWorld",
+			"state_estimation_function" : "PowNetToState"
+		}
+	],
+	
+	"control_models" :
+	[
+		{
+			"name" : "PowNetControl",
+			"maneuvers" : ["sigma_1", "sigma_2", "reset"],
+			"controller" : "PowNetController",
+			"control_variables" : ["u1", "u2"],
+			"automaton" : "PowNetDistrAutomaton"
+		}
+	],
+	
+	"ascii_output_dir" : "/home/federico-asus/Simulator/LocalMonitor/Output/"
+}

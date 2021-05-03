@@ -81,5 +81,5 @@
 	
 	"world_agent_features" : ["delta", "omega", "V", "xc"],
 	"world_environment_features" : [],
-	"output_dir" : "/home/federico-asus/Simulator/LocalMonitor/Output/Observers/2_PowNet/"
+	"output_dir" : "/home/Output/Observers/2_PowNet/"
 }
