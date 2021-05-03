@@ -19,7 +19,10 @@ The software is designed to be reconfigurable by the user, that writes
 a UserConfig file to describe the environment and some functions that
 describe the motion protocol of the observed agent.
 
-## Installation (via docker)
+## Build & Run (via docker)
+
+Requirements:
+- https://docs.docker.com/engine/install/
 
 To build:
 ```
