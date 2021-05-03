@@ -53,4 +53,4 @@ xhost -
 
 ## Using a custom environment
 
-In order to use a custom environment, you should add the appropriate methods to the Input folder. In the provided version of the Input folder, you can find some sample Controllers, Automatons, Observers, System Dynamics, Sensor Models and Viewers, but you can develop your own in a similar fashion. The results are usually stored inside the Output folder. The `docker run` command provided before mounts a volume in the host machine, so you should find the results in your local Output folder.
+In order to use a custom environment, you should add the appropriate methods to the Input folder. In the provided version of the Input folder, you can find some sample Controllers, Automatons, Observers, System Dynamics, Sensor Models and Viewers, but you can develop your own in a similar fashion. The results are usually stored inside the Output folder. The `docker run` command provided before mounts a volume in the host machine, so you should find the results in your local Output folder. To develop inside docker, it is recommended to use Visual Studio Code's DevContainers (https://code.visualstudio.com/docs/remote/containers)
